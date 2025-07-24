@@ -55,12 +55,16 @@ local function get_cwd(pid)
   return cwd
 end
 
+
+---@return number|nil
 function M.find_port()
   local server_pid
   for _, pid in ipairs(get_all_pids()) do
     local opencode_cwd = get_cwd(pid)
     -- CWDs match exactly, or opencode's CWD is under neovim's CWD.
+
     if opencode_cwd and opencode_cwd:find(vim.fn.getcwd(), 1, true) == 1 then
+
       server_pid = pid
       break
     end
