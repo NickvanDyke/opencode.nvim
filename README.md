@@ -54,7 +54,7 @@ Default settings:
 {
   model_id = "gpt-4.1",            -- Model to use for opencode requests — see https://models.dev/
   provider_id = "github-copilot",  -- Provider to use for opencode requests — see https://models.dev/
-  port = nil,                      -- The port opencode is running on — use `opencode --port <port>`. If `nil`, tries to find a running instance.
+  port = nil,                      -- The port opencode is running on — use `opencode --port <port>`. If `nil`, tries to find a running instance in or under Neovim's CWD.
   auto_reload = false,             -- Automatically reload buffers edited by opencode
   context = {                      -- Context to inject in prompts
     ["@file"] = require("opencode.context").file,
