@@ -2,7 +2,8 @@ local M = {}
 
 ---@return table<number>
 local function get_all_pids()
-  local handle = io.popen("ps aux | grep 'opencode$' | grep -v grep | awk '{print $2}'")
+  -- Regex also allows flags like --port
+  local handle = io.popen("ps aux | grep -E 'opencode(\\s+--.*)?$' | grep -v grep | awk '{print $2}'")
   if not handle then
     return {}
   end
@@ -22,6 +23,7 @@ end
 ---@param pid number
 ---@return number|nil
 local function get_port(pid)
+  -- WARNING: Returns special values for some ports, e.g. 6969 = "acmsoda"
   local command = "lsof -p " .. pid .. " | grep LISTEN | grep TCP | awk '{print $9}' | cut -d: -f2"
   local handle = io.popen(command)
   if not handle then
