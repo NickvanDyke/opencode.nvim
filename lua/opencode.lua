@@ -23,7 +23,7 @@ function M.prompt(prompt, opts)
   for _, pid in ipairs(server.get_all_pids()) do
     local opencode_cwd = server.get_cwd(pid)
     -- CWDs match exactly, or opencode's CWD is under neovim's CWD.
-    if opencode_cwd and opencode_cwd:find(vim.fn.getcwd()) == 1 then
+    if opencode_cwd and string.find(opencode_cwd, vim.fn.getcwd(), 1, true) == 1 then
       server_pid = pid
       break
     end
