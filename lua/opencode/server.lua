@@ -1,7 +1,7 @@
 local M = {}
 
 ---@return table<number>
-function M.get_all_pids()
+local function get_all_pids()
   local handle = io.popen("ps aux | grep 'opencode$' | grep -v grep | awk '{print $2}'")
   if not handle then
     return {}
@@ -21,7 +21,7 @@ end
 
 ---@param pid number
 ---@return number|nil
-function M.get_port(pid)
+local function get_port(pid)
   local command = "lsof -p " .. pid .. " | grep LISTEN | grep TCP | awk '{print $9}' | cut -d: -f2"
   local handle = io.popen(command)
   if not handle then
@@ -38,7 +38,7 @@ end
 
 ---@param pid number
 ---@return string|nil
-function M.get_cwd(pid)
+local function get_cwd(pid)
   local command = "lsof -a -p " .. pid .. " -d cwd | tail -1 | awk '{print $NF}'"
   local handle = io.popen(command)
   if not handle then
@@ -51,6 +51,29 @@ function M.get_cwd(pid)
     return nil
   end
   return cwd
+end
+
+function M.find_port()
+  local server_pid
+  for _, pid in ipairs(get_all_pids()) do
+    local opencode_cwd = get_cwd(pid)
+    -- CWDs match exactly, or opencode's CWD is under neovim's CWD.
+    if opencode_cwd and opencode_cwd:find(vim.fn.getcwd()) == 1 then
+      server_pid = pid
+      break
+    end
+  end
+
+  if not server_pid then
+    vim.notify("Couldn't find an opencode server process running in or under Neovim's CWD", vim.log.levels.ERROR)
+    return
+  end
+
+  local server_port = get_port(server_pid)
+  if not server_port then
+    vim.notify("Couldn't determine opencode server port", vim.log.levels.ERROR)
+    return
+  end
 end
 
 return M

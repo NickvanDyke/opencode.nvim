@@ -36,8 +36,8 @@ function M.prompt(prompt, opts)
 
   local server_port = server.get_port(server_pid)
   print("server_port", server_port)
+
   if not server_port then
-    vim.notify("Couldn't determine opencode server port", vim.log.levels.ERROR)
     return
   end
 
@@ -62,7 +62,7 @@ function M.prompt(prompt, opts)
         most_recent_session_id = session.id
       end
     end
-    client.send(context_injected_prompt, most_recent_session_id, server_port, opts)
+    client.send(prompt, most_recent_session_id, server_port, opts)
   end)
 end
 
