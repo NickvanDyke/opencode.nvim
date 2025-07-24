@@ -66,14 +66,16 @@ function M.find_port()
 
   if not server_pid then
     vim.notify("Couldn't find an opencode server process running in or under Neovim's CWD", vim.log.levels.ERROR)
-    return
+    return nil
   end
 
   local server_port = get_port(server_pid)
   if not server_port then
     vim.notify("Couldn't determine opencode server port", vim.log.levels.ERROR)
-    return
+    return nil
   end
+
+  return server_port
 end
 
 return M

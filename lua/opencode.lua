@@ -16,27 +16,8 @@ end
 ---@param opts? opencode.Config Optional config to merge for this call only.
 function M.prompt(prompt, opts)
   opts = vim.tbl_deep_extend("force", {}, config.options, opts or {})
-
-  local context_injected_prompt = context.inject(prompt, opts)
-
-  local server_pid
-  for _, pid in ipairs(server.get_all_pids()) do
-    local opencode_cwd = server.get_cwd(pid)
-    -- CWDs match exactly, or opencode's CWD is under neovim's CWD.
-    if opencode_cwd and string.find(opencode_cwd, vim.fn.getcwd(), 1, true) == 1 then
-      server_pid = pid
-      break
-    end
-  end
-
-  if not server_pid then
-    vim.notify("Couldn't find an opencode server process running in or under Neovim's CWD", vim.log.levels.ERROR)
-    return
-  end
-
-  local server_port = server.get_port(server_pid)
-  print("server_port", server_port)
-
+  prompt = context.inject(prompt, opts)
+  local server_port = opts.port or server.find_port()
   if not server_port then
     return
   end
