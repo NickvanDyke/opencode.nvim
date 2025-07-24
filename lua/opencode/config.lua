@@ -8,12 +8,14 @@ local M = {}
 ---@class opencode.Config
 ---@field model_id? string [Model](https://models.dev/) to use for opencode requests
 ---@field provider_id? string [Provider](https://models.dev/) to use for opencode requests
----@field auto_reload? boolean Automatically reload buffers edited by opencode 
+---@field port? number The port opencode is running on — use `--port <port>`. If `nil`, tries to find a running instance.
+---@field auto_reload? boolean Automatically reload buffers edited by opencode
 ---@field context? table<string, fun(string): string|nil> Context to add to prompts
 local defaults = {
-  auto_reload = false,
   model_id = "gpt-4.1",
   provider_id = "github-copilot",
+  port = nil,
+  auto_reload = false,
   context = {
     ["@file"] = require("opencode.context").file,
     ["@files"] = require("opencode.context").files,
