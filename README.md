@@ -20,6 +20,8 @@ https://github.com/user-attachments/assets/331271d7-e590-4e30-a161-5c643909a922
 
 ## 📦 Installation
 
+### lazy.nvim
+
 Using [lazy.nvim](https://github.com/folke/lazy.nvim):
 
 ```lua
@@ -43,6 +45,39 @@ Using [lazy.nvim](https://github.com/folke/lazy.nvim):
     { '<leader>ot', function() require('opencode').prompt('Add tests for @selection') end, desc = 'Test selection', mode = 'v', },
   },
 }
+```
+
+### NixOS/nixvim
+
+Add ```pkgs.vimPlugins.opencode-nvim``` to your set of vim-Plugins. 
+
+For [nixvim](https://github.com/nix-community/nixvim):
+
+```nix
+  programs.nixvim = {
+    # ...
+    extraPlugins = [
+      pkgs.vimPlugins.opencode-nvim
+      # ...
+    ];
+  };
+```
+
+And some suggestions for keybindings:
+```nix
+  programs.nixvim = {
+    # ...
+    keymaps = [
+      { key = "<leader>oa"; action = "<cmd>lua require('opencode').ask()<CR>"; mode = ["n" "v"]; } 
+      { key = "<leader>oA"; action = "<cmd>lua require('opencode').ask('@file ')<CR>"; mode = ["n" "v"]; }
+      { key = "<leader>oe"; action = "<cmd>lua require('opencode').prompt('Explain @cursor and its context')<CR>"; }
+      { key = "<leader>or"; action = "<cmd>lua require('opencode').prompt('Review @file for correctness and readability')<CR>"; }
+      { key = "<leader>of"; action = "<cmd>lua require('opencode').prompt('Fix these @diagnostics')<CR>"; }
+      { key = "<leader>oo"; action = "<cmd>lua require('opencode').prompt('Optimize @selection for performance and readability')<CR>"; mode = "v"; }
+      { key = "<leader>od"; action = "<cmd>lua require('opencode').prompt('Add documentation comments for @selection')<CR>"; mode = "v"; }
+      { key = "<leader>ot"; action = "<cmd>lua require('opencode').prompt('Add tests for @selection')<CR>"; mode = "v"; }
+      ];
+  };
 ```
 
 ## ⚙️ Configuration
