@@ -14,7 +14,7 @@ end
 ---@return string
 function M.inject(prompt, opts)
   for placeholder, fun in pairs(opts.context) do
-    -- Only match whole-word placeholders using Lua frontier patterns
+    -- Only match whole-word placeholders using Lua frontier patterns.
     -- Ideally we'd have one in front of the pattern too, but I can't find a pattern
     -- that will match the start of the string OR a word boundary but not match
     -- a special character like `@` or `#` at the start of the placeholder.
@@ -66,8 +66,7 @@ end
 function M.visual_selection()
   -- TODO: Should this be a special context that's always inserted when in visual mode,
   -- regardless of prompt/placeholder?
-  local mode = vim.fn.mode()
-  local is_visual = mode:match("[vV\22]")
+  local is_visual = vim.fn.mode():match("[vV\22]")
 
   if not is_visual then
     return nil

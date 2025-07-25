@@ -3,9 +3,23 @@ local config = require("opencode.config")
 ---Calls the opencode [server](https://github.com/sst/opencode/blob/dev/packages/opencode/src/server/server.ts).
 local M = {}
 
----@param command string[]
+---@param url string
+---@param method string
+---@param body table|nil
 ---@param callback fun(response: table)|nil
-local function curl(command, callback)
+local function curl(url, method, body, callback)
+  local command = {
+    "curl",
+    "-s",
+    "-X",
+    method,
+    "-H",
+    "Content-Type: application/json",
+    body and "-d" or nil,
+    body and vim.fn.json_encode(body) or nil,
+    url,
+  }
+
   local stderr_lines = {}
   vim.fn.jobstart(command, {
     on_stdout = function(_, data)
@@ -62,17 +76,7 @@ function M.send(prompt, session_id, port, opts)
     },
   }
 
-  curl({
-    "curl",
-    "-s",
-    "-X",
-    "POST",
-    "-H",
-    "Content-Type: application/json",
-    "-d",
-    vim.fn.json_encode(body),
-    url,
-  })
+  curl(url, "POST", body)
 end
 
 ---@param port number
@@ -80,15 +84,13 @@ end
 function M.get_sessions(port, callback)
   local url = "http://localhost:" .. port .. "/session"
 
-  curl({
-    "curl",
-    "-s",
-    "-X",
-    "GET",
-    "-H",
-    "Content-Type: application/json",
-    url,
-  }, callback)
+  curl(url, "GET", nil, callback)
+end
+
+function M.create_session(port, callback)
+  local url = "http://localhost:" .. port .. "/session"
+
+  curl(url, "POST", nil, callback)
 end
 
 return M

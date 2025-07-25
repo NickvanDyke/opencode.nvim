@@ -18,7 +18,7 @@ https://github.com/user-attachments/assets/331271d7-e590-4e30-a161-5c643909a922
 
 > Please use the opencode TUI to manage its active session until [the plugin can do so](https://github.com/sst/opencode/issues/1255).
 
-## 📦 Installation
+## 📦 Setup
 
 ### lazy.nvim
 
@@ -29,7 +29,9 @@ Using [lazy.nvim](https://github.com/folke/lazy.nvim):
   'NickvanDyke/opencode.nvim',
   ---@type opencode.Config
   opts = {
-    -- Your configuration, if any
+    -- Set these according to https://models.dev/
+    provider_id = ...,
+    model_id = ...,
   },
   -- stylua: ignore
   keys = {
@@ -87,8 +89,8 @@ Default settings:
 ```lua
 ---@type opencode.Config
 {
-  model_id = "gpt-4.1",            -- Model to use for opencode requests — see https://models.dev/
-  provider_id = "github-copilot",  -- Provider to use for opencode requests — see https://models.dev/
+  provider_id = "github-copilot",  -- Provider to use for opencode requests
+  model_id = "gpt-4.1",            -- Model to use for opencode requests
   port = nil,                      -- The port opencode is running on — use `opencode --port <port>`. If `nil`, tries to find a running instance in or under Neovim's CWD.
   auto_reload = false,             -- Automatically reload buffers edited by opencode
   context = {                      -- Context to inject in prompts

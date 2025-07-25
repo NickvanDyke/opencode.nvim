@@ -24,7 +24,7 @@ end
 ---@return number|nil
 local function get_port(pid)
   -- WARNING: Returns special values for some ports, e.g. 6969 = "acmsoda"
-  local command = "lsof -p " .. pid .. " | grep LISTEN | grep TCP | awk '{print $9}' | cut -d: -f2"
+  local command = "lsof -p " .. pid .https://github.com/christo-auer/opencode.nvim. " | grep LISTEN | grep TCP | awk '{print $9}' | cut -d: -f2"
   local handle = io.popen(command)
   if not handle then
     return nil
@@ -62,9 +62,7 @@ function M.find_port()
   for _, pid in ipairs(get_all_pids()) do
     local opencode_cwd = get_cwd(pid)
     -- CWDs match exactly, or opencode's CWD is under neovim's CWD.
-
     if opencode_cwd and opencode_cwd:find(vim.fn.getcwd(), 1, true) == 1 then
-
       server_pid = pid
       break
     end
