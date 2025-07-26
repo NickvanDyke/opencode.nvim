@@ -21,7 +21,6 @@ https://github.com/user-attachments/assets/331271d7-e590-4e30-a161-5c643909a922
 ## 📦 Setup
 
 <details>
-
 <summary>lazy.nvim</summary>
 
 ```lua
@@ -46,11 +45,9 @@ https://github.com/user-attachments/assets/331271d7-e590-4e30-a161-5c643909a922
   },
 }
 ```
-
 </details>
 
 <details>
-
 <summary>NixOS/nixvim</summary>
 
 ```nix
@@ -70,7 +67,6 @@ https://github.com/user-attachments/assets/331271d7-e590-4e30-a161-5c643909a922
     ];
   };
 ```
-
 </details>
 
 > [!TIP]
