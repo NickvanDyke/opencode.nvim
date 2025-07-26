@@ -74,7 +74,7 @@ https://github.com/user-attachments/assets/331271d7-e590-4e30-a161-5c643909a922
 </details>
 
 > [!TIP]
-> `opencode.nvim` exposes a general, flexible API — use the example keymaps as inspiration to customize it to your workflow!
+> `opencode.nvim` offers a flexible API — customize keymaps to fit your workflow!
 
 ## ⚙️ Configuration
 
