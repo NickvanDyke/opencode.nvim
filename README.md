@@ -55,24 +55,11 @@ https://github.com/user-attachments/assets/331271d7-e590-4e30-a161-5c643909a922
 
 <summary>NixOS/nixvim</summary>
 
-Add ```pkgs.vimPlugins.opencode-nvim``` to your set of vim-Plugins. 
-
-For [nixvim](https://github.com/nix-community/nixvim):
-
 ```nix
   programs.nixvim = {
-    # ...
     extraPlugins = [
       pkgs.vimPlugins.opencode-nvim
-      # ...
     ];
-  };
-```
-
-And some suggestions for keybindings:
-```nix
-  programs.nixvim = {
-    # ...
     keymaps = [
       { key = "<leader>oa"; action = "<cmd>lua require('opencode').ask()<CR>"; mode = ["n" "v"]; } 
       { key = "<leader>oA"; action = "<cmd>lua require('opencode').ask('@file ')<CR>"; mode = ["n" "v"]; }
@@ -82,7 +69,7 @@ And some suggestions for keybindings:
       { key = "<leader>oo"; action = "<cmd>lua require('opencode').prompt('Optimize @selection for performance and readability')<CR>"; mode = "v"; }
       { key = "<leader>od"; action = "<cmd>lua require('opencode').prompt('Add documentation comments for @selection')<CR>"; mode = "v"; }
       { key = "<leader>ot"; action = "<cmd>lua require('opencode').prompt('Add tests for @selection')<CR>"; mode = "v"; }
-      ];
+    ];
   };
 ```
 
