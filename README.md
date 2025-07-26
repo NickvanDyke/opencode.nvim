@@ -20,9 +20,9 @@ https://github.com/user-attachments/assets/331271d7-e590-4e30-a161-5c643909a922
 
 ## 📦 Setup
 
-### lazy.nvim
+<details>
 
-Using [lazy.nvim](https://github.com/folke/lazy.nvim):
+<summary>lazy.nvim</summary>
 
 ```lua
 {
@@ -49,7 +49,11 @@ Using [lazy.nvim](https://github.com/folke/lazy.nvim):
 }
 ```
 
-### NixOS/nixvim
+</details>
+
+<details>
+
+<summary>NixOS/nixvim</summary>
 
 Add ```pkgs.vimPlugins.opencode-nvim``` to your set of vim-Plugins. 
 
@@ -81,6 +85,8 @@ And some suggestions for keybindings:
       ];
   };
 ```
+
+</details>
 
 ## ⚙️ Configuration
 
