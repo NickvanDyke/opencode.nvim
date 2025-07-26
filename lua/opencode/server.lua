@@ -24,7 +24,7 @@ end
 ---@return number|nil
 local function get_port(pid)
   -- WARNING: Returns special values for some ports, e.g. 6969 = "acmsoda"
-  local command = "lsof -p " .. pid .https://github.com/christo-auer/opencode.nvim. " | grep LISTEN | grep TCP | awk '{print $9}' | cut -d: -f2"
+  local command = "lsof -p " .. pid .. " | grep LISTEN | grep TCP | awk '{print $9}' | cut -d: -f2"
   local handle = io.popen(command)
   if not handle then
     return nil
@@ -54,7 +54,6 @@ local function get_cwd(pid)
   end
   return cwd
 end
-
 
 ---@return number|nil
 function M.find_port()
