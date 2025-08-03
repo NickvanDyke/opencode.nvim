@@ -6,7 +6,7 @@ https://github.com/user-attachments/assets/3ad9adff-840c-48e5-9e65-da9c9e9c8b60
 
 > [!NOTE]
 > Uses opencode's currently undocumented, likely unstable [API](https://github.com/sst/opencode/blob/dev/packages/opencode/src/server/server.ts).
-> 
+>
 > Latest tested opencode version: `v0.3.110`
 
 ## ✨ Features
@@ -69,10 +69,10 @@ programs.nixvim = {
     pkgs.vimPlugins.opencode-nvim
   ];
   keymaps = [
-    { key = "<leader>ot"; action = "<cmd>lua require('opencode').toggle()<CR>"; } 
-    { key = "<leader>oa"; action = "<cmd>lua require('opencode').ask()<CR>"; mode = "n"; } 
-    { key = "<leader>oa"; action = "<cmd>lua require('opencode').ask('@selection: ')<CR>"; mode = "v"; } 
-    { key = "<leader>oe"; action = "<cmd>lua require('opencode').select_prompt()<CR>"; mode = ["n", "v"]; }
+    { key = "<leader>ot"; action = "<cmd>lua require('opencode').toggle()<CR>"; }
+    { key = "<leader>oa"; action = "<cmd>lua require('opencode').ask()<CR>"; mode = "n"; }
+    { key = "<leader>oa"; action = "<cmd>lua require('opencode').ask('@selection: ')<CR>"; mode = "v"; }
+    { key = "<leader>oe"; action = "<cmd>lua require('opencode').select_prompt()<CR>"; mode = ["n" "v"]; }
     { key = "<leader>on"; action = "<cmd>lua require('opencode').command('session_new')<CR>"; }
   ];
 };
