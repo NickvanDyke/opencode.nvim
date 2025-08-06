@@ -2,32 +2,65 @@
 local M = {}
 
 local origin = "http://localhost:"
+local partial_event = {}
 
----Strips the "data: " SSE prefix from each line and joins long SSEs that span multiple lines.
----@param data string[]
----@return string[]
-local function format_sse_data(data)
-  local formatted_data = {}
+---@param data table
+---@param callback fun(response: table)|nil
+local function sse_handle(data, callback)
   for _, line in ipairs(data) do
-    if line:sub(1, 6) == "data: " then
-      table.insert(formatted_data, line:sub(7))
+    if line ~= "" then
+      if type(partial_event) ~= "table" then
+        partial_event = {}
+      end
+      local clean_line = (line:gsub("^data: ?", ""))
+      table.insert(partial_event, clean_line)
     else
-      if #formatted_data > 0 then
-        -- If the line doesn't start with "data: ", it's part of the previous SSE - append it.
-        formatted_data[#formatted_data] = formatted_data[#formatted_data] .. line
-      else
-        table.insert(formatted_data, line)
+      line = line:gsub("^data: ", "")
+      if line == "" and partial_event == {} then
+        return
+      end
+      if line ~= "" then
+        table.insert(partial_event, line)
+      end
+      local full_data = table.concat(partial_event)
+      partial_event = {} --reset table
+
+      if full_data ~= "" then
+        local ok, response = pcall(vim.fn.json_decode, full_data)
+        if ok and callback then
+          callback(response)
+        elseif not ok then
+          vim.notify("SSE JSON decode error: " .. full_data, vim.log.levels.ERROR, { title = "opencode" })
+        end
       end
     end
   end
-  return formatted_data
+end
+
+---@param data table
+---@param callback fun(response: table)|nil
+local function json_handle(data, callback)
+  for _, line in ipairs(data) do
+    if line == "" then
+      return
+    end
+    local ok, response = pcall(vim.fn.json_decode, line)
+    if not ok then
+      vim.notify("JSON decode error: " .. line, vim.log.levels.ERROR, { title = "opencode" })
+    else
+      if callback then
+        callback(response)
+      end
+    end
+  end
 end
 
 ---@param url string
 ---@param method string
 ---@param body table|nil
 ---@param callback fun(response: table)|nil
-local function curl(url, method, body, callback)
+---@param is_sse boolean|nil
+local function curl(url, method, body, callback, is_sse)
   local command = {
     "curl",
     "-s",
@@ -47,23 +80,11 @@ local function curl(url, method, body, callback)
 
   local stderr_lines = {}
   vim.fn.jobstart(command, {
-    ---@param data string[]
     on_stdout = function(_, data)
-      if data[1]:match("^data: ") then
-        data = format_sse_data(data)
-      end
-
-      for _, line in ipairs(data) do
-        if line ~= "" then
-          local ok, response = pcall(vim.fn.json_decode, line)
-          if not ok then
-            vim.notify("JSON decode error: " .. line, vim.log.levels.ERROR, { title = "opencode" })
-          else
-            if callback then
-              callback(response)
-            end
-          end
-        end
+      if is_sse then
+        sse_handle(data, callback)
+      else
+        json_handle(data, callback)
       end
     end,
     on_stderr = function(_, data)
@@ -89,7 +110,7 @@ end
 ---@param port number
 ---@param callback fun(response: table)|nil
 function M.sse_listen(port, callback)
-  curl(origin .. port .. "/event", "GET", nil, callback)
+  curl(origin .. port .. "/event", "GET", nil, callback, true)
 end
 
 ---@param text string
