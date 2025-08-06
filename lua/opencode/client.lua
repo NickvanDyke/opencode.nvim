@@ -2,36 +2,27 @@
 local M = {}
 
 local origin = "http://localhost:"
-local partial_event = {}
+
+-- Persistent buffer for SSE lines, because SSEs can span multiple `on_stdout` calls.
+local sse_buffer = {}
 
 ---@param data table
 ---@param callback fun(response: table)|nil
 local function sse_handle(data, callback)
   for _, line in ipairs(data) do
     if line ~= "" then
-      if type(partial_event) ~= "table" then
-        partial_event = {}
-      end
       local clean_line = (line:gsub("^data: ?", ""))
-      table.insert(partial_event, clean_line)
-    else
-      line = line:gsub("^data: ", "")
-      if line == "" and partial_event == {} then
-        return
-      end
-      if line ~= "" then
-        table.insert(partial_event, line)
-      end
-      local full_data = table.concat(partial_event)
-      partial_event = {} --reset table
+      table.insert(sse_buffer, clean_line)
+    elseif #sse_buffer > 0 then
+      -- Blank line: end of event. Process the accumulated event.
+      local full_event = table.concat(sse_buffer)
+      sse_buffer = {} -- Reset for next event
 
-      if full_data ~= "" then
-        local ok, response = pcall(vim.fn.json_decode, full_data)
-        if ok and callback then
-          callback(response)
-        elseif not ok then
-          vim.notify("SSE JSON decode error: " .. full_data, vim.log.levels.ERROR, { title = "opencode" })
-        end
+      local ok, response = pcall(vim.fn.json_decode, full_event)
+      if not ok then
+        vim.notify("SSE JSON decode error: " .. full_event, vim.log.levels.ERROR, { title = "opencode" })
+      elseif callback then
+        callback(response)
       end
     end
   end
@@ -47,10 +38,8 @@ local function json_handle(data, callback)
     local ok, response = pcall(vim.fn.json_decode, line)
     if not ok then
       vim.notify("JSON decode error: " .. line, vim.log.levels.ERROR, { title = "opencode" })
-    else
-      if callback then
-        callback(response)
-      end
+    elseif callback then
+      callback(response)
     end
   end
 end
