@@ -154,4 +154,9 @@ function M.toggle()
   require("opencode.terminal").toggle()
 end
 
+---Show diagnostic information about opencode detection
+function M.show_diagnostics()
+  require("opencode.debug").show_diagnostics()
+end
+
 return M
