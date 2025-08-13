@@ -179,6 +179,65 @@ vim.api.nvim_create_autocmd("User", {
 | - | - |
 | `OpencodePlaceholder` | Placeholders in `ask` input |
 
+## 🔧 Troubleshooting
+
+### Port Detection Issues
+
+If `opencode.nvim` can't find your opencode server, use the diagnostic tool:
+
+```lua
+:lua require('opencode').show_diagnostics()
+```
+
+#### Manual Configuration
+
+1. **Environment Variable** (recommended for temporary fixes):
+   ```bash
+   export OPENCODE_PORT=37669
+   nvim
+   ```
+
+2. **Plugin Configuration** (permanent):
+   ```lua
+   require('opencode').setup({
+     port = 37669,  -- Your opencode port
+   })
+   ```
+
+3. **Finding the Port Manually**:
+   ```bash
+   # List opencode processes
+   ps aux | grep opencode
+   
+   # Find listening ports (Linux)
+   ss -tlnp | grep opencode
+   lsof -i -P | grep LISTEN | grep opencode
+   
+   # Find listening ports (macOS)
+   lsof -i -P | grep LISTEN | grep opencode
+   ```
+
+#### Debug Mode
+
+Enable verbose logging to see detailed detection attempts:
+
+```bash
+export OPENCODE_DEBUG=1
+nvim
+```
+
+This will show:
+- Which detection methods are being tried
+- Process discovery details
+- Port verification attempts
+- Exact failure points
+
+### Common Issues
+
+- **Multiple opencode instances**: The plugin looks for opencode running in Neovim's CWD. If you have multiple instances, it may pick the wrong one.
+- **Permission issues**: Some detection methods (like `netstat -p` on Linux) may require elevated permissions.
+- **Firewall/Security software**: Ensure opencode's port isn't being blocked.
+
 ## 🙏 Acknowledgments
 
 - Inspired by (and partially based on) [nvim-aider](https://github.com/GeorgesAlkhouri/nvim-aider) and later [neopencode.nvim](https://github.com/loukotal/neopencode.nvim).
