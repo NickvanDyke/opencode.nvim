@@ -79,7 +79,7 @@ end
 
 -- TODO: Or `opencode serve` and query it?
 local function query_opencode(record)
-  vim.fn.jobstart({
+  return vim.fn.jobstart({
     "opencode",
     "run",
     "I just made these changes to "
@@ -112,9 +112,16 @@ function M.setup()
   -- TODO: Other events?
   vim.api.nvim_create_autocmd({ "BufReadPost", "BufNewFile" }, {
     callback = function(args)
+      local query_opencode_job_id = nil
       if vim.api.nvim_get_option_value("buftype", { buf = args.buf }) == "" then
         attach_line_listener(args.buf, function(record)
           vim.print(record)
+
+          if query_opencode_job_id then
+            vim.fn.jobstop(query_opencode_job_id)
+          end
+
+          query_opencode_job_id = query_opencode(record)
         end)
       end
     end,
