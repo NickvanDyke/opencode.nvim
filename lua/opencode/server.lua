@@ -28,25 +28,22 @@ local function find_servers()
     error("Couldn't find any opencode processes", 0)
   end
 
-  ---@param pid number
-  ---@return string
-  local function get_cwd(pid)
-    local cwd = exec("lsof -a -p " .. pid .. " -d cwd | tail -1 | awk '{print $NF}'")
-    if cwd == "" then
-      error("Couldn't determine CWD for PID: " .. pid, 0)
-    end
-    return cwd
-  end
-
   local servers = {}
   for line in output:gmatch("[^\r\n]+") do
     -- lsof output: COMMAND PID USER FD TYPE DEVICE SIZE/OFF NODE NAME
     local parts = vim.split(line, "%s+")
+
     local pid = tonumber(parts[2])
     local port = tonumber(parts[9]:match(":(%d+)$")) -- Extract port from NAME field (which is e.g. "127.0.0.1:12345")
     if not pid or not port then
       error("Couldn't parse opencode PID and port from 'lsof' entry: " .. line, 0)
     end
+
+    local cwd = exec("lsof -a -p " .. pid .. " -d cwd | tail -1 | awk '{print $NF}'")
+    if cwd == "" then
+      error("Couldn't determine CWD for PID: " .. pid, 0)
+    end
+
     table.insert(
       servers,
       ---@class Server
@@ -56,7 +53,7 @@ local function find_servers()
       {
         pid = pid,
         port = port,
-        cwd = get_cwd(pid),
+        cwd = cwd,
       }
     )
   end
