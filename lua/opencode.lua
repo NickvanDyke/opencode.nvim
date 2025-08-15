@@ -45,6 +45,8 @@ function M.setup(opts)
   -- What if we just received the relevant opts in each function?
   -- But people have come to expect a `setup` function with global `opts`...
   require("opencode.config").setup(opts)
+
+  require("opencode.suggestion").setup()
 end
 
 ---Send a prompt to opencode after injecting contexts.
