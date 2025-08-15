@@ -58,7 +58,7 @@ local function attach_line_listener(bufnr, on_change)
       }
 
       -- debounce the on_change calls (500ms)
-      debounce_call(record, 1000)
+      debounce_call(record)
 
       -- update snapshot by splicing
       local new_snapshot = {}
@@ -82,7 +82,13 @@ local function query_opencode(record)
   vim.fn.jobstart({
     "opencode",
     "run",
-    "I just made these changes to " .. vim.fn.fnamemodify(vim.api.nvim_buf_get_name(record.bufnr), ":.") .. ":\n",
+    "I just made these changes to "
+      .. vim.fn.fnamemodify(vim.api.nvim_buf_get_name(record.bufnr), ":.")
+      .. ":L"
+      .. record.firstline
+      .. "-"
+      .. record.lastline
+      .. ":\n",
     "Added lines:\n" .. table.concat(record.added, "\n"),
     "Removed lines:\n" .. table.concat(record.removed, "\n"),
     "Please suggest the next edit I should make to this file.\n",
@@ -91,7 +97,7 @@ local function query_opencode(record)
   }, {
     on_stdout = function(_, data, _)
       if data and #data > 0 then
-        vim.print("Opencode suggestions for lines:", record.firstline + 1, record.lastline, data)
+        vim.print("Opencode suggestions:", data)
       end
     end,
     on_stderr = function(_, data, _)
