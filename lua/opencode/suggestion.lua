@@ -1,5 +1,7 @@
 local M = {}
 
+local port = 6969
+
 -- Attach a line-level listener to a buffer that reports removed and added lines.
 -- Calls `on_change(record)` where record contains:
 --   bufnr, changedtick, firstline, lastline (exclusive, old), new_lastline (exclusive, new), removed, added
@@ -79,49 +81,46 @@ end
 
 -- TODO: Or `opencode serve` and query it?
 local function query_opencode(record)
-  local stderr_lines = {}
-  return vim.fn.jobstart({
-    "opencode",
-    "run",
-    "meow",
-    -- "I just made these changes to "
-    --   .. vim.fn.fnamemodify(vim.api.nvim_buf_get_name(record.bufnr), ":.")
-    --   .. ":L"
-    --   .. record.firstline
-    --   .. "-"
-    --   .. record.lastline
-    --   .. ":\n",
-    -- "Added lines:\n" .. table.concat(record.added, "\n"),
-    -- "Removed lines:\n" .. table.concat(record.removed, "\n"),
-    -- "Please suggest the next edit I should make to this file.\n",
-    -- "Respond ONLY with a JSON array of objects, each with the keys file, line, operation, and text.\n",
-    -- "To change text inside a line, remove the line and add a new one with the changed text.\n",
-  }, {
-    on_stdout = function(_, data, _)
-      -- TODO: I don't see this until it exits, via cancel?
-      vim.print("Opencode suggestions:", data)
-    end,
-    on_stderr = function(_, data)
-      if data then
-        for _, line in ipairs(data) do
-          table.insert(stderr_lines, line)
-        end
-      end
-    end,
-    on_exit = function(_, code)
-      vim.print("Opencode job exited with code:", code)
-      if code ~= 0 then
-        local error_message = "opencode run failed with exit code: "
-          .. code
-          .. "\n\nstderr:\n"
-          .. table.concat(stderr_lines, "\n")
-        vim.notify(error_message, vim.log.levels.ERROR, { title = "opencode" })
-      end
-    end,
-  })
+  local query = {
+    "I just made these changes to "
+      .. vim.fn.fnamemodify(vim.api.nvim_buf_get_name(record.bufnr), ":.")
+      .. ":L"
+      .. record.firstline
+      .. "-"
+      .. record.lastline
+      .. ":",
+    "Added lines:\n" .. table.concat(record.added, "\n"),
+    "Removed lines:\n" .. table.concat(record.removed, "\n"),
+    "Please suggest the next edit I should make to this file.",
+    "Respond ONLY with a JSON array of objects, each with the keys file, line, operation, and text.",
+    "To change text inside a line, remove the line and add a new one with the changed text.",
+  }
+
+  local query_str = table.concat(query, "\n")
+  require("opencode.client").send(query_str)
 end
 
 function M.setup()
+  vim.fn.jobstart({
+    "opencode",
+    "serve",
+    "--port",
+    tostring(port),
+  }, {
+    on_stdout = function(_, data, _)
+      vim.print(data)
+    end,
+    on_stderr = function(_, data)
+      if data then
+        vim.print("Opencode server stderr:", data)
+      end
+    end,
+    on_exit = function(_, code)
+      if code ~= 0 then
+        vim.notify("Opencode server exited with code: " .. code, vim.log.levels.ERROR, { title = "opencode" })
+      end
+    end,
+  })
   -- TODO: Other events?
   vim.api.nvim_create_autocmd({ "BufReadPost", "BufNewFile" }, {
     callback = function(args)
