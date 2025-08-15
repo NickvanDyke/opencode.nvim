@@ -58,7 +58,7 @@ local function attach_line_listener(bufnr, on_change)
       }
 
       -- debounce the on_change calls (500ms)
-      debounce_call(record, 500)
+      debounce_call(record, 1000)
 
       -- update snapshot by splicing
       local new_snapshot = {}
@@ -86,7 +86,8 @@ local function query_opencode(record)
     "Added lines:\n" .. table.concat(record.added, "\n"),
     "Removed lines:\n" .. table.concat(record.removed, "\n"),
     "Please suggest the next edit I should make to this file.\n",
-    "Respond with a JSON array of suggestions, each suggestion being a string.",
+    "Respond ONLY with a JSON array of objects, each with the keys file, line, operation, and text.\n",
+    "To change text inside a line, remove the line and add a new one with the changed text.\n",
   }, {
     on_stdout = function(_, data, _)
       if data and #data > 0 then
@@ -102,7 +103,8 @@ local function query_opencode(record)
 end
 
 function M.setup()
-  vim.api.nvim_create_autocmd("BufEnter", {
+  -- TODO: Other events?
+  vim.api.nvim_create_autocmd({ "BufReadPost", "BufNewFile" }, {
     callback = function(args)
       if vim.api.nvim_get_option_value("buftype", { buf = args.buf }) == "" then
         attach_line_listener(args.buf, function(record)
