@@ -79,30 +79,43 @@ end
 
 -- TODO: Or `opencode serve` and query it?
 local function query_opencode(record)
+  local stderr_lines = {}
   return vim.fn.jobstart({
     "opencode",
     "run",
-    "I just made these changes to "
-      .. vim.fn.fnamemodify(vim.api.nvim_buf_get_name(record.bufnr), ":.")
-      .. ":L"
-      .. record.firstline
-      .. "-"
-      .. record.lastline
-      .. ":\n",
-    "Added lines:\n" .. table.concat(record.added, "\n"),
-    "Removed lines:\n" .. table.concat(record.removed, "\n"),
-    "Please suggest the next edit I should make to this file.\n",
-    "Respond ONLY with a JSON array of objects, each with the keys file, line, operation, and text.\n",
-    "To change text inside a line, remove the line and add a new one with the changed text.\n",
+    "meow",
+    -- "I just made these changes to "
+    --   .. vim.fn.fnamemodify(vim.api.nvim_buf_get_name(record.bufnr), ":.")
+    --   .. ":L"
+    --   .. record.firstline
+    --   .. "-"
+    --   .. record.lastline
+    --   .. ":\n",
+    -- "Added lines:\n" .. table.concat(record.added, "\n"),
+    -- "Removed lines:\n" .. table.concat(record.removed, "\n"),
+    -- "Please suggest the next edit I should make to this file.\n",
+    -- "Respond ONLY with a JSON array of objects, each with the keys file, line, operation, and text.\n",
+    -- "To change text inside a line, remove the line and add a new one with the changed text.\n",
   }, {
     on_stdout = function(_, data, _)
-      if data and #data > 0 then
-        vim.print("Opencode suggestions:", data)
+      -- TODO: I don't see this until it exits, via cancel?
+      vim.print("Opencode suggestions:", data)
+    end,
+    on_stderr = function(_, data)
+      if data then
+        for _, line in ipairs(data) do
+          table.insert(stderr_lines, line)
+        end
       end
     end,
-    on_stderr = function(_, data, _)
-      if data and #data > 0 then
-        vim.print("Error querying opencode:", data)
+    on_exit = function(_, code)
+      vim.print("Opencode job exited with code:", code)
+      if code ~= 0 then
+        local error_message = "opencode run failed with exit code: "
+          .. code
+          .. "\n\nstderr:\n"
+          .. table.concat(stderr_lines, "\n")
+        vim.notify(error_message, vim.log.levels.ERROR, { title = "opencode" })
       end
     end,
   })
@@ -114,10 +127,12 @@ function M.setup()
     callback = function(args)
       local query_opencode_job_id = nil
       if vim.api.nvim_get_option_value("buftype", { buf = args.buf }) == "" then
+        -- TODO: I think typing in insert mode only triggers this one character at a time...
         attach_line_listener(args.buf, function(record)
           vim.print(record)
 
           if query_opencode_job_id then
+            vim.print("Stopping previous opencode job")
             vim.fn.jobstop(query_opencode_job_id)
           end
 
