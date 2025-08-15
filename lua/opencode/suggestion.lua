@@ -10,27 +10,23 @@ local function attach_line_listener(bufnr, on_change)
 
   local state = { timer = nil, last_record = nil }
 
-  local function debounce_call(record, wait_ms)
-    wait_ms = wait_ms or 500
+  local function debounce_call(record)
     state.last_record = record
+
     if state.timer then
       state.timer:stop()
       state.timer:close()
       state.timer = nil
     end
+
     state.timer = vim.uv.new_timer()
     state.timer:start(
-      wait_ms,
+      1000,
       0,
       vim.schedule_wrap(function()
         local rec = state.last_record
         state.last_record = nil
         on_change(rec)
-        if state.timer then
-          state.timer:stop()
-          state.timer:close()
-          state.timer = nil
-        end
       end)
     )
   end
@@ -78,6 +74,30 @@ local function attach_line_listener(bufnr, on_change)
       snapshot = new_snapshot
     end,
     on_detach = function() end,
+  })
+end
+
+-- TODO: Or `opencode serve` and query it?
+local function query_opencode(record)
+  vim.fn.jobstart({
+    "opencode",
+    "run",
+    "I just made these changes to " .. vim.fn.fnamemodify(vim.api.nvim_buf_get_name(record.bufnr), ":.") .. ":\n",
+    "Added lines:\n" .. table.concat(record.added, "\n"),
+    "Removed lines:\n" .. table.concat(record.removed, "\n"),
+    "Please suggest the next edit I should make to this file.\n",
+    "Respond with a JSON array of suggestions, each suggestion being a string.",
+  }, {
+    on_stdout = function(_, data, _)
+      if data and #data > 0 then
+        vim.print("Opencode suggestions for lines:", record.firstline + 1, record.lastline, data)
+      end
+    end,
+    on_stderr = function(_, data, _)
+      if data and #data > 0 then
+        vim.print("Error querying opencode:", data)
+      end
+    end,
   })
 end
 
