@@ -49,6 +49,7 @@ end
 ---@param body table|nil
 ---@param callback fun(response: table)|nil
 ---@param is_sse boolean|nil
+---@return integer
 local function curl(url, method, body, callback, is_sse)
   local command = {
     "curl",
@@ -68,7 +69,7 @@ local function curl(url, method, body, callback, is_sse)
   }
 
   local stderr_lines = {}
-  vim.fn.jobstart(command, {
+  return vim.fn.jobstart(command, {
     on_stdout = function(_, data)
       if is_sse then
         sse_handle(data, callback)
@@ -133,6 +134,7 @@ end
 ---@param provider_id string
 ---@param model_id string
 ---@param callback fun(response: table)|nil
+---@return integer
 function M.send(prompt, session_id, port, provider_id, model_id, callback)
   local body = {
     sessionID = session_id,
@@ -147,7 +149,7 @@ function M.send(prompt, session_id, port, provider_id, model_id, callback)
     },
   }
 
-  curl(origin .. port .. "/session/" .. session_id .. "/message", "POST", body, callback)
+  return curl(origin .. port .. "/session/" .. session_id .. "/message", "POST", body, callback)
 end
 
 ---@param port number
