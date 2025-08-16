@@ -79,10 +79,25 @@ local function attach_line_listener(bufnr, on_change)
   })
 end
 
+local session_id = nil
+
+local function get_session_id(port, callback)
+  if session_id then
+    callback(session_id)
+    return
+  end
+
+  -- TODO: Persist across editor sessions? By git branch + cwd?
+  require("opencode.client").create_session(port, function(session)
+    session_id = session.id
+    callback(session_id)
+  end)
+end
+
 -- TODO: Or `opencode serve` and query it?
-local function query_opencode(record)
+local function query_opencode_for_suggestion(record)
   local query = {
-    "I just made these changes to "
+    "I just made these changes at "
       .. vim.fn.fnamemodify(vim.api.nvim_buf_get_name(record.bufnr), ":.")
       .. ":L"
       .. record.firstline
@@ -96,31 +111,53 @@ local function query_opencode(record)
     "To change text inside a line, remove the line and add a new one with the changed text.",
   }
 
-  local query_str = table.concat(query, "\n")
-  require("opencode.client").send(query_str)
+  -- TODO: Probably don't want to auto-open embedded here... only run when already open.
+  -- Or always do our own `opencode serve`? It's nice to reuse but also less individual then.
+  require("opencode.server").get_port(function(ok, port)
+    if not ok then
+      vim.notify("Failed to get opencode server port: " .. port, vim.log.levels.ERROR, { title = "opencode" })
+      return
+    end
+
+    get_session_id(port, function(session_id)
+      -- TODO: Actually retrieve or config the provider and model
+      require("opencode.client").send(
+        table.concat(query, "\n"),
+        session_id,
+        port,
+        "github-copilot",
+        "gpt-5-mini",
+        function(response)
+          vim.print("Opencode suggestion:", response)
+        end
+      )
+    end)
+  end)
 end
 
 function M.setup()
-  vim.fn.jobstart({
-    "opencode",
-    "serve",
-    "--port",
-    tostring(port),
-  }, {
-    on_stdout = function(_, data, _)
-      vim.print(data)
-    end,
-    on_stderr = function(_, data)
-      if data then
-        vim.print("Opencode server stderr:", data)
-      end
-    end,
-    on_exit = function(_, code)
-      if code ~= 0 then
-        vim.notify("Opencode server exited with code: " .. code, vim.log.levels.ERROR, { title = "opencode" })
-      end
-    end,
-  })
+  -- More independent, but then we also have to tell it apart when finding the server port...
+  -- vim.fn.jobstart({
+  --   "opencode",
+  --   "serve",
+  --   "--port",
+  --   tostring(port),
+  -- }, {
+  --   on_stdout = function(_, data, _)
+  --     vim.print(data)
+  --   end,
+  --   on_stderr = function(_, data)
+  --     if data then
+  --       vim.print("Opencode server stderr:", data)
+  --     end
+  --   end,
+  --   on_exit = function(_, code)
+  --     if code ~= 0 then
+  --       vim.notify("Opencode server exited with code: " .. code, vim.log.levels.ERROR, { title = "opencode" })
+  --     end
+  --   end,
+  -- })
+
   -- TODO: Other events?
   vim.api.nvim_create_autocmd({ "BufReadPost", "BufNewFile" }, {
     callback = function(args)
@@ -135,7 +172,7 @@ function M.setup()
             vim.fn.jobstop(query_opencode_job_id)
           end
 
-          query_opencode_job_id = query_opencode(record)
+          query_opencode_job_id = query_opencode_for_suggestion(record)
         end)
       end
     end,
