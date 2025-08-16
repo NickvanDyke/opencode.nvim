@@ -19,6 +19,10 @@ end
 
 ---@param bufnr number
 function M.setup(bufnr)
+  if vim.fn.hlexists("OpencodePlaceholder") == 0 then
+    vim.api.nvim_set_hl(0, "OpencodePlaceholder", { link = "@lsp.type.enum" })
+  end
+
   vim.api.nvim_create_autocmd({ "TextChanged", "TextChangedI", "BufWinEnter" }, {
     group = vim.api.nvim_create_augroup("OpencodeAskHighlight", { clear = true }),
     buffer = bufnr,
