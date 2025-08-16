@@ -106,32 +106,61 @@ local function find_server_inside_nvim_cwd()
   return found_server
 end
 
----Find the port of an opencode server process running inside Neovim's CWD.
----@return number
-function M.find_port()
-  return find_server_inside_nvim_cwd().port
-end
-
 ---@param callback fun(ok: boolean, result: any) Called with eventually found port or error if not found after some time.
-function M.poll_for_port(callback)
+local function poll_for_port(callback)
   local retries = 0
   local timer = vim.uv.new_timer()
   timer:start(
     100,
     100,
     vim.schedule_wrap(function()
-      local ok, port_result = pcall(M.find_port)
+      local ok, find_server_result = pcall(find_server_inside_nvim_cwd)
       if ok then
         timer:stop()
-        callback(true, port_result)
+        callback(true, find_server_result.port)
       elseif retries >= 20 then
         timer:stop()
-        callback(false, port_result)
+        callback(false, find_server_result)
       else
         retries = retries + 1
       end
     end)
   )
+end
+
+---Get the opencode server port. Checks, in order:
+---1. `opts.port`.
+---2. The port of any opencode server running inside Neovim's CWD, prioritizing embedded terminals.
+---3. If `auto_fallback_to_embedded` is enabled, opens an embedded opencode terminal and polls for the port.
+---@param callback fun(ok: boolean, result: any)
+function M.get_port(callback)
+  local configured_port = require("opencode.config").options.port
+  if configured_port then
+    callback(true, configured_port)
+    return
+  end
+
+  local ok, find_server_result = pcall(find_server_inside_nvim_cwd)
+  if ok then
+    callback(true, find_server_result.port)
+    return
+  end
+
+  if require("opencode.config").options.auto_fallback_to_embedded then
+    local win, created = require("opencode.terminal").get()
+    if not win then
+      callback(false, "Failed to open fallback embedded opencode terminal")
+      return
+    elseif created then
+      ---@diagnostic disable-next-line: redefined-local
+      poll_for_port(function(ok, result)
+        callback(ok, result)
+      end)
+      return
+    end
+  end
+
+  callback(false, find_server_result)
 end
 
 return M

@@ -4,40 +4,6 @@ local M = {}
 -- because opencode may have restarted (usually on a new port) while the plugin is running
 local sse_listening_port = nil
 
----Get the opencode port. Checks, in order:
----1. `opts.port`.
----2. The port of any opencode server running inside Neovim's CWD, prioritizing embedded terminals.
----3. If `auto_fallback_to_embedded` is enabled, opens an embedded opencode terminal and polls for the port.
----@param callback fun(ok: boolean, result: any)
-local function get_opencode_port(callback)
-  local configured_port = require("opencode.config").options.port
-  if configured_port then
-    callback(true, configured_port)
-    return
-  end
-
-  local find_port_ok, find_port_result = pcall(require("opencode.server").find_port)
-  if find_port_ok then
-    callback(true, find_port_result)
-    return
-  end
-
-  if require("opencode.config").options.auto_fallback_to_embedded then
-    local win, created = require("opencode.terminal").get()
-    if not win then
-      callback(false, "Failed to open fallback embedded opencode terminal")
-      return
-    elseif created then
-      require("opencode.server").poll_for_port(function(ok, result)
-        callback(ok, result)
-      end)
-      return
-    end
-  end
-
-  callback(false, find_port_result)
-end
-
 ---Set up the plugin with your configuration.
 ---You don't need to call this if you use the default configuration - it does nothing else.
 ---@param opts opencode.Config
@@ -56,7 +22,7 @@ end
 ---2. Starts listening for SSEs from opencode to forward as `OpencodeEvent` autocmd.
 ---@param prompt string
 function M.prompt(prompt)
-  get_opencode_port(function(ok, result)
+  require("opencode.server").get_port(function(ok, result)
     if not ok then
       vim.notify(result, vim.log.levels.ERROR, { title = "opencode" })
       return
@@ -95,7 +61,7 @@ end
 ---See https://opencode.ai/docs/keybinds/ for available commands.
 ---@param command string
 function M.command(command)
-  get_opencode_port(function(ok, result)
+  require("opencode.server").get_port(function(ok, result)
     if not ok then
       vim.notify(result, vim.log.levels.ERROR, { title = "opencode" })
       return
