@@ -26,7 +26,7 @@ https://github.com/user-attachments/assets/4f074c86-6863-49b5-b1ff-dcd901a03e02
 {
   'NickvanDyke/opencode.nvim',
   dependencies = {
-    -- Recommended for a better prompt input, and required to use opencode.nvim's embedded terminal. Otherwise optional.
+    -- Recommended for better prompt input, and required to use opencode.nvim's embedded terminal. Otherwise optional.
     { 'folke/snacks.nvim', opts = { input = { enabled = true } } },
   },
   ---@type opencode.Opts
@@ -35,7 +35,8 @@ https://github.com/user-attachments/assets/4f074c86-6863-49b5-b1ff-dcd901a03e02
   },
   keys = {
     -- Recommended keymaps
-    { '<leader>oa', function() require('opencode').ask('@cursor: ') end, desc = 'Ask opencode', mode = 'n', },
+    { '<leader>oA', function() require('opencode').ask() end, desc = 'Ask opencode', },
+    { '<leader>oa', function() require('opencode').ask('@cursor: ') end, desc = 'Ask opencode about this', mode = 'n', },
     { '<leader>oa', function() require('opencode').ask('@selection: ') end, desc = 'Ask opencode about selection', mode = 'v', },
     { '<leader>ot', function() require('opencode').toggle() end, desc = 'Toggle embedded opencode', },
     { '<leader>on', function() require('opencode').command('session_new') end, desc = 'New session', },
