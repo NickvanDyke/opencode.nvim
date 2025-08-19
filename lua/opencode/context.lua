@@ -49,6 +49,7 @@ function M.inject(prompt, contexts)
     -- TODO: Shouldn't need to be whole-word... core issue/solution is to substitue the longest match.
     -- e.g. prioritize @buffers over @buffer.
     -- That will match the highlighting behavior.
+    -- TODO: Shouldn't call context.value() if the placeholder is not present in the prompt.
     prompt = prompt:gsub(placeholder .. "%f[%W]", context.value() or placeholder)
   end
 
@@ -216,7 +217,7 @@ end
 ---@return string|nil
 function M.grapple_tags()
   if not pcall(require, "grapple") then
-    error("grapple.nvim is not installed. Please install it to use this context.")
+    return nil
   end
 
   local tags = require("grapple").tags()
