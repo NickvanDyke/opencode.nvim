@@ -108,9 +108,6 @@ local defaults = {
     },
   },
   terminal = {
-    -- No reason to prefer normal mode - can't scroll TUI like a normal buffer
-    auto_insert = true,
-    auto_close = true,
     win = {
       position = "right",
     },
