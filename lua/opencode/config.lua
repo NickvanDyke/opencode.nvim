@@ -109,7 +109,12 @@ local defaults = {
   },
   terminal = {
     win = {
+      -- "right" seems like a better default for most users than snacks.terminal's "float" default...
       position = "right",
+      wo = {
+        -- Title is unnecessary - opencode TUI has its own footer
+        winbar = "",
+      },
     },
     env = {
       -- Other themes have visual bugs in embedded terminals: https://github.com/sst/opencode/issues/445
