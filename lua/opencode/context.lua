@@ -46,15 +46,15 @@ end
 function M.inject(prompt, contexts)
   -- TODO: In the midst of replacing, I think this considers already-replaced values as part of the prompt, and attempts to "chain replace" them?
   -- Like if selection context injects text containing a literal placeholder.
-  for placeholder, context in pairs(contexts) do
-    -- Only match whole-word placeholders using Lua frontier patterns.
-    -- TODO: Shouldn't need to be whole-word... core issue/solution is to substitute the longest match.
-    -- e.g. prioritize @buffers over @buffer.
-    -- That will match the highlighting behavior.
-    -- Just sort the placeholders by length before replacing?
-    prompt = prompt:gsub(placeholder .. "%f[%W]", function()
+  local placeholders = vim.tbl_keys(contexts)
+  -- Replace the longest placeholders first, in case they overlap. e.g. @buffer should not replace "@buffers" in the prompt.
+  table.sort(placeholders, function(a, b)
+    return #a > #b
+  end)
+  for _, placeholder in ipairs(placeholders) do
+    prompt = prompt:gsub(placeholder, function()
       -- Pass a function so it's only called when the placeholder is matched
-      return context.value() or placeholder
+      return contexts[placeholder].value() or placeholder
     end)
   end
 
