@@ -26,8 +26,7 @@ https://github.com/user-attachments/assets/4f074c86-6863-49b5-b1ff-dcd901a03e02
 {
   'NickvanDyke/opencode.nvim',
   dependencies = {
-    -- Recommended for a better input and embedded terminal experience.
-    -- To bypass: use your own `toggle` (if any), and override `opts.on_send` and `opts.on_opencode_not_found`.
+    -- Recommended for a better prompt input, and required to use opencode.nvim's embedded terminal. Otherwise optional.
     { 'folke/snacks.nvim', opts = { input = { enabled = true } } },
   },
   ---@type opencode.Opts

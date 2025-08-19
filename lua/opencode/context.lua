@@ -221,11 +221,12 @@ end
 ---Tags from the `grapple.nvim` plugin.
 ---@return string|nil
 function M.grapple_tags()
-  if not pcall(require, "grapple") then
+  local is_available, grapple = pcall(require, "grapple")
+  if not is_available then
     return nil
   end
 
-  local tags = require("grapple").tags()
+  local tags = grapple.tags()
   if not tags or #tags == 0 then
     return nil
   end

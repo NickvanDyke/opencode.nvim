@@ -124,9 +124,13 @@ function M.select_prompt()
   )
 end
 
----Toggle embedded opencode using `snacks.terminal`.
+---Toggle embedded opencode.
+---Requires `snacks.terminal`.
 function M.toggle()
-  require("opencode.terminal").toggle()
+  local ok, err = pcall(require("opencode.terminal").toggle)
+  if not ok then
+    vim.notify(err, vim.log.levels.ERROR, { title = "opencode" })
+  end
 end
 
 return M

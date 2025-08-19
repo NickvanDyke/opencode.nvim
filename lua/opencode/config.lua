@@ -16,17 +16,21 @@ local defaults = {
   auto_register_cmp_sources = { "opencode", "buffer" },
   on_opencode_not_found = function()
     -- OOTB experience prioritizes embedded snacks.terminal,
-    -- but you could also e.g. utilize a different terminal plugin, launch an external opencode, or no-op.
-    local opened = require("opencode.terminal").open()
-    if not opened then
+    -- but you could also e.g. call a different terminal plugin, launch an external opencode, or no-op.
+    local ok, result = pcall(require("opencode.terminal").open)
+    if not ok then
+      -- Swallow error so users can safely exclude snacks.nvim dependency without overriding this function.
+      -- Could accidentally hide an unexpected error in snacks.terminal, but seems unlikely.
+      return false
+    elseif not result then
       vim.notify("Failed to auto-open embedded opencode terminal", vim.log.levels.ERROR, { title = "opencode" })
     end
-    return opened
+    return result
   end,
   on_send = function()
     -- "if exists" because user may alternate between embedded and external opencode.
-    -- `opts.on_opencode_not_found` comment also applies here.
-    require("opencode.terminal").show_if_exists()
+    -- `opts.on_opencode_not_found` comments also apply here.
+    pcall(require("opencode.terminal").show_if_exists)
   end,
   prompts = {
     ---@class opencode.Prompt

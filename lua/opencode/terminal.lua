@@ -1,26 +1,34 @@
 local M = {}
 
-local function opencode_cmd()
+local function cmd()
   local port = require("opencode.config").options.port
   return "opencode" .. (port and (" --port " .. port) or "")
 end
 
+local function safe_snacks_terminal()
+  local is_available, snacks_terminal = pcall(require, "snacks.terminal")
+  if not is_available then
+    error("Please install snacks.nvim to use the embedded opencode terminal", 0)
+  end
+  return snacks_terminal
+end
+
 function M.toggle()
-  require("snacks.terminal").toggle(opencode_cmd(), require("opencode.config").options.terminal)
+  safe_snacks_terminal().toggle(cmd(), require("opencode.config").options.terminal)
 end
 
 ---Open an embedded opencode terminal.
 ---Returns whether the terminal was successfully opened.
 ---@return boolean
 function M.open()
-  -- We use `get`, not `open`, so `toggle` will reference the same terminal
-  local win = require("snacks.terminal").get(opencode_cmd(), require("opencode.config").options.terminal)
+  -- We use `get`, not `open`, so that `toggle` will reference the same terminal
+  local win = safe_snacks_terminal().get(cmd(), require("opencode.config").options.terminal)
   return win ~= nil
 end
 
 function M.show_if_exists()
-  local win = require("snacks.terminal").get(
-    opencode_cmd(),
+  local win = safe_snacks_terminal().get(
+    cmd(),
     vim.tbl_deep_extend("force", require("opencode.config").options.terminal, { create = false })
   )
   if win then
