@@ -96,7 +96,7 @@ local defaults = {
       title_pos = "left",
       relative = "cursor",
       row = -3, -- Row above the cursor
-      col = -5, -- Position first input cell directly above the cursor
+      col = 0, -- Align with the cursor
       b = {
         -- Enable blink completion
         completion = true,
