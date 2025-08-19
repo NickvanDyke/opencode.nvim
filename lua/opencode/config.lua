@@ -109,8 +109,6 @@ local defaults = {
     auto_close = true,
     win = {
       position = "right",
-      -- I usually want to `toggle` and then immediately `ask` - seems like a sensible default
-      enter = false,
     },
     env = {
       -- Other themes have visual bugs in embedded terminals: https://github.com/sst/opencode/issues/445
