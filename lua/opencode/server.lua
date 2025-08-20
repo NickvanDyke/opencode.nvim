@@ -117,11 +117,14 @@ end
 ---Get the opencode server port. Checks, in order:
 ---1. `opts.port`.
 ---2. The port of any opencode server running inside Neovim's CWD, prioritizing embedded terminals.
----3. Calls `opts.on_opencode_not_found` if defined, which can return true to start polling for the port.
+---3. Calls `opts.on_opencode_not_found` and polls for the port if it returns `true`.
 ---@param callback fun(ok: boolean, result: any) Called with eventually found port or error if not found after some time.
 function M.get_port(callback)
   local configured_port = require("opencode.config").options.port
   if configured_port then
+    -- TODO: Should still call `opts.on_opencode_not_found` if necessary.
+    -- But idk how to check that without `lsof`, which `opts.port` is a workaround for...
+    -- Confusingly, this will proceed to curl giving exit code 7, instead of the more helpful "opencode not found" error.
     callback(true, configured_port)
     return
   end
