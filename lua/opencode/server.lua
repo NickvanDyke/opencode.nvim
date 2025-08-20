@@ -2,6 +2,10 @@ local M = {}
 
 ---@return Server[]
 local function find_servers()
+  if vim.fn.executable("lsof") == 0 then
+    -- lsof is a common utility to list open files and ports, but not always available by default.
+    error("'lsof' command is not available — please install it to auto-find opencode, or set opts.port", 0)
+  end
   -- Going straight to `lsof` relieves us of parsing `ps` and all the non-portable 'opencode'-containing processes it might return.
   -- With these flags, we'll only get processes that are listening on TCP ports and have 'opencode' in their command name.
   -- i.e. pretty much guaranteed to be just opencode server processes.
