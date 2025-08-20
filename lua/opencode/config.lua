@@ -114,6 +114,8 @@ local defaults = {
     win = {
       -- "right" seems like a better default than snacks.terminal's "float" default...
       position = "right",
+      -- Stay in the editor after opening the terminal
+      enter = false,
       wo = {
         -- Title is unnecessary - opencode TUI has its own footer
         winbar = "",
