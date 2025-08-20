@@ -1,8 +1,6 @@
 ---Calls the opencode [server](https://github.com/sst/opencode/blob/dev/packages/opencode/src/server/server.ts).
 local M = {}
 
-local origin = "http://localhost:"
-
 -- Persistent buffer for SSE lines, because SSEs can span multiple `on_stdout` calls.
 local sse_buffer = {}
 
@@ -96,35 +94,46 @@ local function curl(url, method, body, callback, is_sse)
   })
 end
 
+---Call an opencode server endpoint.
+---@param port number
+---@param path string
+---@param method string
+---@param body table|nil
+---@param callback fun(response: table)|nil
+---@param is_sse boolean|nil
+function M.call(port, path, method, body, callback, is_sse)
+  curl("http://localhost:" .. port .. path, method, body, callback, is_sse)
+end
+
 ---@param port number
 ---@param callback fun(response: table)|nil
 function M.sse_listen(port, callback)
-  curl(origin .. port .. "/event", "GET", nil, callback, true)
+  M.call(port, "/event", "GET", nil, callback, true)
 end
 
 ---@param text string
 ---@param port number
 ---@param callback fun(response: table)|nil
 function M.tui_append_prompt(text, port, callback)
-  curl(origin .. port .. "/tui/append-prompt", "POST", { text = text }, callback)
+  M.call(port, "/tui/append-prompt", "POST", { text = text }, callback)
 end
 
 ---@param port number
 ---@param callback fun(response: table)|nil
 function M.tui_submit_prompt(port, callback)
-  curl(origin .. port .. "/tui/submit-prompt", "POST", {}, callback)
+  M.call(port, "/tui/submit-prompt", "POST", {}, callback)
 end
 
 ---@param port number
 ---@param callback fun(response: table)|nil
 function M.tui_clear_prompt(port, callback)
-  curl(origin .. port .. "/tui/clear-prompt", "POST", {}, callback)
+  M.call(port, "/tui/clear-prompt", "POST", {}, callback)
 end
 
 ---@param command string
 ---@param port number
 function M.tui_execute_command(command, port)
-  curl(origin .. port .. "/tui/execute-command", "POST", { command = command })
+  M.call(port, "/tui/execute-command", "POST", { command = command })
 end
 
 ---@param prompt string
@@ -147,19 +156,19 @@ function M.send(prompt, session_id, port, provider_id, model_id, callback)
     },
   }
 
-  curl(origin .. port .. "/session/" .. session_id .. "/message", "POST", body, callback)
+  M.call(port, "/session/" .. session_id .. "/message", "POST", body, callback)
 end
 
 ---@param port number
 ---@param callback fun(sessions: table)
 function M.get_sessions(port, callback)
-  curl(origin .. port .. "/session", "GET", nil, callback)
+  M.call(port, "/session", "GET", nil, callback)
 end
 
 ---@param port number
 ---@param callback fun(session: table)
 function M.create_session(port, callback)
-  curl(origin .. port .. "/session", "POST", nil, callback)
+  M.call(port, "/session", "POST", nil, callback)
 end
 
 return M
