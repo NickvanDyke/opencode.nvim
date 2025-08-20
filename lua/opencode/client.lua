@@ -86,8 +86,8 @@ local function curl(url, method, body, callback, is_sse)
       if code ~= 0 and code ~= 18 then
         local error_message = "curl command failed with exit code: "
           .. code
-          .. "\n\nstderr:\n"
-          .. table.concat(stderr_lines, "\n")
+          .. "\nstderr:\n"
+          .. (#stderr_lines > 0 and table.concat(stderr_lines, "\n") or "<none>")
         vim.notify(error_message, vim.log.levels.ERROR, { title = "opencode" })
       end
     end,
