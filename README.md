@@ -14,7 +14,7 @@ https://github.com/user-attachments/assets/4f074c86-6863-49b5-b1ff-dcd901a03e02
 - Auto-find any `opencode` process running inside Neovim's CWD, or open in an embedded terminal
 - Select and input prompts
 - Inject editor context
-- Auto-reload edited buffers
+- Auto-reload edited buffers in real-time
 - Write and refine prompts quickly with completions, highlights, and normal-mode support
 
 ## 📦 Setup
@@ -72,7 +72,7 @@ programs.nixvim = {
 
 ## ⚙️ Configuration
 
-`opencode.nvim` strives to provide a rich and reliable default experience, with a well-documented and flexible [configuration](./lua/opencode/config.lua#L13) and [API](./lua/opencode.lua) for you to customize and compose according to your preferences.
+`opencode.nvim` strives to provide a rich and reliable default experience, with a well-documented and flexible [configuration](./lua/opencode/config.lua#L16) and [API](./lua/opencode.lua) for you to customize and compose according to your preferences.
 
 ## 🕵️ Context
 
