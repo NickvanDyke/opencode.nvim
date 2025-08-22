@@ -91,7 +91,7 @@ When your prompt contains placeholders, `opencode.nvim` replaces them with conte
 | `@diff` | Git diff |
 | `@grapple` | [grapple.nvim](https://github.com/cbochs/grapple.nvim) tags |
 
-Add custom contexts to `opts.context`.
+Add custom contexts to `opts.contexts`.
 
 ## 👀 Events
 
