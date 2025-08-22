@@ -117,27 +117,31 @@ local function poll_for_port(fn, callback)
   )
 end
 
----Get the opencode server port. Checks, in order:
----1. `opts.port`.
----2. The port of any opencode server running inside Neovim's CWD, prioritizing embedded terminals.
----3. Calls `opts.on_opencode_not_found` and polls for the port if it returns `true`.
+---Test if an opencode process is responding on the given port.
+---Uses `curl` for better availability than `lsof`.
+---@param port number
+---@return number
+local function test_port(port)
+  vim.cmd("silent !curl -s http://localhost:" .. port)
+  return vim.v.shell_error == 0 and port or error("Opencode process not found on port: " .. port, 0)
+end
+
+---Attempt to get the opencode server port. Tries, in order:
+---1. A process responding on `opts.port`.
+---2. Any opencode process running inside Neovim's CWD. Prioritizes embedded.
+---3. Calling `opts.on_opencode_not_found` and polls for the port if it returns `true`.
 ---@param callback fun(ok: boolean, result: any) Called with eventually found port or error if not found after some time.
 function M.get_port(callback)
   local configured_port = require("opencode.config").options.port
-  local find_port_fn = configured_port
-      and function()
-        -- Test without `lsof`, since opts.port is meant as an alternative.
-        vim.cmd("silent !curl -s http://localhost:" .. configured_port)
-        return vim.v.shell_error == 0 and configured_port
-          or error("Opencode process not found on opts.port: " .. configured_port, 0)
-      end
-    or function()
-      return find_server_inside_nvim_cwd().port
-    end
+  local find_port_fn = configured_port and function()
+    return test_port(configured_port)
+  end or function()
+    return find_server_inside_nvim_cwd().port
+  end
 
   local found_port, find_port_result = pcall(find_port_fn)
   if found_port then
-    callback(true, configured_port)
+    callback(true, find_port_result)
   else
     local ok, should_poll_for_port = pcall(require("opencode.config").options.on_opencode_not_found)
     if ok and should_poll_for_port then
