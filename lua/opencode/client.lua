@@ -6,7 +6,7 @@ local sse_buffer = {}
 
 ---@param data table
 ---@param callback fun(response: table)|nil
-local function sse_handle(data, callback)
+local function handle_sse(data, callback)
   for _, line in ipairs(data) do
     if line ~= "" then
       local clean_line = (line:gsub("^data: ?", ""))
@@ -28,7 +28,7 @@ end
 
 ---@param data table
 ---@param callback fun(response: table)|nil
-local function json_handle(data, callback)
+local function handle_json(data, callback)
   for _, line in ipairs(data) do
     if line == "" then
       return
@@ -69,9 +69,9 @@ local function curl(url, method, body, callback, is_sse)
   vim.fn.jobstart(command, {
     on_stdout = function(_, data)
       if is_sse then
-        sse_handle(data, callback)
+        handle_sse(data, callback)
       else
-        json_handle(data, callback)
+        handle_json(data, callback)
       end
     end,
     on_stderr = function(_, data)
@@ -105,12 +105,6 @@ function M.call(port, path, method, body, callback, is_sse)
   curl("http://localhost:" .. port .. path, method, body, callback, is_sse)
 end
 
----@param port number
----@param callback fun(response: table)|nil
-function M.sse_listen(port, callback)
-  M.call(port, "/event", "GET", nil, callback, true)
-end
-
 ---@param text string
 ---@param port number
 ---@param callback fun(response: table)|nil
@@ -142,7 +136,7 @@ end
 ---@param provider_id string
 ---@param model_id string
 ---@param callback fun(response: table)|nil
-function M.send(prompt, session_id, port, provider_id, model_id, callback)
+function M.send_message(prompt, session_id, port, provider_id, model_id, callback)
   local body = {
     sessionID = session_id,
     providerID = provider_id,
@@ -169,6 +163,12 @@ end
 ---@param callback fun(session: table)
 function M.create_session(port, callback)
   M.call(port, "/session", "POST", nil, callback)
+end
+
+---@param port number
+---@param callback fun(response: table)|nil
+function M.listen_for_sse(port, callback)
+  M.call(port, "/event", "GET", nil, callback, true)
 end
 
 return M

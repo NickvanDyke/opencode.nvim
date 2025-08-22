@@ -35,7 +35,7 @@ function M.prompt(prompt)
       require("opencode.reload").setup()
     end
     if result ~= sse_listening_port then
-      require("opencode.client").sse_listen(result, function(response)
+      require("opencode.client").listen_for_sse(result, function(response)
         vim.api.nvim_exec_autocmds("User", {
           pattern = "OpencodeEvent",
           data = response,
