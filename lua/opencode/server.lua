@@ -117,13 +117,6 @@ local function poll_for_port(fn, callback)
   )
 end
 
----@param port number
----@return number
-local function test_port(port)
-  vim.cmd("silent !curl -s http://localhost:" .. port)
-  return vim.v.shell_error == 0 and port or error("Opencode process not found on port: " .. port, 0)
-end
-
 ---Get the opencode server port. Checks, in order:
 ---1. `opts.port`.
 ---2. The port of any opencode server running inside Neovim's CWD, prioritizing embedded terminals.
@@ -131,35 +124,26 @@ end
 ---@param callback fun(ok: boolean, result: any) Called with eventually found port or error if not found after some time.
 function M.get_port(callback)
   local configured_port = require("opencode.config").options.port
-  if configured_port then
-    -- Test the configured port without `lsof`, since it's meant as an alternative.
-    local found_on_configured_port, find_configured_port_result = pcall(test_port, configured_port)
-    if found_on_configured_port then
-      callback(true, configured_port)
-    else
-      local ok, should_poll = pcall(require("opencode.config").options.on_opencode_not_found)
-      if ok and should_poll then
-        poll_for_port(function()
-          return test_port(configured_port)
-        end, callback)
-      else
-        callback(false, find_configured_port_result)
+  local find_port_fn = configured_port
+      and function()
+        -- Test without `lsof`, since opts.port is meant as an alternative.
+        vim.cmd("silent !curl -s http://localhost:" .. configured_port)
+        return vim.v.shell_error == 0 and configured_port
+          or error("Opencode process not found on opts.port: " .. configured_port, 0)
       end
+    or function()
+      return find_server_inside_nvim_cwd().port
     end
+
+  local found_port, find_port_result = pcall(find_port_fn)
+  if found_port then
+    callback(true, configured_port)
   else
-    local found_server, find_server_result = pcall(find_server_inside_nvim_cwd)
-    if found_server then
-      callback(true, find_server_result.port)
+    local ok, should_poll_for_port = pcall(require("opencode.config").options.on_opencode_not_found)
+    if ok and should_poll_for_port then
+      poll_for_port(find_port_fn, callback)
     else
-      local ok, should_poll = pcall(require("opencode.config").options.on_opencode_not_found)
-      if ok and should_poll then
-        poll_for_port(function()
-          return find_server_inside_nvim_cwd().port
-        end, callback)
-        return
-      else
-        callback(false, find_server_result)
-      end
+      callback(false, find_port_result)
     end
   end
 end
