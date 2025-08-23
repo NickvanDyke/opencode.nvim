@@ -2,7 +2,7 @@
 
 Seamlessly integrate the [opencode](https://github.com/sst/opencode) AI assistant with Neovim — convenient and editor-aware research, reviews, and requests. 
 
-https://github.com/user-attachments/assets/4f074c86-6863-49b5-b1ff-dcd901a03e02
+https://github.com/user-attachments/assets/340ce139-173c-4e81-b39a-f089862db9ce
 
 > Uses `opencode`'s currently undocumented [API](https://github.com/sst/opencode/blob/dev/packages/opencode/src/server/server.ts) — latest tested opencode version: `v0.5.18`
 
