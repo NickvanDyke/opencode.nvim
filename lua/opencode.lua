@@ -79,7 +79,7 @@ end
 --- - Highlights `opts.contexts` placeholders in the input.
 --- - Offers completions for `opts.contexts` placeholders.
 ---   - Press `<Tab>` or `<C-x><C-o>` to trigger built-in completion.
----   - When using `snacks.input` and `blink.cmp`, auto-registers `opts.auto_register_cmp_sources`.
+---   - When using `snacks.input` and `blink.cmp`, registers `opts.auto_register_cmp_sources`.
 ---@param default? string Text to prefill the input with.
 function M.ask(default)
   require("opencode.input").input(default, function(value)
@@ -129,6 +129,7 @@ end
 function M.toggle()
   local ok, err = pcall(require("opencode.terminal").toggle)
   if not ok then
+    ---@cast err string
     vim.notify(err, vim.log.levels.ERROR, { title = "opencode" })
   end
 end
