@@ -93,8 +93,9 @@ local defaults = {
     icon = "󱚣 ",
     -- Built-in completion as fallback.
     -- It's okay to enable simultaneously with blink.cmp because built-in completion
-    -- only triggers via <Tab> and blink.cmp keymaps take priority.
+    -- only triggers via <Tab> or <C-x><C-o> and blink.cmp keymaps take priority.
     completion = "customlist,v:lua.require'opencode.cmp.omni'",
+    highlight = require("opencode.input").highlight,
     win = {
       title_pos = "left",
       relative = "cursor",
@@ -108,6 +109,28 @@ local defaults = {
         -- Custom filetype to configure blink with
         filetype = "opencode_ask",
       },
+      on_buf = function(win)
+        -- Wait as long as possible to check for blink.cmp loaded - many users lazy-load on `InsertEnter`.
+        -- And OptionSet :runtimepath didn't seem to fire for lazy.nvim.
+        vim.api.nvim_create_autocmd("InsertEnter", {
+          once = true,
+          buffer = win.buf,
+          callback = function()
+            if package.loaded["blink.cmp"] then
+              require("opencode.cmp.blink").setup(require("opencode.config").options.auto_register_cmp_sources)
+            end
+          end,
+        })
+
+        -- snacks.input doesn't seem to actually call `opts.highlight`... so highlight its buffer ourselves
+        vim.api.nvim_create_autocmd({ "TextChanged", "TextChangedI", "BufWinEnter" }, {
+          group = vim.api.nvim_create_augroup("OpencodeAskHighlight", { clear = true }),
+          buffer = win.buf,
+          callback = function(args)
+            require("opencode.input").highlight_buffer(args.buf)
+          end,
+        })
+      end,
     },
   },
   terminal = {

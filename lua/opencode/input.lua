@@ -1,10 +1,22 @@
 local M = {}
 
+---@param default? string
+---@param on_confirm fun(value: string|nil)
+function M.input(default, on_confirm)
+  -- Recommended configuration uses snacks.input, so `opts.input` includes options for it too, not just for vim.ui.input.
+  vim.ui.input(
+    vim.tbl_deep_extend("force", require("opencode.config").options.input, {
+      default = default,
+    }),
+    on_confirm
+  )
+end
+
 ---Highlights context placeholders in the input string.
 ---See `:help input()-highlight`.
 ---@param input string
 ---@return table[]
-local function highlight(input)
+function M.highlight(input)
   local placeholders = vim.tbl_keys(require("opencode.config").options.contexts)
   local hls = {}
 
@@ -18,7 +30,7 @@ local function highlight(input)
       table.insert(hls, {
         start_pos - 1,
         end_pos,
-        -- I don't expect users to care to customize this, so keep it simple with a sensible built-in highlight
+        -- I don't expect users to care to customize this, so keep it simple with a sensible built-in highlight.
         "@lsp.type.enum",
       })
       init = end_pos + 1
@@ -33,54 +45,21 @@ local function highlight(input)
   return hls
 end
 
----@param default? string
----@param on_confirm fun(value: string|nil)
-function M.input(default, on_confirm)
-  -- Recommended configuration uses snacks.input (for completions and normal-mode movement),
-  -- so we pass options for it too, not just for vim.ui.input.
-  vim.ui.input(
-    vim.tbl_deep_extend("force", require("opencode.config").options.input, {
-      default = default,
-      highlight = highlight,
-      win = {
-        -- Do some setup. Not in default config object for brevity, and I don't expect users to modify this.
-        on_buf = function(win)
-          -- Wait as long as possible to check for blink.cmp loaded - many users lazy-load on `InsertEnter`.
-          -- And OptionSet :runtimepath didn't seem to fire for lazy.nvim.
-          vim.api.nvim_create_autocmd("InsertEnter", {
-            once = true,
-            buffer = win.buf,
-            callback = function()
-              if package.loaded["blink.cmp"] then
-                require("opencode.cmp.blink").setup(require("opencode.config").options.auto_register_cmp_sources)
-              end
-            end,
-          })
+---Highlights context placeholders in the given buffer's first line.
+---@param buf number
+function M.highlight_buffer(buf)
+  local input = vim.api.nvim_buf_get_lines(buf, 0, 1, false)[1] or ""
+  local hls = M.highlight(input)
 
-          -- snacks.input doesn't seem to actually call `opts.highlight`... so highlight its buffer ourselves
-          vim.api.nvim_create_autocmd({ "TextChanged", "TextChangedI", "BufWinEnter" }, {
-            group = vim.api.nvim_create_augroup("OpencodeAskHighlight", { clear = true }),
-            buffer = win.buf,
-            callback = function(args)
-              local input = vim.api.nvim_buf_get_lines(args.buf, 0, 1, false)[1] or ""
-              local hls = highlight(input)
+  local ns_id = vim.api.nvim_create_namespace("opencode_placeholders")
+  vim.api.nvim_buf_clear_namespace(buf, ns_id, 0, -1)
 
-              local ns_id = vim.api.nvim_create_namespace("opencode_placeholders")
-              vim.api.nvim_buf_clear_namespace(args.buf, ns_id, 0, -1)
-
-              for _, hl in ipairs(hls) do
-                vim.api.nvim_buf_set_extmark(args.buf, ns_id, 0, hl[1], {
-                  end_col = hl[2],
-                  hl_group = hl[3],
-                })
-              end
-            end,
-          })
-        end,
-      },
-    }),
-    on_confirm
-  )
+  for _, hl in ipairs(hls) do
+    vim.api.nvim_buf_set_extmark(buf, ns_id, 0, hl[1], {
+      end_col = hl[2],
+      hl_group = hl[3],
+    })
+  end
 end
 
 return M
