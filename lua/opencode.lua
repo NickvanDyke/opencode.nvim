@@ -27,11 +27,11 @@ function M.prompt(prompt)
       return
     end
 
-    prompt = require("opencode.context").inject(prompt, require("opencode.config").options.contexts)
+    prompt = require("opencode.context").inject(prompt, require("opencode.config").opts.contexts)
 
     -- WARNING: If user never prompts opencode via the plugin, we'll never receive SSEs or register auto_reload autocmds.
     -- Could register in `/plugin` and even periodically check, but is it worth the complexity?
-    if require("opencode.config").options.auto_reload then
+    if require("opencode.config").opts.auto_reload then
       require("opencode.reload").setup()
     end
     if result ~= sse_listening_port then
@@ -44,7 +44,7 @@ function M.prompt(prompt)
       sse_listening_port = result
     end
 
-    pcall(require("opencode.config").options.on_send)
+    pcall(require("opencode.config").opts.on_send)
 
     require("opencode.client").tui_clear_prompt(result, function()
       require("opencode.client").tui_append_prompt(prompt, result, function()
@@ -69,7 +69,7 @@ function M.command(command)
     -- No need to register SSE or auto_reload here - commands trigger neither
     -- (except maybe the `input_*` commands? but no reason for user to use those).
 
-    pcall(require("opencode.config").options.on_send)
+    pcall(require("opencode.config").opts.on_send)
 
     require("opencode.client").tui_execute_command(command, result)
   end)
@@ -104,7 +104,7 @@ function M.select_prompt()
     else
       return not does_prompt_use_visual
     end
-  end, vim.tbl_values(require("opencode.config").options.prompts))
+  end, vim.tbl_values(require("opencode.config").opts.prompts))
 
   vim.ui.select(
     prompts,

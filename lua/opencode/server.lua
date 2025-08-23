@@ -132,7 +132,7 @@ end
 ---3. Calling `opts.on_opencode_not_found` and polls for the port if it returns `true`.
 ---@param callback fun(ok: boolean, result: any) Called with eventually found port or error if not found after some time.
 function M.get_port(callback)
-  local configured_port = require("opencode.config").options.port
+  local configured_port = require("opencode.config").opts.port
   local find_port_fn = configured_port and function()
     return test_port(configured_port)
   end or function()
@@ -143,7 +143,7 @@ function M.get_port(callback)
   if found_port then
     callback(true, find_port_result)
   else
-    local ok, should_poll_for_port = pcall(require("opencode.config").options.on_opencode_not_found)
+    local ok, should_poll_for_port = pcall(require("opencode.config").opts.on_opencode_not_found)
     if ok and should_poll_for_port then
       poll_for_port(find_port_fn, callback)
     else

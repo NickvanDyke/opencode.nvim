@@ -33,9 +33,9 @@ function source:enabled()
 end
 
 function source:get_trigger_characters()
-  -- Parse `config.options.context` to return all non-alphanumeric first characters in placeholders
+  -- Parse `opts.context` to return all non-alphanumeric first characters in placeholders
   local trigger_chars = {}
-  for placeholder, _ in pairs(require("opencode.config").options.contexts) do
+  for placeholder, _ in pairs(require("opencode.config").opts.contexts) do
     local first_char = placeholder:sub(1, 1)
     if not first_char:match("%w") and not vim.tbl_contains(trigger_chars, first_char) then
       table.insert(trigger_chars, first_char)
@@ -49,7 +49,7 @@ function source:get_completions(ctx, callback)
   -- https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#completionItem
   --- @type lsp.CompletionItem[]
   local items = {}
-  for placeholder, context in pairs(require("opencode.config").options.contexts) do
+  for placeholder, context in pairs(require("opencode.config").opts.contexts) do
     --- @type lsp.CompletionItem
     local item = {
       label = placeholder,
@@ -95,13 +95,9 @@ end
 
 function source:resolve(item, callback)
   item = vim.deepcopy(item)
-  local context = require("opencode.config").options.contexts[item.label]
+  local context = require("opencode.config").opts.contexts[item.label]
 
-  item.documentation.value = item.documentation.value
-    .. ":\n"
-    .. "```"
-    .. (context.value() or "nil")
-    .. "```"
+  item.documentation.value = item.documentation.value .. ":\n" .. "```" .. (context.value() or "nil") .. "```"
 
   callback(item)
 end

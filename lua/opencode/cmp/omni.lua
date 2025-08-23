@@ -17,7 +17,7 @@ return function(ArgLead, CmdLine, CursorPos)
   local latest_word = start_idx and CmdLine:sub(start_idx, end_idx) or nil
 
   local items = {}
-  for placeholder, _ in pairs(require("opencode.config").options.contexts) do
+  for placeholder, _ in pairs(require("opencode.config").opts.contexts) do
     if not latest_word then
       local new_cmd = CmdLine .. placeholder
       table.insert(items, new_cmd)

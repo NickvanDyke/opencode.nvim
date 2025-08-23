@@ -117,7 +117,7 @@ local defaults = {
           buffer = win.buf,
           callback = function()
             if package.loaded["blink.cmp"] then
-              require("opencode.cmp.blink").setup(require("opencode.config").options.auto_register_cmp_sources)
+              require("opencode.cmp.blink").setup(require("opencode.config").opts.auto_register_cmp_sources)
             end
           end,
         })
@@ -152,14 +152,14 @@ local defaults = {
 }
 
 ---@type opencode.Opts
-M.options = vim.deepcopy(defaults)
+M.opts = vim.deepcopy(defaults)
 
 ---@param opts? opencode.Opts
 ---@return opencode.Opts
 function M.setup(opts)
-  M.options = vim.tbl_deep_extend("force", M.options, opts or {})
+  M.opts = vim.tbl_deep_extend("force", M.opts, opts or {})
 
-  return M.options
+  return M.opts
 end
 
 return M

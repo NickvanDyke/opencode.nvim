@@ -5,7 +5,7 @@ local M = {}
 function M.input(default, on_confirm)
   -- Recommended configuration uses snacks.input, so `opts.input` includes options for it too, not just for vim.ui.input.
   vim.ui.input(
-    vim.tbl_deep_extend("force", require("opencode.config").options.input, {
+    vim.tbl_deep_extend("force", require("opencode.config").opts.input, {
       default = default,
     }),
     on_confirm
@@ -17,7 +17,7 @@ end
 ---@param input string
 ---@return table[]
 function M.highlight(input)
-  local placeholders = vim.tbl_keys(require("opencode.config").options.contexts)
+  local placeholders = vim.tbl_keys(require("opencode.config").opts.contexts)
   local hls = {}
 
   for _, placeholder in ipairs(placeholders) do
