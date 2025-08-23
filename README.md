@@ -18,8 +18,7 @@ https://github.com/user-attachments/assets/4f074c86-6863-49b5-b1ff-dcd901a03e02
 
 ## 📦 Setup
 
-<details>
-<summary><a href="https://github.com/folke/lazy.nvim">lazy.nvim</a></summary>
+[lazy.nvim](https://github.com/folke/lazy.nvim):
 
 ```lua
 {
