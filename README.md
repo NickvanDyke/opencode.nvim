@@ -1,6 +1,6 @@
 # opencode.nvim
 
-Seamlessly integrate the [opencode](https://github.com/sst/opencode) AI assistant with Neovim.
+Seamlessly integrate the [opencode](https://github.com/sst/opencode) AI assistant with Neovim — convenient and editor-aware research, reviews, and requests. 
 
 https://github.com/user-attachments/assets/4f074c86-6863-49b5-b1ff-dcd901a03e02
 
