@@ -4,10 +4,7 @@ Seamlessly integrate the [opencode](https://github.com/sst/opencode) AI assistan
 
 https://github.com/user-attachments/assets/4f074c86-6863-49b5-b1ff-dcd901a03e02
 
-> [!NOTE]
-> Uses opencode's currently undocumented, likely unstable [API](https://github.com/sst/opencode/blob/dev/packages/opencode/src/server/server.ts).
->
-> Latest tested opencode version: `v0.5.12`
+> Uses opencode's currently undocumented [API](https://github.com/sst/opencode/blob/dev/packages/opencode/src/server/server.ts) — latest tested opencode version: `v0.5.12`
 
 ## ✨ Features
 
