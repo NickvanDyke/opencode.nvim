@@ -24,12 +24,12 @@ https://github.com/user-attachments/assets/4f074c86-6863-49b5-b1ff-dcd901a03e02
 {
   'NickvanDyke/opencode.nvim',
   dependencies = {
-    -- Recommended for better prompt input, and required to use opencode.nvim's embedded terminal. Otherwise optional.
+    -- Recommended for better prompt input, and required to use opencode.nvim's embedded terminal — otherwise optional
     { 'folke/snacks.nvim', opts = { input = { enabled = true } } },
   },
   ---@type opencode.Opts
   opts = {
-    -- Your configuration, if any
+    -- Your configuration, if any — see lua/opencode/config.lua
   },
   keys = {
     -- Recommended keymaps
