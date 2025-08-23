@@ -4,15 +4,17 @@ Seamlessly integrate the [opencode](https://github.com/sst/opencode) AI assistan
 
 https://github.com/user-attachments/assets/4f074c86-6863-49b5-b1ff-dcd901a03e02
 
-> Uses opencode's currently undocumented [API](https://github.com/sst/opencode/blob/dev/packages/opencode/src/server/server.ts) — latest tested opencode version: `v0.5.12`
+> Uses `opencode`'s currently undocumented [API](https://github.com/sst/opencode/blob/dev/packages/opencode/src/server/server.ts) — latest tested opencode version: `v0.5.12`
 
 ## ✨ Features
 
-- Auto-find any `opencode` process running inside Neovim's CWD, or open in an embedded terminal
-- Select and input prompts
-- Inject editor context
-- Auto-reload edited buffers in real-time
-- Write and refine prompts quickly with completions, highlights, and normal-mode support
+- Open `opencode` in an embedded terminal, or auto-connect to one matching Neovim's CWD.
+- Input prompts with completions, highlights, and normal-mode support.
+- Select from a built-in prompt library and define custom prompts.
+- Inject relevant editor context (buffer, selection, cursor, diagnostics, etc.).
+- Auto-reload buffers edited by `opencode` in real-time.
+- Forward `opencode`'s Server-Sent-Events as Neovim autocmds for automation.
+- Sensible defaults with well-documented, granular configuration.
 
 ## 📦 Setup
 
@@ -92,7 +94,7 @@ Add custom contexts to `opts.contexts`.
 
 ## 👀 Events
 
-`opencode.nvim` forwards opencode's Server-Sent-Events as an autocmd:
+`opencode.nvim` forwards `opencode`'s Server-Sent-Events as an `OpencodeEvent` autocmd:
 
 ```lua
 -- Listen for opencode events
