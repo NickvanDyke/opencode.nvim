@@ -1,7 +1,5 @@
 local M = {}
 
--- TODO: Should these use vim.fn.jobstart for async?
-
 ---@return Server[]
 local function find_servers()
   if vim.fn.executable("lsof") == 0 then
