@@ -97,7 +97,8 @@ function M.select_prompt()
   local prompts = vim.tbl_filter(function(prompt)
     local is_visual = vim.fn.mode():match("[vV\22]")
     -- WARNING: Technically depends on user using built-in `@selection` context by name...
-    -- Could compare function references? Probably more trouble than it's worth.
+    -- Could compare function references? Or add `visual = true/false` to contexts objects.
+    -- Probably more trouble than it's worth.
     local does_prompt_use_visual = prompt.prompt:match("@selection")
     if is_visual then
       return does_prompt_use_visual

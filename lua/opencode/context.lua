@@ -44,13 +44,14 @@ end
 ---@param contexts table<string, opencode.Context>
 ---@return string
 function M.inject(prompt, contexts)
-  -- TODO: In the midst of replacing, I think this considers already-replaced values as part of the prompt, and attempts to "chain replace" them?
-  -- Like if selection context injects text containing a literal placeholder.
   local placeholders = vim.tbl_keys(contexts)
   -- Replace the longest placeholders first, in case they overlap. e.g. @buffer should not replace "@buffers" in the prompt.
   table.sort(placeholders, function(a, b)
     return #a > #b
   end)
+  -- I worried that mid-replacing, this considers already-replaced values as part of the prompt, and attempts to "chain replace" them?
+  -- Like if diff context injects text containing a literal placeholder.
+  -- But so far haven't managed to make that happen, so maybe it's fine.
   for _, placeholder in ipairs(placeholders) do
     prompt = prompt:gsub(placeholder, function()
       -- Pass a function so it's only called when the placeholder is matched
