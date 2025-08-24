@@ -9,7 +9,8 @@ local function find_servers()
   -- Going straight to `lsof` relieves us of parsing `ps` and all the non-portable 'opencode'-containing processes it might return.
   -- With these flags, we'll only get processes that are listening on TCP ports and have 'opencode' in their command name.
   -- i.e. pretty much guaranteed to be just opencode server processes.
-  local output = require("opencode.util").exec("lsof -iTCP -sTCP:LISTEN -P -n | grep opencode")
+  -- `-w` flag suppresses warnings about inaccessible filesystems (e.g. Docker FUSE).
+  local output = require("opencode.util").exec("lsof -w -iTCP -sTCP:LISTEN -P -n | grep opencode")
   if output == "" then
     error("Couldn't find any opencode processes", 0)
   end
