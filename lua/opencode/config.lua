@@ -134,6 +134,10 @@ local defaults = {
     },
   },
   terminal = {
+    -- This defaults to false when `auto_insert` or `start_insert` are set to false.
+    -- But it's very confusing if the embedded terminal doesn't exit when opencode exits.
+    -- So always default to true.
+    auto_close = true,
     win = {
       -- "right" seems like a better default than snacks.terminal's "float" default...
       position = "right",
