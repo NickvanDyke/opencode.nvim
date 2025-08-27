@@ -10,7 +10,7 @@ local M = {}
 ---@field on_opencode_not_found? fun(): boolean Called when no opencode process is found. Return `true` if opencode was started and the plugin should try again. By default, opens an embedded terminal using [snacks.terminal](https://github.com/folke/snacks.nvim/blob/main/docs/terminal.md) (if available).
 ---@field on_send? fun() Called when a prompt or command is sent to opencode. By default, shows the embedded terminal if it exists.
 ---@field prompts? table<string, opencode.Prompt> Prompts to select from.
----@field contexts? table<string, opencode.Context> Contexts to inject into prompts.
+---@field contexts? table<string, opencode.Context> Contexts to inject into prompts, keyed by their placeholder.
 ---@field input? snacks.input.Opts Input options for `ask` — see [snacks.input](https://github.com/folke/snacks.nvim/blob/main/docs/input.md) (if enabled).
 ---@field terminal? snacks.terminal.Opts Embedded terminal options — see [snacks.terminal](https://github.com/folke/snacks.nvim/blob/main/docs/terminal.md).
 local defaults = {
