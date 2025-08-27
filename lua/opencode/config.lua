@@ -147,6 +147,11 @@ local defaults = {
         -- Title is unnecessary - opencode TUI has its own footer
         winbar = "",
       },
+      bo = {
+        -- Make it easier to target for customization, and prevent possibly unintended "snacks_terminal" targeting.
+        -- e.g. the recommended edgy.nvim integration puts all "snacks_terminal" windows at the bottom.
+        filetype = "opencode_terminal",
+      }
     },
     env = {
       -- Other themes have visual bugs in embedded terminals: https://github.com/sst/opencode/issues/445
