@@ -151,7 +151,20 @@ local defaults = {
         -- Make it easier to target for customization, and prevent possibly unintended "snacks_terminal" targeting.
         -- e.g. the recommended edgy.nvim integration puts all "snacks_terminal" windows at the bottom.
         filetype = "opencode_terminal",
-      }
+      },
+      on_buf = function(win)
+        local function setup_mux_nav()
+          if vim.env.TMUX and vim.fn.exists(":TmuxNavigateLeft") == 2 then
+            vim.keymap.set("t", "<C-h>", "<cmd>TmuxNavigateLeft<cr>", { buffer = win.buf, silent = true })
+            vim.keymap.set("t", "<C-j>", "<cmd>TmuxNavigateDown<cr>", { buffer = win.buf, silent = true })
+            vim.keymap.set("t", "<C-k>", "<cmd>TmuxNavigateUp<cr>", { buffer = win.buf, silent = true })
+            vim.keymap.set("t", "<C-l>", "<cmd>TmuxNavigateRight<cr>", { buffer = win.buf, silent = true })
+            vim.keymap.set("t", "<C-\\>", "<cmd>TmuxNavigatePrevious<cr>", { buffer = win.buf, silent = true })
+          end
+        end
+        setup_mux_nav()
+        vim.defer_fn(setup_mux_nav, 100)
+      end,
     },
     env = {
       -- Other themes have visual bugs in embedded terminals: https://github.com/sst/opencode/issues/445
