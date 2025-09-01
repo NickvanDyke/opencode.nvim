@@ -26,8 +26,8 @@ local function find_servers()
       error("Couldn't parse opencode PID and port from 'lsof' entry: " .. line, 0)
     end
 
-    local cwd = require("opencode.util").exec("lsof -w -a -p " .. pid .. " -d cwd | tail -1 | awk '{print $NF}'")
-    if cwd == "" then
+    local cwd = require("opencode.util").exec("lsof -w -a -p " .. pid .. " -d cwd"):match("%s+(/.*)$")
+    if not cwd then
       error("Couldn't determine CWD for PID: " .. pid, 0)
     end
 
