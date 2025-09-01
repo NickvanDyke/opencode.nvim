@@ -5,8 +5,8 @@ local M = {}
 local sse_buffer = {}
 
 ---@param data table
----@param callback fun(response: table)|nil
-local function handle_sse(data, callback)
+---@return table|nil
+local function handle_sse(data)
   for _, line in ipairs(data) do
     if line ~= "" then
       local clean_line = (line:gsub("^data: ?", ""))
@@ -17,27 +17,27 @@ local function handle_sse(data, callback)
       sse_buffer = {} -- Reset for next event
 
       local ok, response = pcall(vim.fn.json_decode, full_event)
-      if not ok then
+      if ok then
+        return response
+      else
         vim.notify("SSE JSON decode error: " .. full_event, vim.log.levels.ERROR, { title = "opencode" })
-      elseif callback then
-        callback(response)
       end
     end
   end
 end
 
 ---@param data table
----@param callback fun(response: table)|nil
-local function handle_json(data, callback)
+---@return table|nil
+local function handle_json(data)
   for _, line in ipairs(data) do
     if line == "" then
       return
     end
     local ok, response = pcall(vim.fn.json_decode, line)
-    if not ok then
+    if ok then
+      return response
+    else
       vim.notify("JSON decode error: " .. line, vim.log.levels.ERROR, { title = "opencode" })
-    elseif callback then
-      callback(response)
     end
   end
 end
@@ -68,10 +68,9 @@ local function curl(url, method, body, callback, is_sse)
   local stderr_lines = {}
   vim.fn.jobstart(command, {
     on_stdout = function(_, data)
-      if is_sse then
-        handle_sse(data, callback)
-      else
-        handle_json(data, callback)
+      local response = is_sse and handle_sse(data) or handle_json(data)
+      if response and callback then
+        callback(response)
       end
     end,
     on_stderr = function(_, data)
