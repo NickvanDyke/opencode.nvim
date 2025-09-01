@@ -161,7 +161,7 @@ end
 ---@param port number
 ---@param callback fun(session: table)
 function M.create_session(port, callback)
-  M.call(port, "/session", "POST", nil, callback)
+  M.call(port, "/session", "POST", vim.empty_dict(), callback)
 end
 
 ---@param port number
