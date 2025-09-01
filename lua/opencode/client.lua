@@ -114,13 +114,13 @@ end
 ---@param port number
 ---@param callback fun(response: table)|nil
 function M.tui_submit_prompt(port, callback)
-  M.call(port, "/tui/submit-prompt", "POST", {}, callback)
+  M.call(port, "/tui/submit-prompt", "POST", vim.empty_dict(), callback)
 end
 
 ---@param port number
 ---@param callback fun(response: table)|nil
 function M.tui_clear_prompt(port, callback)
-  M.call(port, "/tui/clear-prompt", "POST", {}, callback)
+  M.call(port, "/tui/clear-prompt", "POST", vim.empty_dict(), callback)
 end
 
 ---@param command string
