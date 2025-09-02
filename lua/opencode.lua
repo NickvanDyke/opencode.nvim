@@ -1,9 +1,5 @@
 local M = {}
 
--- Important to track the port, not just true/false,
--- because opencode may have restarted (usually on a new port) while the plugin is running.
-local sse_listening_port = nil
-
 ---Set up the plugin with your configuration.
 ---You don't need to call this if you use the default configuration - it does nothing else.
 ---@param opts opencode.Opts
@@ -34,15 +30,13 @@ function M.prompt(prompt)
     if require("opencode.config").opts.auto_reload then
       require("opencode.reload").setup()
     end
-    if result ~= sse_listening_port then
-      require("opencode.client").listen_for_sse(result, function(response)
-        vim.api.nvim_exec_autocmds("User", {
-          pattern = "OpencodeEvent",
-          data = response,
-        })
-      end)
-      sse_listening_port = result
-    end
+
+    require("opencode.client").listen_to_sse(result, function(response)
+      vim.api.nvim_exec_autocmds("User", {
+        pattern = "OpencodeEvent",
+        data = response,
+      })
+    end)
 
     pcall(require("opencode.config").opts.on_send)
 

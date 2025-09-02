@@ -1,8 +1,14 @@
 ---Calls the opencode [server](https://github.com/sst/opencode/blob/dev/packages/opencode/src/server/server.ts).
 local M = {}
 
--- Persistent buffer for SSE lines, because SSEs can span multiple `on_stdout` calls.
-local sse_buffer = {}
+local sse_state = {
+  -- Important to track the port, not just true/false,
+  -- because opencode may have restarted (usually on a new port) while the plugin is running.
+  port = nil,
+  -- Persistent buffer for SSE lines, because SSEs can span multiple `on_stdout` calls.
+  buffer = {},
+  job_id = nil,
+}
 
 ---@param data table
 ---@return table|nil
@@ -10,11 +16,11 @@ local function handle_sse(data)
   for _, line in ipairs(data) do
     if line ~= "" then
       local clean_line = (line:gsub("^data: ?", ""))
-      table.insert(sse_buffer, clean_line)
-    elseif #sse_buffer > 0 then
+      table.insert(sse_state.buffer, clean_line)
+    elseif #sse_state.buffer > 0 then
       -- Blank line: end of event. Process the accumulated event.
-      local full_event = table.concat(sse_buffer)
-      sse_buffer = {} -- Reset for next event
+      local full_event = table.concat(sse_state.buffer)
+      sse_state.buffer = {} -- Reset for next event
 
       local ok, response = pcall(vim.fn.json_decode, full_event)
       if ok then
@@ -47,6 +53,7 @@ end
 ---@param body table|nil
 ---@param callback fun(response: table)|nil
 ---@param is_sse boolean|nil
+---@return number job_id
 local function curl(url, method, body, callback, is_sse)
   local command = {
     "curl",
@@ -66,7 +73,7 @@ local function curl(url, method, body, callback, is_sse)
   }
 
   local stderr_lines = {}
-  vim.fn.jobstart(command, {
+  return vim.fn.jobstart(command, {
     on_stdout = function(_, data)
       local response = is_sse and handle_sse(data) or handle_json(data)
       if response and callback then
@@ -166,8 +173,18 @@ end
 
 ---@param port number
 ---@param callback fun(response: table)|nil
-function M.listen_for_sse(port, callback)
-  M.call(port, "/event", "GET", nil, callback, true)
+function M.listen_to_sse(port, callback)
+  if sse_state.port ~= port then
+    if sse_state.job_id then
+      vim.fn.jobstop(sse_state.job_id)
+    end
+
+    sse_state = {
+      port = port,
+      buffer = {},
+      job_id = M.call(port, "/event", "GET", nil, callback, true),
+    }
+  end
 end
 
 return M
