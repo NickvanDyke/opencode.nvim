@@ -38,7 +38,10 @@ function M.prompt(prompt)
       })
     end)
 
-    pcall(require("opencode.config").opts.on_send)
+    local on_send_ok, on_send_err = pcall(require("opencode.config").opts.on_send)
+    if not on_send_ok then
+      vim.notify("Error in `opts.on_send`: " .. on_send_err, vim.log.levels.WARN, { title = "opencode" })
+    end
 
     require("opencode.client").tui_clear_prompt(result, function()
       require("opencode.client").tui_append_prompt(prompt, result, function()
@@ -63,7 +66,10 @@ function M.command(command)
     -- No need to register SSE or auto_reload here - commands trigger neither
     -- (except maybe the `input_*` commands? but no reason for user to use those).
 
-    pcall(require("opencode.config").opts.on_send)
+    local on_send_ok, on_send_err = pcall(require("opencode.config").opts.on_send)
+    if not on_send_ok then
+      vim.notify("Error in `opts.on_send`: " .. on_send_err, vim.log.levels.WARN, { title = "opencode" })
+    end
 
     require("opencode.client").tui_execute_command(command, result)
   end)

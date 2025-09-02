@@ -20,15 +20,17 @@ local defaults = {
   on_opencode_not_found = function()
     -- Default experience prioritizes embedded `snacks.terminal`,
     -- but you could also e.g. call a different terminal plugin, launch an external opencode, or no-op.
-    local ok, result = pcall(require("opencode.terminal").open)
+    local ok, opened = pcall(require("opencode.terminal").open)
     if not ok then
-      -- Swallow error so users can safely exclude `snacks.nvim` dependency without overriding this function.
-      -- Could accidentally hide an unexpected error in snacks.terminal, but seems unlikely.
+      -- Discard error so users can safely exclude `snacks.nvim` dependency without overriding this function.
+      -- Could incidentally hide an unexpected error in `snacks.terminal`, but seems unlikely.
       return false
-    elseif not result then
-      vim.notify("Failed to auto-open embedded opencode terminal", vim.log.levels.ERROR, { title = "opencode" })
+    elseif not opened then
+      -- `snacks.terminal` is available but failed to open, which we do want to know about.
+      error("Failed to auto-open embedded opencode terminal", 0)
     end
-    return result
+
+    return true
   end,
   on_send = function()
     -- "if exists" because user may alternate between embedded and external opencode.
@@ -122,7 +124,7 @@ local defaults = {
           end,
         })
 
-        -- snacks.input doesn't seem to actually call `opts.highlight`... so highlight its buffer ourselves
+        -- `snacks.input` doesn't seem to actually call `opts.highlight`... so highlight its buffer ourselves
         vim.api.nvim_create_autocmd({ "TextChanged", "TextChangedI", "BufWinEnter" }, {
           group = vim.api.nvim_create_augroup("OpencodeAskHighlight", { clear = true }),
           buffer = win.buf,
@@ -151,7 +153,7 @@ local defaults = {
         -- Make it easier to target for customization, and prevent possibly unintended "snacks_terminal" targeting.
         -- e.g. the recommended edgy.nvim integration puts all "snacks_terminal" windows at the bottom.
         filetype = "opencode_terminal",
-      }
+      },
     },
     env = {
       -- Other themes have visual bugs in embedded terminals: https://github.com/sst/opencode/issues/445

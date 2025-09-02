@@ -142,11 +142,15 @@ function M.get_port(callback)
   if found_port then
     callback(true, find_port_result)
   else
-    local ok, should_poll_for_port = pcall(require("opencode.config").opts.on_opencode_not_found)
-    if ok and should_poll_for_port then
-      poll_for_port(find_port_fn, callback)
+    local ok, was_opencode_started = pcall(require("opencode.config").opts.on_opencode_not_found)
+    if ok then
+      if was_opencode_started then
+        poll_for_port(find_port_fn, callback)
+      else
+        callback(false, find_port_result)
+      end
     else
-      callback(false, find_port_result)
+      callback(false, "Error in `opts.on_opencode_not_found`: " .. was_opencode_started)
     end
   end
 end

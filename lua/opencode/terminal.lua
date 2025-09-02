@@ -26,6 +26,9 @@ function M.open()
   return win ~= nil
 end
 
+---Show the embedded opencode terminal, if it already exists.
+---Returns whether the terminal was shown.
+---@return boolean
 function M.show_if_exists()
   local win = safe_snacks_terminal().get(
     cmd(),
@@ -33,6 +36,9 @@ function M.show_if_exists()
   )
   if win then
     win:show()
+    return true
+  else
+    return false
   end
 end
 
