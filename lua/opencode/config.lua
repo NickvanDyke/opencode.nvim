@@ -6,7 +6,7 @@ local M = {}
 ---@class opencode.Opts
 ---@field port? number The port opencode is running on. If `nil`, searches for an opencode process inside Neovim's CWD (requires `lsof` to be installed on your system). The embedded terminal will automatically use this; launch external processes with `opencode --port <port>`.
 ---@field auto_reload? boolean Automatically reload buffers edited by opencode in real-time. Requires `vim.opt.autoread = true`.
----@field auto_register_cmp_sources? string[] Completion sources to automatically register with [blink.cmp](https://github.com/Saghen/blink.cmp) (if loaded) in the `ask` input.
+---@field auto_register_cmp_sources? string[] Completion sources to automatically register with [blink.cmp](https://github.com/Saghen/blink.cmp) (if loaded) in the `ask` input. Only available when using [snacks.input](https://github.com/folke/snacks.nvim/blob/main/docs/input.md).
 ---@field on_opencode_not_found? fun(): boolean Called when no opencode process is found. Return `true` if opencode was started and the plugin should try again. By default, opens an embedded terminal using [snacks.terminal](https://github.com/folke/snacks.nvim/blob/main/docs/terminal.md) (if available).
 ---@field on_send? fun() Called when a prompt or command is sent to opencode. By default, shows the embedded terminal if it exists.
 ---@field prompts? table<string, opencode.Prompt> Prompts to select from.
@@ -18,11 +18,11 @@ local defaults = {
   auto_reload = true,
   auto_register_cmp_sources = { "opencode", "buffer" },
   on_opencode_not_found = function()
-    -- Default experience prioritizes embedded snacks.terminal,
+    -- Default experience prioritizes embedded `snacks.terminal`,
     -- but you could also e.g. call a different terminal plugin, launch an external opencode, or no-op.
     local ok, result = pcall(require("opencode.terminal").open)
     if not ok then
-      -- Swallow error so users can safely exclude snacks.nvim dependency without overriding this function.
+      -- Swallow error so users can safely exclude `snacks.nvim` dependency without overriding this function.
       -- Could accidentally hide an unexpected error in snacks.terminal, but seems unlikely.
       return false
     elseif not result then
@@ -91,9 +91,9 @@ local defaults = {
   input = {
     prompt = "Ask opencode: ",
     icon = "󱚣 ",
-    -- Built-in completion as fallback.
-    -- It's okay to enable simultaneously with blink.cmp because built-in completion
-    -- only triggers via <Tab> or <C-x><C-o> and blink.cmp keymaps take priority.
+    -- Built-in completion - trigger via `<C-x><C-o>` or `<Tab>` in insert mode.
+    -- Only available when using `snacks.input` - built-in `vim.ui.input` does not support `omnifunc`.
+    -- It's okay to enable simultaneously with `blink.cmp` because those keymaps take priority.
     completion = "customlist,v:lua.require'opencode.cmp.omni'",
     highlight = require("opencode.input").highlight,
     win = {
@@ -102,15 +102,15 @@ local defaults = {
       row = -3, -- Row above the cursor
       col = 0, -- Align with the cursor
       b = {
-        -- Enable blink completion
+        -- Enable `blink.cmp` completion
         completion = true,
       },
       bo = {
-        -- Custom filetype to configure blink with
+        -- Custom filetype to enable `blink.cmp` source on
         filetype = "opencode_ask",
       },
       on_buf = function(win)
-        -- Wait as long as possible to check for blink.cmp loaded - many users lazy-load on `InsertEnter`.
+        -- Wait as long as possible to check for `blink.cmp` loaded - many users lazy-load on `InsertEnter`.
         -- And OptionSet :runtimepath didn't seem to fire for lazy.nvim.
         vim.api.nvim_create_autocmd("InsertEnter", {
           once = true,
@@ -139,7 +139,7 @@ local defaults = {
     -- So always default to true.
     auto_close = true,
     win = {
-      -- "right" seems like a better default than snacks.terminal's "float" default...
+      -- "right" seems like a better default than `snacks.terminal`'s "float" default
       position = "right",
       -- Stay in the editor after opening the terminal
       enter = false,
