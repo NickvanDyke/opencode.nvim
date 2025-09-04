@@ -93,7 +93,7 @@ end
 ---Select a prompt from `opts.prompts` to send to opencode.
 ---
 ---Filters prompts according to whether they use `@selection` and whether we're in visual mode.
-function M.select_prompt()
+function M.select()
   ---@type opencode.Prompt[]
   local prompts = vim.tbl_filter(function(prompt)
     local is_visual = vim.fn.mode():match("[vV\22]")
