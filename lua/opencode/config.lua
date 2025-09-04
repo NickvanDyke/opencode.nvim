@@ -7,36 +7,36 @@ local M = {}
 ---@field port? number The port opencode is running on. If `nil`, searches for an opencode process inside Neovim's CWD (requires `lsof` to be installed on your system). The embedded terminal will automatically use this; launch external processes with `opencode --port <port>`.
 ---@field auto_reload? boolean Automatically reload buffers edited by opencode in real-time. Requires `vim.opt.autoread = true`.
 ---@field auto_register_cmp_sources? string[] Completion sources to automatically register with [blink.cmp](https://github.com/Saghen/blink.cmp) (if loaded) in the `ask` input. Only available when using [snacks.input](https://github.com/folke/snacks.nvim/blob/main/docs/input.md).
----@field on_opencode_not_found? fun(): boolean Called when no opencode process is found. Return `true` if opencode was started and the plugin should try again. By default, opens an embedded terminal using [snacks.terminal](https://github.com/folke/snacks.nvim/blob/main/docs/terminal.md) (if available).
----@field on_send? fun() Called when a prompt or command is sent to opencode. By default, shows the embedded terminal if it exists.
----@field prompts? table<string, opencode.Prompt> Prompts to select from.
 ---@field contexts? table<string, opencode.Context> Contexts to inject into prompts, keyed by their placeholder.
+---@field prompts? table<string, opencode.Prompt> Prompts to select from.
 ---@field input? snacks.input.Opts Input options for `ask` — see [snacks.input](https://github.com/folke/snacks.nvim/blob/main/docs/input.md) (if enabled).
 ---@field terminal? snacks.terminal.Opts Embedded terminal options — see [snacks.terminal](https://github.com/folke/snacks.nvim/blob/main/docs/terminal.md).
+---@field on_opencode_not_found? fun(): boolean Called when no opencode process is found. Return `true` if opencode was started and the plugin should try again. By default, opens an embedded terminal using [snacks.terminal](https://github.com/folke/snacks.nvim/blob/main/docs/terminal.md) (if available).
+---@field on_send? fun() Called when a prompt or command is sent to opencode. By default, shows the embedded terminal if it exists.
 local defaults = {
   port = nil,
   auto_reload = true,
   auto_register_cmp_sources = { "opencode", "buffer" },
-  on_opencode_not_found = function()
-    -- Default experience prioritizes embedded `snacks.terminal`,
-    -- but you could also e.g. call a different terminal plugin, launch an external opencode, or no-op.
-    local ok, opened = pcall(require("opencode.terminal").open)
-    if not ok then
-      -- Discard error so users can safely exclude `snacks.nvim` dependency without overriding this function.
-      -- Could incidentally hide an unexpected error in `snacks.terminal`, but seems unlikely.
-      return false
-    elseif not opened then
-      -- `snacks.terminal` is available but failed to open, which we do want to know about.
-      error("Failed to auto-open embedded opencode terminal", 0)
-    end
-
-    return true
-  end,
-  on_send = function()
-    -- "if exists" because user may alternate between embedded and external opencode.
-    -- `opts.on_opencode_not_found` comments also apply here.
-    pcall(require("opencode.terminal").show_if_exists)
-  end,
+  contexts = {
+    ---@class opencode.Context
+    ---@field description string Description of the context. Shown in completion docs.
+    ---@field value fun(): string|nil Function that returns the context value for replacement.
+    ["@buffer"] = { description = "Current buffer", value = require("opencode.context").buffer },
+    ["@buffers"] = { description = "Open buffers", value = require("opencode.context").buffers },
+    ["@cursor"] = { description = "Cursor position", value = require("opencode.context").cursor_position },
+    ["@selection"] = { description = "Selected text", value = require("opencode.context").visual_selection },
+    ["@visible"] = { description = "Visible text", value = require("opencode.context").visible_text },
+    ["@diagnostic"] = {
+      description = "Current line diagnostics",
+      value = function()
+        return require("opencode.context").diagnostics(true)
+      end,
+    },
+    ["@diagnostics"] = { description = "Current buffer diagnostics", value = require("opencode.context").diagnostics },
+    ["@quickfix"] = { description = "Quickfix list", value = require("opencode.context").quickfix },
+    ["@diff"] = { description = "Git diff", value = require("opencode.context").git_diff },
+    ["@grapple"] = { description = "Grapple tags", value = require("opencode.context").grapple_tags },
+  },
   prompts = {
     ---@class opencode.Prompt
     ---@field description string Description of the prompt. Shown in selection menu.
@@ -69,26 +69,6 @@ local defaults = {
       description = "Review git diff",
       prompt = "Review the following git diff for correctness and readability:\n@diff",
     },
-  },
-  contexts = {
-    ---@class opencode.Context
-    ---@field description string Description of the context. Shown in completion docs.
-    ---@field value fun(): string|nil Function that returns the context value for replacement.
-    ["@buffer"] = { description = "Current buffer", value = require("opencode.context").buffer },
-    ["@buffers"] = { description = "Open buffers", value = require("opencode.context").buffers },
-    ["@cursor"] = { description = "Cursor position", value = require("opencode.context").cursor_position },
-    ["@selection"] = { description = "Selected text", value = require("opencode.context").visual_selection },
-    ["@visible"] = { description = "Visible text", value = require("opencode.context").visible_text },
-    ["@diagnostic"] = {
-      description = "Current line diagnostics",
-      value = function()
-        return require("opencode.context").diagnostics(true)
-      end,
-    },
-    ["@diagnostics"] = { description = "Current buffer diagnostics", value = require("opencode.context").diagnostics },
-    ["@quickfix"] = { description = "Quickfix list", value = require("opencode.context").quickfix },
-    ["@diff"] = { description = "Git diff", value = require("opencode.context").git_diff },
-    ["@grapple"] = { description = "Grapple tags", value = require("opencode.context").grapple_tags },
   },
   input = {
     prompt = "Ask opencode: ",
@@ -160,6 +140,26 @@ local defaults = {
       OPENCODE_THEME = "system",
     },
   },
+  on_opencode_not_found = function()
+    -- Default experience prioritizes embedded `snacks.terminal`,
+    -- but you could also e.g. call a different terminal plugin, launch an external opencode, or no-op.
+    local ok, opened = pcall(require("opencode.terminal").open)
+    if not ok then
+      -- Discard error so users can safely exclude `snacks.nvim` dependency without overriding this function.
+      -- Could incidentally hide an unexpected error in `snacks.terminal`, but seems unlikely.
+      return false
+    elseif not opened then
+      -- `snacks.terminal` is available but failed to open, which we do want to know about.
+      error("Failed to auto-open embedded opencode terminal", 0)
+    end
+
+    return true
+  end,
+  on_send = function()
+    -- "if exists" because user may alternate between embedded and external opencode.
+    -- `opts.on_opencode_not_found` comments also apply here.
+    pcall(require("opencode.terminal").show_if_exists)
+  end,
 }
 
 ---@type opencode.Opts
