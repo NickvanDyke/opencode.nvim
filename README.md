@@ -50,14 +50,6 @@ https://github.com/user-attachments/assets/340ce139-173c-4e81-b39a-f089862db9ce
 
     -- Example: keymap for custom prompt
     vim.keymap.set('n', '<leader>oe', function() require('opencode').prompt('Explain @cursor and its context') end, { desc = 'Explain this code' })
-
-    -- Add keymap group if using `which-key.nvim`
-    require('which-key').add({
-      '<leader>o',
-      icon = '󱚣',
-      group = 'Opencode',
-      mode = { 'n', 'v' },
-    })
   end,
 }
 ```
