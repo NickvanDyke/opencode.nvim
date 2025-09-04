@@ -27,15 +27,15 @@ https://github.com/user-attachments/assets/340ce139-173c-4e81-b39a-f089862db9ce
     -- Recommended for better prompt input, and required to use `opencode.nvim`'s embedded terminal — otherwise optional
     { 'folke/snacks.nvim', opts = { input = { enabled = true } } },
   },
-  ---@type opencode.Opts
-  opts = {
-    -- Your configuration, if any — see `lua/opencode/config.lua`
-  },
-  config = function(_, opts)
+  config = function()
+    -- `opencode.nvim` passes options via a global variable instead of `setup()` for faster startup
+    ---@type opencode.Opts
+    vim.g.opencode_opts = {
+      -- Your configuration, if any — see `lua/opencode/config.lua`
+    }
+
     -- Required for `opts.auto_reload`
     vim.opt.autoread = true
-
-    require('opencode').setup(opts)
 
     -- Recommended keymaps
     vim.keymap.set('n', '<leader>ot', function() require('opencode').toggle() end, { desc = 'Toggle opencode' })
