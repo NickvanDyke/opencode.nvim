@@ -39,8 +39,8 @@ local defaults = {
   end,
   prompts = {
     ---@class opencode.Prompt
-    ---@field description? string Description of the prompt. Shown in selection menu.
-    ---@field prompt? string The prompt to send to opencode, with placeholders for context like `@cursor`, `@buffer`, etc.
+    ---@field description string Description of the prompt. Shown in selection menu.
+    ---@field prompt string The prompt to send to opencode, with placeholders for context like `@cursor`, `@buffer`, etc.
     explain = {
       description = "Explain code near cursor",
       prompt = "Explain @cursor and its context",
@@ -72,7 +72,7 @@ local defaults = {
   },
   contexts = {
     ---@class opencode.Context
-    ---@field description? string Description of the context. Shown in completion docs.
+    ---@field description string Description of the context. Shown in completion docs.
     ---@field value fun(): string|nil Function that returns the context value for replacement.
     ["@buffer"] = { description = "Current buffer", value = require("opencode.context").buffer },
     ["@buffers"] = { description = "Open buffers", value = require("opencode.context").buffers },
