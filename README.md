@@ -32,6 +32,9 @@ https://github.com/user-attachments/assets/340ce139-173c-4e81-b39a-f089862db9ce
     -- Your configuration, if any — see lua/opencode/config.lua
   },
   config = function(_, opts)
+    -- Required for `opts.auto_reload`
+    vim.opt.autoread = true
+
     require('opencode').setup(opts)
     -- Recommended keymaps
     vim.keymap.set('n', '<leader>ot', function() require('opencode').toggle() end, { desc = 'Toggle opencode' })
@@ -48,7 +51,6 @@ https://github.com/user-attachments/assets/340ce139-173c-4e81-b39a-f089862db9ce
   end,
 }
 ```
-</details>
 
 <details>
 <summary><a href="https://github.com/nix-community/nixvim">nixvim</a></summary>
