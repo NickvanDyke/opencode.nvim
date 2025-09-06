@@ -16,7 +16,7 @@ body:
           required: true
         - label: I have searched the existing issues
           required: true
-        - label: I have searched the existing issues of plugins related to this issue
+        - label: I have searched the existing [opencode issues](https://github.com/sst/opencode/issues)
           required: true
   - type: input
     attributes:
