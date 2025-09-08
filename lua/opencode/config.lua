@@ -6,30 +6,39 @@ local M = {}
 vim.g.opencode_opts = vim.g.opencode_opts
 
 ---@class opencode.Opts
+---
 ---The port `opencode` is running on.
 ---If `nil`, searches for an `opencode` process inside Neovim's CWD (requires `lsof` to be installed on your system).
 ---The embedded terminal will automatically launch `opencode` with this; launch external instances with `opencode --port <port>`.
 ---@field port? number
+---
 ---Automatically reload buffers edited by `opencode` in real-time.
 ---Requires `vim.opt.autoread = true`.
 ---@field auto_reload? boolean
+---
 ---Completion sources to automatically register in the `ask` input with [blink.cmp](https://github.com/Saghen/blink.cmp) (if available).
 ---The `"opencode"` source offers completions and previews for contexts.
 ---Only possible when using [snacks.input](https://github.com/folke/snacks.nvim/blob/main/docs/input.md).
 ---@field auto_register_cmp_sources? string[]
+---
 ---Contexts to inject into prompts, keyed by their placeholder.
 ---@field contexts? table<string, opencode.Context>
+---
 ---Prompts to select from.
 ---@field prompts? table<string, opencode.Prompt>
+---
 ---Input options for `ask` — see [snacks.input](https://github.com/folke/snacks.nvim/blob/main/docs/input.md) (if enabled).
 ---@field input? snacks.input.Opts
+---
 ---Embedded terminal options — see [snacks.terminal](https://github.com/folke/snacks.nvim/blob/main/docs/terminal.md).
 ---@field terminal? snacks.terminal.Opts
+---
 ---Called when no `opencode` process is found.
 ---Return `true` if `opencode` was started and the plugin should try again.
 ---By default, opens an embedded terminal using [snacks.terminal](https://github.com/folke/snacks.nvim/blob/main/docs/terminal.md) (if available).
 ---But you could also e.g. call your own terminal plugin, launch an external `opencode`, or no-op.
 ---@field on_opencode_not_found? fun(): boolean
+---
 ---Called when a prompt or command is sent to `opencode`.
 ---By default, shows the embedded terminal if it exists.
 ---@field on_send? fun()
