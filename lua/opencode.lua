@@ -11,14 +11,14 @@ function M.setup(opts)
   )
 end
 
----Send a prompt to opencode.
+---Send a prompt to `opencode`.
 ---
 ---As the entry point to prompting, this function also:
----1. Calls `opts.on_opencode_not_found` if no opencode process is found.
+---1. Calls `opts.on_opencode_not_found` if no `opencode` process is found.
 ---2. Injects `opts.contexts` into the prompt.
 ---3. Sets up `opts.auto_reload` if enabled.
 ---4. Calls `opts.on_send`.
----5. Listens for SSEs from opencode to forward as `OpencodeEvent` autocmd.
+---5. Listens for SSEs from `opencode` to forward as `OpencodeEvent` autocmd.
 ---@param prompt string
 function M.prompt(prompt)
   require("opencode.server").get_port(function(ok, result)
@@ -57,7 +57,7 @@ function M.prompt(prompt)
   end)
 end
 
----Send a command to opencode.
+---Send a command to `opencode`.
 ---See https://opencode.ai/docs/keybinds/ for available commands.
 ---@param command string
 function M.command(command)
@@ -79,12 +79,12 @@ function M.command(command)
   end)
 end
 
----Input a prompt to send to opencode.
+---Input a prompt to send to `opencode`.
 ---
---- - Highlights `opts.contexts` placeholders in the input.
---- - Offers completions for `opts.contexts` placeholders.
----   - Press `<Tab>` or `<C-x><C-o>` to trigger built-in completion (requires `snacks.input`).
----   - Registers `opts.auto_register_cmp_sources` when using `snacks.input` and `blink.cmp`.
+--- - Highlights `opts.contexts` in the input.
+--- - Offers completions for `opts.contexts` when using `snacks.input`.
+---   - Press `<Tab>` or `<C-x><C-o>` to trigger built-in completion.
+---   - When using `blink.cmp`, registers `opts.auto_register_cmp_sources`.
 ---@param default? string Text to prefill the input with.
 function M.ask(default)
   require("opencode.input").input(default, function(value)
@@ -94,7 +94,7 @@ function M.ask(default)
   end)
 end
 
----Select a prompt from `opts.prompts` to send to opencode.
+---Select a prompt from `opts.prompts` to send to `opencode`.
 ---
 ---Filters prompts according to whether they use `@selection` and whether we're in visual mode.
 function M.select()
@@ -130,7 +130,7 @@ function M.select()
   )
 end
 
----Toggle embedded opencode.
+---Toggle embedded `opencode`.
 ---Requires `snacks.terminal`.
 function M.toggle()
   local ok, err = pcall(require("opencode.terminal").toggle)
