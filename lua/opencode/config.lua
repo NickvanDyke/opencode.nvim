@@ -151,7 +151,7 @@ local defaults = {
     -- So override that.
     auto_close = true,
     win = {
-      -- "right" seems like a better default than `snacks.terminal`'s "float" default
+      -- "right" seems like a better default than `snacks.terminal`'s `"float"` default
       position = "right",
       -- Stay in the editor after opening the terminal
       enter = false,
@@ -160,8 +160,8 @@ local defaults = {
         winbar = "",
       },
       bo = {
-        -- Make it easier to target for customization, and prevent possibly unintended "snacks_terminal" targeting.
-        -- e.g. the recommended edgy.nvim integration puts all "snacks_terminal" windows at the bottom.
+        -- Make it easier to target for customization, and prevent possibly unintended `"snacks_terminal"` targeting.
+        -- e.g. the recommended edgy.nvim integration puts all `"snacks_terminal"` windows at the bottom.
         filetype = "opencode_terminal",
       },
     },
