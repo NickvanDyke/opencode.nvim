@@ -170,12 +170,12 @@ local defaults = {
 ---@type opencode.Opts
 M.opts = vim.deepcopy(defaults)
 
----@param opts? opencode.Opts
----@return opencode.Opts
-function M.setup(opts)
-  M.opts = vim.tbl_deep_extend("force", M.opts, opts or {})
-
-  return M.opts
+-- Lazily merge options the first time this module is `require()`d, i.e. actually using `M.opts`.
+-- This way, users don't have to manually `require()` the plugin just to call `setup()` (impacting startup time).
+local is_setup = false
+if not is_setup then
+  is_setup = true
+  M.opts = vim.tbl_deep_extend("force", M.opts, vim.g.opencode_opts or {})
 end
 
 return M

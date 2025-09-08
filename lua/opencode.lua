@@ -1,15 +1,5 @@
 local M = {}
 
--- Lazily perform setup the first time this module is `require`d, i.e. actually using its API.
--- This way, users don't have to `require` it (impacting startup time) just to call `setup()`.
--- See https://mrcjkb.dev/posts/2023-08-22-setup.html for more reasoning.
--- WARNING: This is meant to be the only public module - using an internal module directly will bypass this setup.
--- TODO: Is there a way to enforce or indicate that?
-if not vim.g.opencode_is_setup then
-  vim.g.opencode_is_setup = true
-  require("opencode.config").setup(vim.g.opencode_opts)
-end
-
 ---@deprecated Pass options via `vim.g.opencode_opts` instead. See [README](https://github.com/NickvanDyke/opencode.nvim) for example.
 ---@param opts opencode.Opts
 function M.setup(opts)
