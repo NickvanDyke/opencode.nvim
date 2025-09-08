@@ -130,8 +130,9 @@ function M.select()
   )
 end
 
----Toggle embedded `opencode`.
+---Toggle an embedded `opencode`.
 ---Requires `snacks.terminal`.
+---To use your own terminal plugin, get the `opencode` command to run via `require("opencode.terminal").cmd()`.
 function M.toggle()
   local ok, err = pcall(require("opencode.terminal").toggle)
   if not ok then

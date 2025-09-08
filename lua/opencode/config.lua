@@ -28,7 +28,7 @@ vim.g.opencode_opts = vim.g.opencode_opts
 ---Called when no `opencode` process is found.
 ---Return `true` if `opencode` was started and the plugin should try again.
 ---By default, opens an embedded terminal using [snacks.terminal](https://github.com/folke/snacks.nvim/blob/main/docs/terminal.md) (if available).
----But you could also e.g. call a different terminal plugin, launch an external `opencode`, or no-op.
+---But you could also e.g. call your own terminal plugin, launch an external `opencode`, or no-op.
 ---@field on_opencode_not_found? fun(): boolean
 ---Called when a prompt or command is sent to `opencode`.
 ---By default, shows the embedded terminal if it exists.

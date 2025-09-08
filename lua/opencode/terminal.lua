@@ -1,6 +1,8 @@
 local M = {}
 
-local function cmd()
+---The `opencode` command, with `--port` if specified in config.
+---@return string
+function M.cmd()
   local port = require("opencode.config").opts.port
   return "opencode" .. (port and (" --port " .. port) or "")
 end
@@ -14,7 +16,7 @@ local function safe_snacks_terminal()
 end
 
 function M.toggle()
-  safe_snacks_terminal().toggle(cmd(), require("opencode.config").opts.terminal)
+  safe_snacks_terminal().toggle(M.cmd(), require("opencode.config").opts.terminal)
 end
 
 ---Open an embedded opencode terminal.
@@ -22,7 +24,7 @@ end
 ---@return boolean
 function M.open()
   -- We use `get`, not `open`, so that `toggle` will reference the same terminal
-  local win = safe_snacks_terminal().get(cmd(), require("opencode.config").opts.terminal)
+  local win = safe_snacks_terminal().get(M.cmd(), require("opencode.config").opts.terminal)
   return win ~= nil
 end
 
@@ -31,7 +33,7 @@ end
 ---@return boolean
 function M.show_if_exists()
   local win = safe_snacks_terminal().get(
-    cmd(),
+    M.cmd(),
     vim.tbl_deep_extend("force", require("opencode.config").opts.terminal, { create = false })
   )
   if win then
