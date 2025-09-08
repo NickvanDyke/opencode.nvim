@@ -3,6 +3,11 @@ local M = {}
 ---@module 'snacks.input'
 ---@module 'snacks.terminal'
 
+---Your `opencode.nvim` configuration.
+---Passed via global variable for [simpler UX and faster startup](https://mrcjkb.dev/posts/2023-08-22-setup.html).
+---@type opencode.Opts|nil
+vim.g.opencode_opts = vim.g.opencode_opts
+
 ---@class opencode.Opts
 ---@field port? number The port opencode is running on. If `nil`, searches for an opencode process inside Neovim's CWD (requires `lsof` to be installed on your system). The embedded terminal will automatically use this; launch external processes with `opencode --port <port>`.
 ---@field auto_reload? boolean Automatically reload buffers edited by opencode in real-time. Requires `vim.opt.autoread = true`.

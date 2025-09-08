@@ -28,8 +28,6 @@ https://github.com/user-attachments/assets/340ce139-173c-4e81-b39a-f089862db9ce
     { 'folke/snacks.nvim', opts = { input = { enabled = true } } },
   },
   config = function()
-    -- `opencode.nvim` passes options via a global variable instead of `setup()` for faster startup
-    ---@type opencode.Opts
     vim.g.opencode_opts = {
       -- Your configuration, if any — see `lua/opencode/config.lua`
     }
@@ -75,7 +73,7 @@ programs.nixvim = {
 
 ## ⚙️ Configuration
 
-`opencode.nvim` strives to provide a rich and reliable default experience, with a well-documented and flexible [configuration](./lua/opencode/config.lua#L16) and [API](./lua/opencode.lua) for you to customize and compose according to your preferences.
+`opencode.nvim` strives to provide a rich and reliable default experience, with a well-documented and flexible [configuration](./lua/opencode/config.lua#L21) and [API](./lua/opencode.lua) for you to customize and compose according to your preferences.
 
 ## 🕵️ Context
 
