@@ -92,12 +92,13 @@ local defaults = {
   },
   input = {
     prompt = "Ask opencode: ",
+    highlight = require("opencode.input").highlight,
+    -- Options below here only apply to [snacks.input](https://github.com/folke/snacks.nvim/blob/main/docs/input.md).
     icon = "󱚣 ",
-    -- Built-in completion - trigger via `<C-x><C-o>` or `<Tab>` in insert mode.
+    -- Built-in completion - trigger via `<Tab>` or `<C-x><C-o>` in insert mode.
     -- Only available when using `snacks.input` - built-in `vim.ui.input` does not support `omnifunc`.
     -- It's okay to enable simultaneously with `blink.cmp` because those keymaps take priority.
     completion = "customlist,v:lua.require'opencode.cmp.omni'",
-    highlight = require("opencode.input").highlight,
     win = {
       title_pos = "left",
       relative = "cursor",
@@ -136,9 +137,9 @@ local defaults = {
     },
   },
   terminal = {
-    -- This defaults to false when `auto_insert` or `start_insert` are set to false.
-    -- But it's very confusing if the embedded terminal doesn't exit when opencode exits.
-    -- So always default to true.
+    -- This will default to false if `auto_insert` or `start_insert` are set to false.
+    -- But it's very confusing if the embedded terminal doesn't exit when `opencode` exits.
+    -- So override that.
     auto_close = true,
     win = {
       -- "right" seems like a better default than `snacks.terminal`'s "float" default
@@ -146,7 +147,7 @@ local defaults = {
       -- Stay in the editor after opening the terminal
       enter = false,
       wo = {
-        -- Title is unnecessary - opencode TUI has its own footer
+        -- Title is unnecessary - `opencode` TUI has its own footer
         winbar = "",
       },
       bo = {
@@ -174,7 +175,7 @@ local defaults = {
     return true
   end,
   on_send = function()
-    -- "if exists" because user may alternate between embedded and external opencode.
+    -- "if exists" because user may alternate between embedded and external `opencode`.
     -- `opts.on_opencode_not_found` comments also apply here.
     pcall(require("opencode.terminal").show_if_exists)
   end,
