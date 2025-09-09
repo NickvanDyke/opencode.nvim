@@ -192,15 +192,8 @@ local defaults = {
 
 ---@module 'snacks'
 
+---Plugin options, lazily merged from `defaults` and `vim.g.opencode_opts`.
 ---@type opencode.Opts
-M.opts = vim.deepcopy(defaults)
-
--- Lazily merge options the first time this module is `require`d, i.e. actually using `M.opts`.
--- This way, users don't have to manually `require` the plugin just to call `setup` (impacting startup time).
-local is_setup = false
-if not is_setup then
-  is_setup = true
-  M.opts = vim.tbl_deep_extend("force", M.opts, vim.g.opencode_opts or {})
-end
+M.opts = vim.tbl_deep_extend("force", vim.deepcopy(defaults), vim.g.opencode_opts or {})
 
 return M
