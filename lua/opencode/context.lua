@@ -41,9 +41,9 @@ end
 
 ---Inject context into a prompt.
 ---@param prompt string
----@param contexts table<string, opencode.Context>
 ---@return string
-function M.inject(prompt, contexts)
+function M.inject(prompt)
+  local contexts = require("opencode.config").opts.contexts or {}
   local placeholders = vim.tbl_keys(contexts)
   -- Replace the longest placeholders first, in case they overlap. e.g. @buffer should not replace "@buffers" in the prompt.
   table.sort(placeholders, function(a, b)

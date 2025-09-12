@@ -27,7 +27,7 @@ function M.prompt(prompt)
       return
     end
 
-    prompt = require("opencode.context").inject(prompt, require("opencode.config").opts.contexts)
+    prompt = require("opencode.context").inject(prompt)
 
     -- WARNING: If user never prompts opencode via the plugin, we'll never receive SSEs or register auto_reload autocmds.
     -- Could register in `/plugin` and even periodically check, but is it worth the complexity?
