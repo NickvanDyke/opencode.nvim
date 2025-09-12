@@ -75,7 +75,13 @@ local function curl(url, method, body, callback, is_sse)
   local stderr_lines = {}
   return vim.fn.jobstart(command, {
     on_stdout = function(_, data)
-      local response = is_sse and handle_sse(data) or handle_json(data)
+      local response
+      if is_sse then
+        response = handle_sse(data)
+      else
+        response = handle_json(data)
+      end
+
       if response and callback then
         callback(response)
       end
