@@ -81,7 +81,6 @@ local function curl(url, method, body, callback, is_sse)
       else
         response = handle_json(data)
       end
-
       if response and callback then
         callback(response)
       end
