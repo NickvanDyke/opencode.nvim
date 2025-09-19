@@ -9,12 +9,8 @@ vim.g.opencode_opts = vim.g.opencode_opts
 ---
 ---The port `opencode` is running on.
 ---If `nil`, searches for an `opencode` process inside Neovim's CWD (requires `lsof` to be installed on your system).
----The embedded terminal will automatically launch `opencode` with this; launch external instances with `opencode --port <port>`.
+---Recommend launching `opencode` with `--port <port>` when setting this.
 ---@field port? number
----
----The model to use with `opencode`.
----If specified, will pass `--model <model>` to the opencode binary.
----@field model? string
 ---
 ---Automatically reload buffers edited by `opencode` in real-time.
 ---Requires `vim.opt.autoread = true`.
@@ -31,11 +27,11 @@ vim.g.opencode_opts = vim.g.opencode_opts
 ---Prompts to select from.
 ---@field prompts? table<string, opencode.Prompt>
 ---
----Input options for `ask` — see [snacks.input](https://github.com/folke/snacks.nvim/blob/main/docs/input.md) (if enabled).
+---Input options for `ask` — see also [snacks.input](https://github.com/folke/snacks.nvim/blob/main/docs/input.md) (if enabled).
 ---@field input? snacks.input.Opts
 ---
----Embedded terminal options — see [snacks.terminal](https://github.com/folke/snacks.nvim/blob/main/docs/terminal.md).
----@field terminal? snacks.terminal.Opts
+---Embedded terminal options — see also [snacks.terminal](https://github.com/folke/snacks.nvim/blob/main/docs/terminal.md).
+---@field terminal? opencode.Opts.terminal
 ---
 ---Called when no `opencode` process is found.
 ---Return `true` if `opencode` was started and the plugin should try again.
@@ -149,7 +145,10 @@ local defaults = {
       end,
     },
   },
+  ---@class opencode.Opts.terminal : snacks.terminal.Opts
+  ---@field cmd string The command to run in the embedded terminal. See [here](https://opencode.ai/docs/cli) for options.
   terminal = {
+    cmd = "opencode",
     -- This will default to false if `auto_insert` or `start_insert` are set to false.
     -- But it's very confusing if the embedded terminal doesn't exit when `opencode` exits.
     -- So override that.

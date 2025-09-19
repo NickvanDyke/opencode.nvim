@@ -1,19 +1,5 @@
 local M = {}
 
----The `opencode` command, with `--port` if specified in config.
----@return string
-function M.cmd()
-  local opts = require("opencode.config").opts
-  local cmd = "opencode"
-  if opts.port then
-    cmd = cmd .. " --port " .. opts.port
-  end
-  if opts.model then
-    cmd = cmd .. " --model " .. opts.model
-  end
-  return cmd
-end
-
 local function safe_snacks_terminal()
   local is_available, snacks_terminal = pcall(require, "snacks.terminal")
   if not is_available then
@@ -23,7 +9,7 @@ local function safe_snacks_terminal()
 end
 
 function M.toggle()
-  safe_snacks_terminal().toggle(M.cmd(), require("opencode.config").opts.terminal)
+  safe_snacks_terminal().toggle(require("opencode.config").opts.terminal.cmd, require("opencode.config").opts.terminal)
 end
 
 ---Open an embedded opencode terminal.
@@ -31,7 +17,8 @@ end
 ---@return boolean
 function M.open()
   -- We use `get`, not `open`, so that `toggle` will reference the same terminal
-  local win = safe_snacks_terminal().get(M.cmd(), require("opencode.config").opts.terminal)
+  local win =
+    safe_snacks_terminal().get(require("opencode.config").opts.terminal.cmd, require("opencode.config").opts.terminal)
   return win ~= nil
 end
 
@@ -40,7 +27,7 @@ end
 ---@return boolean
 function M.show_if_exists()
   local win = safe_snacks_terminal().get(
-    M.cmd(),
+    require("opencode.config").opts.terminal.cmd,
     vim.tbl_deep_extend("force", require("opencode.config").opts.terminal, { create = false })
   )
   if win then
