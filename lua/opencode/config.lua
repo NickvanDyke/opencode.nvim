@@ -12,6 +12,10 @@ vim.g.opencode_opts = vim.g.opencode_opts
 ---The embedded terminal will automatically launch `opencode` with this; launch external instances with `opencode --port <port>`.
 ---@field port? number
 ---
+---The model to use with `opencode`.
+---If specified, will pass `--model <model>` to the opencode binary.
+---@field model? string
+---
 ---Automatically reload buffers edited by `opencode` in real-time.
 ---Requires `vim.opt.autoread = true`.
 ---@field auto_reload? boolean

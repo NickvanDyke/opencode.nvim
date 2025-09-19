@@ -3,8 +3,15 @@ local M = {}
 ---The `opencode` command, with `--port` if specified in config.
 ---@return string
 function M.cmd()
-  local port = require("opencode.config").opts.port
-  return "opencode" .. (port and (" --port " .. port) or "")
+  local opts = require("opencode.config").opts
+  local cmd = "opencode"
+  if opts.port then
+    cmd = cmd .. " --port " .. opts.port
+  end
+  if opts.model then
+    cmd = cmd .. " --model " .. opts.model
+  end
+  return cmd
 end
 
 local function safe_snacks_terminal()
