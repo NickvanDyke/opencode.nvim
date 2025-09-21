@@ -1,5 +1,16 @@
 local M = {}
 
+---@param callback fun(port: number)
+local function get_port(callback)
+  return require("opencode.server").get_port(function(ok, result)
+    if ok then
+      callback(result)
+    else
+      vim.notify(result, vim.log.levels.ERROR, { title = "opencode" })
+    end
+  end)
+end
+
 ---@deprecated Pass options via `vim.g.opencode_opts` instead. See [README](https://github.com/NickvanDyke/opencode.nvim) for example.
 ---@param opts opencode.Opts
 function M.setup(opts)
@@ -21,12 +32,7 @@ end
 ---5. Listens for SSEs from `opencode` to forward as `OpencodeEvent` autocmd.
 ---@param prompt string
 function M.prompt(prompt)
-  require("opencode.server").get_port(function(ok, result)
-    if not ok then
-      vim.notify(result, vim.log.levels.ERROR, { title = "opencode" })
-      return
-    end
-
+  get_port(function(port)
     prompt = require("opencode.context").inject(prompt)
 
     -- WARNING: If user never prompts opencode via the plugin, we'll never receive SSEs or register auto_reload autocmds.
@@ -35,7 +41,7 @@ function M.prompt(prompt)
       require("opencode.reload").setup()
     end
 
-    require("opencode.client").listen_to_sse(result, function(response)
+    require("opencode.client").listen_to_sse(port, function(response)
       vim.api.nvim_exec_autocmds("User", {
         pattern = "OpencodeEvent",
         data = response,
@@ -47,9 +53,9 @@ function M.prompt(prompt)
       vim.notify("Error in `opts.on_send`: " .. on_send_err, vim.log.levels.WARN, { title = "opencode" })
     end
 
-    require("opencode.client").tui_clear_prompt(result, function()
-      require("opencode.client").tui_append_prompt(prompt, result, function()
-        require("opencode.client").tui_submit_prompt(result, function()
+    require("opencode.client").tui_clear_prompt(port, function()
+      require("opencode.client").tui_append_prompt(prompt, port, function()
+        require("opencode.client").tui_submit_prompt(port, function()
           --
         end)
       end)
