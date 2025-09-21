@@ -1,0 +1,28 @@
+name: Lua LS Diagnostics
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  lua-ls-diagnostics:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Lua Language Server
+        run: |
+          LATEST=$(curl -s https://api.github.com/repos/LuaLS/lua-language-server/releases/latest | grep "browser_download_url.*linux-x64" | cut -d '"' -f 4)
+          curl -L "$LATEST" -o lls.tar.gz
+          mkdir lls
+          tar -xzf lls.tar.gz -C lls
+          echo "$PWD/lls/bin" >> $GITHUB_PATH
+
+      - name: Run Lua LS diagnostics
+        run: |
+          lua-language-server --check=.
+
+      - name: Print diagnostics log
+        run: |
+          cat ./check.json || echo "No diagnostics log found"
