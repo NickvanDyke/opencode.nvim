@@ -1,5 +1,25 @@
 local M = {}
 
+---@param command string
+---@return string
+local function exec(command)
+  -- TODO: Use vim.fn.jobstart for async, and so I can capture stderr (to throw error instead of it writing to the buffer).
+  -- (or even the newer `vim.system`? Could update client.lua too? Or maybe not because SSE is long-running.)
+  local executable = vim.split(command, " ")[1]
+  if vim.fn.executable(executable) == 0 then
+    error("'" .. executable .. "' command is not available", 0)
+  end
+
+  local handle = io.popen(command)
+  if not handle then
+    error("Couldn't execute command: " .. command, 0)
+  end
+
+  local output = handle:read("*a")
+  handle:close()
+  return output
+end
+
 ---@return Server[]
 local function find_servers()
   if vim.fn.executable("lsof") == 0 then
@@ -10,7 +30,7 @@ local function find_servers()
   -- With these flags, we'll only get processes that are listening on TCP ports and have 'opencode' in their command name.
   -- i.e. pretty much guaranteed to be just opencode server processes.
   -- `-w` flag suppresses warnings about inaccessible filesystems (e.g. Docker FUSE).
-  local output = require("opencode.util").exec("lsof -w -iTCP -sTCP:LISTEN -P -n | grep opencode")
+  local output = exec("lsof -w -iTCP -sTCP:LISTEN -P -n | grep opencode")
   if output == "" then
     error("Couldn't find any opencode processes", 0)
   end
@@ -26,7 +46,7 @@ local function find_servers()
       error("Couldn't parse opencode PID and port from 'lsof' entry: " .. line, 0)
     end
 
-    local cwd = require("opencode.util").exec("lsof -w -a -p " .. pid .. " -d cwd"):match("%s+(/.*)$")
+    local cwd = exec("lsof -w -a -p " .. pid .. " -d cwd"):match("%s+(/.*)$")
     if not cwd then
       error("Couldn't determine CWD for PID: " .. pid, 0)
     end
@@ -54,7 +74,7 @@ local function is_descendant_of_neovim(pid)
   -- Walk up because the way some shells launch processes,
   -- Neovim will not be the direct parent.
   for _ = 1, 10 do -- limit to 10 steps to avoid infinite loop
-    local parent_pid = tonumber(require("opencode.util").exec("ps -o ppid= -p " .. current_pid))
+    local parent_pid = tonumber(exec("ps -o ppid= -p " .. current_pid))
     if not parent_pid then
       error("Couldn't determine parent PID for: " .. current_pid, 0)
     end
