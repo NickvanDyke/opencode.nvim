@@ -174,17 +174,10 @@ local defaults = {
     },
   },
   on_opencode_not_found = function()
-    local ok, opened = pcall(require("opencode.terminal").open)
-    if not ok then
-      -- Discard error so users can safely exclude `snacks.nvim` dependency without overriding this function.
-      -- Could incidentally hide an unexpected error in `snacks.terminal`, but seems unlikely.
-      return false
-    elseif not opened then
-      -- `snacks.terminal` is available but failed to open, which we do want to know about.
-      error("Failed to auto-open embedded opencode terminal", 0)
-    end
-
-    return true
+    local ok = pcall(require("opencode.terminal").open)
+    -- Ignore error so users can safely exclude `snacks.nvim` dependency without overriding this function.
+    -- Could incidentally hide an unexpected error in `snacks.terminal`, but seems unlikely.
+    return ok
   end,
   on_send = function()
     -- "if exists" because user may alternate between embedded and external `opencode`.
