@@ -137,8 +137,9 @@ end
 
 ---@param command string
 ---@param port number
-function M.tui_execute_command(command, port)
-  M.call(port, "/tui/execute-command", "POST", { command = command })
+---@param callback fun(response: table)|nil
+function M.tui_execute_command(command, port, callback)
+  M.call(port, "/tui/execute-command", "POST", { command = command }, callback)
 end
 
 ---@param prompt string

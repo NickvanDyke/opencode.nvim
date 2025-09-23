@@ -22,19 +22,37 @@ function M.setup(opts)
   )
 end
 
----Send a prompt to `opencode`.
----
----As the entry point to prompting, this function also:
----1. Calls `opts.on_opencode_not_found` if no `opencode` process is found.
----2. Injects `opts.contexts` into the prompt.
----3. Sets up `opts.auto_reload` if enabled.
----4. Calls `opts.on_send`.
----5. Listens for SSEs from `opencode` to forward as `OpencodeEvent` autocmd.
+---Send a prompt to `opencode`'s TUI.
 ---@param prompt string
 function M.prompt(prompt)
+  -- This does duplicate the `get_port` work, but seems negligible atm.
+  M.clear_prompt(function()
+    M.append_prompt(prompt, function()
+      M.submit_prompt()
+    end)
+  end)
+end
+
+---Append a prompt to `opencode`'s TUI.
+---Injects `opts.contexts` into the prompt.
+---@param prompt string
+---@param callback fun()|nil
+function M.append_prompt(prompt, callback)
   get_port(function(port)
     prompt = require("opencode.context").inject(prompt)
+    require("opencode.client").tui_append_prompt(prompt, port, callback)
+  end)
+end
 
+---Submit the current prompt in `opencode`'s TUI.
+---
+---Additionally:
+---1. Sets up `opts.auto_reload` if enabled.
+---2. Calls `opts.on_send`.
+---3. Listens for SSEs from `opencode` to forward as `OpencodeEvent` autocmd.
+---@param callback fun()|nil
+function M.submit_prompt(callback)
+  get_port(function(port)
     -- WARNING: If user never prompts opencode via the plugin, we'll never receive SSEs or register auto_reload autocmds.
     -- Could register in `/plugin` and even periodically check, but is it worth the complexity?
     if require("opencode.config").opts.auto_reload then
@@ -53,26 +71,24 @@ function M.prompt(prompt)
       vim.notify("Error in `opts.on_send`: " .. on_send_err, vim.log.levels.WARN, { title = "opencode" })
     end
 
-    require("opencode.client").tui_clear_prompt(port, function()
-      require("opencode.client").tui_append_prompt(prompt, port, function()
-        require("opencode.client").tui_submit_prompt(port, function()
-          --
-        end)
-      end)
-    end)
+    require("opencode.client").tui_submit_prompt(port, callback)
+  end)
+end
+
+---Clear the current prompt in `opencode`'s TUI.
+---@param callback fun()|nil
+function M.clear_prompt(callback)
+  get_port(function(port)
+    require("opencode.client").tui_clear_prompt(port, callback)
   end)
 end
 
 ---Send a command to `opencode`.
 ---See https://opencode.ai/docs/keybinds/ for available commands.
 ---@param command string
-function M.command(command)
-  require("opencode.server").get_port(function(ok, result)
-    if not ok then
-      vim.notify(result, vim.log.levels.ERROR, { title = "opencode" })
-      return
-    end
-
+---@param callback fun(response: table)|nil
+function M.command(command, callback)
+  get_port(function(port)
     -- No need to register SSE or auto_reload here - commands trigger neither
     -- (except maybe the `input_*` commands? but no reason for user to use those).
 
@@ -81,7 +97,7 @@ function M.command(command)
       vim.notify("Error in `opts.on_send`: " .. on_send_err, vim.log.levels.WARN, { title = "opencode" })
     end
 
-    require("opencode.client").tui_execute_command(command, result)
+    require("opencode.client").tui_execute_command(command, port, callback)
   end)
 end
 
@@ -101,7 +117,6 @@ function M.ask(default)
 end
 
 ---Select a prompt from `opts.prompts` to send to `opencode`.
----
 ---Filters prompts according to whether they use `@selection` and whether we're in visual mode.
 function M.select()
   ---@type opencode.Prompt[]
