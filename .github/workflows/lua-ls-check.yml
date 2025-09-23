@@ -22,7 +22,3 @@ jobs:
         run: |
           # TODO: Fix remaining CI-only lint issues
           lua-language-server --check=. || exit 0
-
-      - name: Print diagnostics log
-        run: |
-          cat ./check.json || echo "No diagnostics log found"
