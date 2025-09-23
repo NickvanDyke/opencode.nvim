@@ -13,10 +13,10 @@ jobs:
 
       - name: Install Lua Language Server
         run: |
-          curl -L "https://github.com/LuaLS/lua-language-server/releases/download/3.15.0/lua-language-server-3.15.0-linux-x64.tar.gz" -o lls.tar.gz
-          mkdir lls
-          tar -xzf lls.tar.gz -C lls
-          echo "$PWD/lls/bin" >> $GITHUB_PATH
+          curl -L "https://github.com/LuaLS/lua-language-server/releases/download/3.15.0/lua-language-server-3.15.0-linux-x64.tar.gz" -o /opt/lls.tar.gz
+          mkdir /opt/lls
+          tar -xzf /opt/lls.tar.gz -C /opt/lls
+          echo "/opt/lls/bin" >> $GITHUB_PATH
 
       - name: Run Lua LS diagnostics
         run: |
