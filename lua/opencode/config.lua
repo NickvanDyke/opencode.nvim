@@ -42,6 +42,13 @@ vim.g.opencode_opts = vim.g.opencode_opts
 ---Called when a prompt or command is sent to `opencode`.
 ---By default, shows the embedded terminal if it exists.
 ---@field on_send? fun()
+
+---@class opencode.prompt.Opts
+---@field clear? boolean Clear the TUI input.
+---@field append? boolean Append to the TUI input.
+---@field submit? boolean Submit the TUI input.
+
+---@type opencode.Opts
 local defaults = {
   port = nil,
   auto_reload = true,

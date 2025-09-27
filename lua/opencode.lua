@@ -11,7 +11,23 @@ local function get_port(callback)
   end)
 end
 
+local function chain_async(steps, i)
+  i = i or 1
+  local step = steps[i]
+  if not step then
+    return
+  end
+  if step.cond then
+    step.fn(function()
+      chain_async(steps, i + 1)
+    end)
+  else
+    chain_async(steps, i + 1)
+  end
+end
+
 ---@deprecated Pass options via `vim.g.opencode_opts` instead. See [README](https://github.com/NickvanDyke/opencode.nvim) for example.
+---
 ---@param opts opencode.Opts
 function M.setup(opts)
   vim.g.opencode_opts = opts
@@ -22,69 +38,75 @@ function M.setup(opts)
   )
 end
 
----Send a prompt to `opencode`'s TUI.
----@param prompt string
-function M.prompt(prompt)
-  -- This does duplicate the `get_port` work, but seems negligible atm.
-  M.clear_prompt(function()
-    M.append_prompt(prompt, function()
-      M.submit_prompt()
-    end)
-  end)
-end
-
----Append a prompt to `opencode`'s TUI.
----Injects `opts.contexts` into the prompt.
----@param prompt string
----@param callback fun()|nil
-function M.append_prompt(prompt, callback)
-  get_port(function(port)
-    prompt = require("opencode.context").inject(prompt)
-    require("opencode.client").tui_append_prompt(prompt, port, callback)
-  end)
-end
-
----Submit the current prompt in `opencode`'s TUI.
+---Prompt `opencode`'s TUI.
 ---
----Additionally:
+---By default, clears the prompt input, appends `prompt`, and submits it — control with `opts`.
+---
+---Before appending:
+---1. Injects `opts.contexts` into `prompt`.
+---
+---Before submitting:
 ---1. Sets up `opts.auto_reload` if enabled.
 ---2. Calls `opts.on_send`.
 ---3. Listens for SSEs from `opencode` to forward as `OpencodeEvent` autocmd.
----@param callback fun()|nil
-function M.submit_prompt(callback)
+---
+---@param prompt? string
+---@param opts? opencode.prompt.Opts
+function M.prompt(prompt, opts)
+  -- The default is all-or-nothing so the user can intuitively pass one positive rather than two negatives.
+  opts = opts or {
+    clear = true,
+    append = true,
+    submit = true,
+  }
+
   get_port(function(port)
-    -- WARNING: If user never prompts opencode via the plugin, we'll never receive SSEs or register auto_reload autocmds.
-    -- Could register in `/plugin` and even periodically check, but is it worth the complexity?
-    if require("opencode.config").opts.auto_reload then
-      require("opencode.reload").setup()
-    end
+    chain_async({
+      {
+        cond = opts.clear,
+        fn = function(cb)
+          require("opencode.client").tui_clear_prompt(port, cb)
+        end,
+      },
+      {
+        cond = opts.append and prompt ~= nil,
+        fn = function(cb)
+          ---@cast prompt string
+          prompt = require("opencode.context").inject(prompt)
+          require("opencode.client").tui_append_prompt(prompt, port, cb)
+        end,
+      },
+      {
+        cond = opts.submit,
+        fn = function(cb)
+          -- WARNING: If user never prompts opencode via the plugin, we'll never receive SSEs or register auto_reload autocmds.
+          -- Could register in `/plugin` and even periodically check, but is it worth the complexity?
+          if require("opencode.config").opts.auto_reload then
+            require("opencode.reload").setup()
+          end
 
-    require("opencode.client").listen_to_sse(port, function(response)
-      vim.api.nvim_exec_autocmds("User", {
-        pattern = "OpencodeEvent",
-        data = response,
-      })
-    end)
+          require("opencode.client").listen_to_sse(port, function(response)
+            vim.api.nvim_exec_autocmds("User", {
+              pattern = "OpencodeEvent",
+              data = response,
+            })
+          end)
 
-    local on_send_ok, on_send_err = pcall(require("opencode.config").opts.on_send)
-    if not on_send_ok then
-      vim.notify("Error in `opts.on_send`: " .. on_send_err, vim.log.levels.WARN, { title = "opencode" })
-    end
+          local on_send_ok, on_send_err = pcall(require("opencode.config").opts.on_send)
+          if not on_send_ok then
+            vim.notify("Error in `opts.on_send`: " .. on_send_err, vim.log.levels.WARN, { title = "opencode" })
+          end
 
-    require("opencode.client").tui_submit_prompt(port, callback)
-  end)
-end
-
----Clear the current prompt in `opencode`'s TUI.
----@param callback fun()|nil
-function M.clear_prompt(callback)
-  get_port(function(port)
-    require("opencode.client").tui_clear_prompt(port, callback)
+          require("opencode.client").tui_submit_prompt(port, cb)
+        end,
+      },
+    })
   end)
 end
 
 ---Send a command to `opencode`.
 ---See https://opencode.ai/docs/keybinds/ for available commands.
+---
 ---@param command string
 ---@param callback fun(response: table)|nil
 function M.command(command, callback)
@@ -107,6 +129,7 @@ end
 --- - Offers completions for `opts.contexts` when using `snacks.input`.
 ---   - Press `<Tab>` or `<C-x><C-o>` to trigger built-in completion.
 ---   - When using `blink.cmp`, registers `opts.auto_register_cmp_sources`.
+---
 ---@param default? string Text to prefill the input with.
 function M.ask(default)
   require("opencode.input").input(default, function(value)
