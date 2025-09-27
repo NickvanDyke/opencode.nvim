@@ -2,7 +2,7 @@ local M = {}
 
 ---@param callback fun(port: number)
 local function get_port(callback)
-  return require("opencode.server").get_port(function(ok, result)
+  require("opencode.server").get_port(function(ok, result)
     if ok then
       callback(result)
     else
