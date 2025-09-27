@@ -77,6 +77,7 @@ local defaults = {
     ---@class opencode.Prompt
     ---@field description string Description of the prompt. Shown in selection menu.
     ---@field prompt string The prompt to send to `opencode`, with placeholders for context like `@cursor`, `@buffer`, etc.
+    ---@field opts? opencode.prompt.Opts Options for sending the prompt.
     explain = {
       description = "Explain code near cursor",
       prompt = "Explain @cursor and its context",
@@ -104,6 +105,20 @@ local defaults = {
     review_diff = {
       description = "Review git diff",
       prompt = "Review the following git diff for correctness and readability:\n@diff",
+    },
+    add_buffer = {
+      description = "Add buffer to prompt",
+      prompt = "@buffer",
+      opts = {
+        append = true,
+      },
+    },
+    add_selection = {
+      description = "Add selection to prompt",
+      prompt = "@selection",
+      opts = {
+        append = true,
+      },
     },
   },
   input = {

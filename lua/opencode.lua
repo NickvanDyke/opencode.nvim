@@ -53,7 +53,7 @@ end
 ---@param prompt? string
 ---@param opts? opencode.prompt.Opts
 function M.prompt(prompt, opts)
-  -- The default is all-or-nothing so the user can intuitively pass one positive rather than two negatives.
+  -- The default is all-or-nothing so the user can intuitively pass positives rather than negatives.
   opts = opts or {
     clear = true,
     append = true,
@@ -168,7 +168,7 @@ function M.select()
     ---@param choice opencode.Prompt
     function(choice)
       if choice then
-        M.prompt(choice.prompt)
+        M.prompt(choice.prompt, choice.opts)
       end
     end
   )
