@@ -125,7 +125,7 @@ local defaults = {
   },
   input = {
     prompt = "Ask opencode: ",
-    highlight = require("opencode.input").highlight,
+    highlight = require("opencode.ask").highlight,
     -- Options below here only apply to [snacks.input](https://github.com/folke/snacks.nvim/blob/main/docs/input.md).
     icon = "󱚣 ",
     -- Built-in completion - trigger via `<Tab>` or `<C-x><C-o>` in insert mode.
@@ -163,7 +163,7 @@ local defaults = {
           group = vim.api.nvim_create_augroup("OpencodeAskHighlight", { clear = true }),
           buffer = win.buf,
           callback = function(args)
-            require("opencode.input").highlight_buffer(args.buf)
+            require("opencode.ask").highlight_buffer(args.buf)
           end,
         })
       end,

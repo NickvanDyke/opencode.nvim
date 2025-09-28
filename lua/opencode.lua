@@ -141,7 +141,7 @@ end
 ---@param default? string Text to prefill the input with.
 ---@param opts? opencode.prompt.Opts
 function M.ask(default, opts)
-  require("opencode.input").input(default, function(value)
+  require("opencode.ask").input(default, function(value)
     if value and value ~= "" then
       M.prompt(value, opts)
     end
