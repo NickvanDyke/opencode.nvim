@@ -1,6 +1,6 @@
 local M = {}
 
----@param default? string
+---@param default? string Text to pre-fill the input with.
 ---@param on_confirm fun(value: string|nil)
 function M.input(default, on_confirm)
   -- Recommended configuration uses snacks.input, so `opts.input` includes options for it too, not just for vim.ui.input.
@@ -12,7 +12,7 @@ function M.input(default, on_confirm)
   )
 end
 
----Highlights context placeholders in the input string.
+---Computes context placeholder highlights for `input`.
 ---See `:help input()-highlight`.
 ---@param input string
 ---@return table[]
@@ -45,21 +45,27 @@ function M.highlight(input)
   return hls
 end
 
----Highlights context placeholders in the given buffer's first line.
+---`snacks.input` doesn't seem to actually call `opts.highlight`? So highlight its buffer ourselves.
 ---@param buf number
-function M.highlight_buffer(buf)
-  local input = vim.api.nvim_buf_get_lines(buf, 0, 1, false)[1] or ""
-  local hls = M.highlight(input)
+function M.setup_snacks_input_highlighting(buf)
+  vim.api.nvim_create_autocmd({ "TextChanged", "TextChangedI", "BufWinEnter" }, {
+    group = vim.api.nvim_create_augroup("OpencodeAskHighlight", { clear = true }),
+    buffer = buf,
+    callback = function(args)
+      local input = vim.api.nvim_buf_get_lines(args.buf, 0, 1, false)[1] or ""
+      local hls = M.highlight(input)
 
-  local ns_id = vim.api.nvim_create_namespace("opencode_placeholders")
-  vim.api.nvim_buf_clear_namespace(buf, ns_id, 0, -1)
+      local ns_id = vim.api.nvim_create_namespace("opencode_placeholders")
+      vim.api.nvim_buf_clear_namespace(buf, ns_id, 0, -1)
 
-  for _, hl in ipairs(hls) do
-    vim.api.nvim_buf_set_extmark(buf, ns_id, 0, hl[1], {
-      end_col = hl[2],
-      hl_group = hl[3],
-    })
-  end
+      for _, hl in ipairs(hls) do
+        vim.api.nvim_buf_set_extmark(buf, ns_id, 0, hl[1], {
+          end_col = hl[2],
+          hl_group = hl[3],
+        })
+      end
+    end,
+  })
 end
 
 return M
