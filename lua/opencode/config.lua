@@ -131,6 +131,7 @@ local defaults = {
     -- Built-in completion - trigger via `<Tab>` or `<C-x><C-o>` in insert mode.
     -- Only available when using `snacks.input` - built-in `vim.ui.input` does not support `omnifunc`.
     -- It's okay to enable simultaneously with `blink.cmp` because those keymaps take priority.
+    -- TODO: https://github.com/folke/snacks.nvim/issues/2217
     completion = "customlist,v:lua.require'opencode.cmp.omni'",
     win = {
       title_pos = "left",
@@ -147,7 +148,8 @@ local defaults = {
       },
       on_buf = function(win)
         require("opencode.ask").setup_completion(win.buf)
-        ---`snacks.input` doesn't seem to actually call `opts.highlight`? So highlight its buffer ourselves.
+        -- `snacks.input` doesn't seem to actually call `opts.highlight`? So highlight its buffer ourselves.
+        --  TODO: https://github.com/folke/snacks.nvim/issues/2216
         require("opencode.ask").setup_highlight(win.buf)
       end,
     },
