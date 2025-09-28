@@ -54,7 +54,7 @@ end
 ---
 ---Before submitting:
 ---1. Sets up `opts.auto_reload` if enabled.
----2. Calls `opts.on_send`.
+---2. Calls `opts.on_submit`.
 ---3. Listens for SSEs from `opencode` to forward as `OpencodeEvent` autocmd.
 ---
 ---@param prompt? string
@@ -100,9 +100,9 @@ function M.prompt(prompt, opts)
             })
           end)
 
-          local on_send_ok, on_send_err = pcall(require("opencode.config").opts.on_send)
-          if not on_send_ok then
-            vim.notify("Error in `opts.on_send`: " .. on_send_err, vim.log.levels.WARN, { title = "opencode" })
+          local on_submit_ok, on_submit_err = pcall(require("opencode.config").opts.on_submit)
+          if not on_submit_ok then
+            vim.notify("Error in `opts.on_submit`: " .. on_submit_err, vim.log.levels.WARN, { title = "opencode" })
           end
 
           require("opencode.client").tui_submit_prompt(port, cb)
@@ -122,9 +122,9 @@ function M.command(command, callback)
     -- No need to register SSE or auto_reload here - commands trigger neither
     -- (except maybe the `input_*` commands? but no reason for user to use those).
 
-    local on_send_ok, on_send_err = pcall(require("opencode.config").opts.on_send)
-    if not on_send_ok then
-      vim.notify("Error in `opts.on_send`: " .. on_send_err, vim.log.levels.WARN, { title = "opencode" })
+    local on_submit_ok, on_submit_err = pcall(require("opencode.config").opts.on_submit)
+    if not on_submit_ok then
+      vim.notify("Error in `opts.on_submit`: " .. on_submit_err, vim.log.levels.WARN, { title = "opencode" })
     end
 
     require("opencode.client").tui_execute_command(command, port, callback)
