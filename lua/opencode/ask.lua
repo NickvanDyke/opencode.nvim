@@ -12,18 +12,18 @@ function M.input(default, on_confirm)
   )
 end
 
----Computes context placeholder highlights for `input`.
+---Computes context placeholder highlights for `line`.
 ---See `:help input()-highlight`.
----@param input string
+---@param line string
 ---@return table[]
-function M.highlight(input)
+function M.highlight(line)
   local placeholders = vim.tbl_keys(require("opencode.config").opts.contexts)
   local hls = {}
 
   for _, placeholder in ipairs(placeholders) do
     local init = 1
     while true do
-      local start_pos, end_pos = input:find(placeholder, init, true)
+      local start_pos, end_pos = line:find(placeholder, init, true)
       if not start_pos then
         break
       end
@@ -52,17 +52,19 @@ function M.setup_highlight(buf)
     group = vim.api.nvim_create_augroup("OpencodeAskHighlight", { clear = true }),
     buffer = buf,
     callback = function(args)
-      local input = vim.api.nvim_buf_get_lines(args.buf, 0, 1, false)[1] or ""
-      local hls = M.highlight(input)
+      local lines = vim.api.nvim_buf_get_lines(args.buf, 0, -1, false)
+      for _, line in ipairs(lines) do
+        local hls = M.highlight(line)
 
-      local ns_id = vim.api.nvim_create_namespace("opencode_placeholders")
-      vim.api.nvim_buf_clear_namespace(buf, ns_id, 0, -1)
+        local ns_id = vim.api.nvim_create_namespace("opencode_placeholders")
+        vim.api.nvim_buf_clear_namespace(buf, ns_id, 0, -1)
 
-      for _, hl in ipairs(hls) do
-        vim.api.nvim_buf_set_extmark(buf, ns_id, 0, hl[1], {
-          end_col = hl[2],
-          hl_group = hl[3],
-        })
+        for _, hl in ipairs(hls) do
+          vim.api.nvim_buf_set_extmark(buf, ns_id, 0, hl[1], {
+            end_col = hl[2],
+            hl_group = hl[3],
+          })
+        end
       end
     end,
   })
