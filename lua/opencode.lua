@@ -40,6 +40,11 @@ function M.setup(opts)
   )
 end
 
+---@class opencode.prompt.Opts
+---@field clear? boolean Clear the TUI input.
+---@field append? boolean Append to the TUI input.
+---@field submit? boolean Submit the TUI input.
+
 ---Prompt `opencode`.
 ---
 ---By default, clears the TUI's prompt input, appends `prompt`, and submits it — use `opts` to execute only specific steps.
@@ -144,13 +149,12 @@ end
 
 ---Select a prompt from `opts.prompts` to send to `opencode`.
 ---Filters prompts according to whether they use `@selection` and whether we're in visual mode.
----
----@param opts? { show_ask_item: boolean }
-function M.select(opts)
-  opts = opts or { show_ask_item = false }
-
+function M.select()
   ---@type opencode.Prompt[]
   local prompts = vim.tbl_filter(function(prompt)
+    -- WARNING: Technically depends on user using built-in `@selection` context by name...
+    -- Could compare function references? Or add `visual = true/false` to contexts objects.
+    -- Probably more trouble than it's worth.
     local is_visual = vim.fn.mode():match("[vV\22]")
     local does_prompt_use_visual = prompt.prompt:match("@selection")
     if is_visual then
@@ -160,30 +164,26 @@ function M.select(opts)
     end
   end, vim.tbl_values(require("opencode.config").opts.prompts))
 
-  ---@type (opencode.Prompt|{ description: string, __ask_item: true })[]
-  local items = prompts
-
-  if opts.show_ask_item then
-    table.insert(items, 1, {
-      description = "Ask…",
-      __ask_item = true,
-    })
-  end
-
-  vim.ui.select(items, {
-    prompt = "Prompt opencode: ",
-    format_item = function(item)
-      return item.description
-    end,
-  }, function(choice)
-    if choice then
-      if choice.__ask_item then
-        M.ask()
-      else
-        M.prompt(choice.prompt, choice.opts)
+  -- TODO: Ideally order should be stable. Seems to change on every nvim start.
+  vim.ui.select(
+    prompts,
+    {
+      prompt = "Prompt opencode: ",
+      format_item = function(item)
+        return item.description
+      end,
+    },
+    ---@param choice opencode.Prompt|nil
+    function(choice)
+      if choice then
+        if choice.ask then
+          M.ask(choice.prompt)
+        else
+          M.prompt(choice.prompt, choice.opts)
+        end
       end
     end
-  end)
+  )
 end
 
 ---Toggle an embedded `opencode`.

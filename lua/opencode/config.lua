@@ -43,11 +43,6 @@ vim.g.opencode_opts = vim.g.opencode_opts
 ---By default, shows the embedded terminal if it exists.
 ---@field on_send? fun()
 
----@class opencode.prompt.Opts
----@field clear? boolean Clear the TUI input.
----@field append? boolean Append to the TUI input.
----@field submit? boolean Submit the TUI input.
-
 ---@type opencode.Opts
 local defaults = {
   port = nil,
@@ -77,7 +72,14 @@ local defaults = {
     ---@class opencode.Prompt
     ---@field description string Description of the prompt. Shown in selection menu.
     ---@field prompt string The prompt to send to `opencode`, with placeholders for context like `@cursor`, `@buffer`, etc.
+    ---@field ask? boolean Call `ask(prompt)` instead of `prompt(prompt)`. Useful for prompts that expect additional user input.
     ---@field opts? opencode.prompt.Opts Options for sending the prompt.
+    ask = {
+      -- With an "Ask" item, the select menu can serve as the only entrypoint to all plugin-exclusive functionality, as opposed to numerous keymaps.
+      description = "Ask…",
+      prompt = "",
+      ask = true,
+    },
     explain = {
       description = "Explain code near cursor",
       prompt = "Explain @cursor and its context",
