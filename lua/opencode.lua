@@ -11,7 +11,9 @@ local function get_port(callback)
   end)
 end
 
-local function chain_async(steps, i)
+---@param steps { cond: boolean, fn: fun(cb: fun()) }[]
+---@param i? number
+local function chain_conditional_async(steps, i)
   i = i or 1
   local step = steps[i]
   if not step then
@@ -19,10 +21,10 @@ local function chain_async(steps, i)
   end
   if step.cond then
     step.fn(function()
-      chain_async(steps, i + 1)
+      chain_conditional_async(steps, i + 1)
     end)
   else
-    chain_async(steps, i + 1)
+    chain_conditional_async(steps, i + 1)
   end
 end
 
@@ -38,9 +40,9 @@ function M.setup(opts)
   )
 end
 
----Prompt `opencode`'s TUI.
+---Prompt `opencode`.
 ---
----By default, clears the prompt input, appends `prompt`, and submits it — control with `opts`.
+---By default, clears the TUI's prompt input, appends `prompt`, and submits it — use `opts` to execute only specific steps.
 ---
 ---Before appending:
 ---1. Injects `opts.contexts` into `prompt`.
@@ -53,7 +55,8 @@ end
 ---@param prompt? string
 ---@param opts? opencode.prompt.Opts
 function M.prompt(prompt, opts)
-  -- The default is all-or-nothing so the user can intuitively pass positives rather than negatives.
+  -- When *any* `opts` are passed, we don't default the rest so the
+  -- user can intuitively pass positives rather than negatives.
   opts = opts or {
     clear = true,
     append = true,
@@ -61,15 +64,15 @@ function M.prompt(prompt, opts)
   }
 
   get_port(function(port)
-    chain_async({
+    chain_conditional_async({
       {
-        cond = opts.clear,
+        cond = opts.clear == true,
         fn = function(cb)
           require("opencode.client").tui_clear_prompt(port, cb)
         end,
       },
       {
-        cond = opts.append and prompt ~= nil,
+        cond = opts.append == true and prompt ~= nil,
         fn = function(cb)
           ---@cast prompt string
           prompt = require("opencode.context").inject(prompt)
@@ -77,7 +80,7 @@ function M.prompt(prompt, opts)
         end,
       },
       {
-        cond = opts.submit,
+        cond = opts.submit == true,
         fn = function(cb)
           -- WARNING: If user never prompts opencode via the plugin, we'll never receive SSEs or register auto_reload autocmds.
           -- Could register in `/plugin` and even periodically check, but is it worth the complexity?
