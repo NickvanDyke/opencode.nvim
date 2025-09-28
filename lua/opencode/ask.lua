@@ -45,9 +45,9 @@ function M.highlight(input)
   return hls
 end
 
----`snacks.input` doesn't seem to actually call `opts.highlight`? So highlight its buffer ourselves.
+---Sets up autocommands to highlight context placeholders in the given buffer.
 ---@param buf number
-function M.setup_snacks_input_highlighting(buf)
+function M.setup_highlight(buf)
   vim.api.nvim_create_autocmd({ "TextChanged", "TextChangedI", "BufWinEnter" }, {
     group = vim.api.nvim_create_augroup("OpencodeAskHighlight", { clear = true }),
     buffer = buf,
@@ -63,6 +63,21 @@ function M.setup_snacks_input_highlighting(buf)
           end_col = hl[2],
           hl_group = hl[3],
         })
+      end
+    end,
+  })
+end
+
+---@param buf number
+function M.setup_completion(buf)
+  -- Wait as long as possible to check for `blink.cmp` loaded - many users lazy-load on `InsertEnter`.
+  -- And OptionSet :runtimepath didn't seem to fire for lazy.nvim. And/or it may never fire if already loaded.
+  vim.api.nvim_create_autocmd("InsertEnter", {
+    once = true,
+    buffer = buf,
+    callback = function()
+      if package.loaded["blink.cmp"] then
+        require("opencode.cmp.blink").setup(require("opencode.config").opts.auto_register_cmp_sources)
       end
     end,
   })
