@@ -141,13 +141,14 @@ end
 
 ---Select a prompt from `opts.prompts` to send to `opencode`.
 ---Filters prompts according to whether they use `@selection` and whether we're in visual mode.
-function M.select()
+---
+---@param opts? { show_ask_item: boolean }
+function M.select(opts)
+  opts = opts or { show_ask_item = false }
+
   ---@type opencode.Prompt[]
   local prompts = vim.tbl_filter(function(prompt)
     local is_visual = vim.fn.mode():match("[vV\22]")
-    -- WARNING: Technically depends on user using built-in `@selection` context by name...
-    -- Could compare function references? Or add `visual = true/false` to contexts objects.
-    -- Probably more trouble than it's worth.
     local does_prompt_use_visual = prompt.prompt:match("@selection")
     if is_visual then
       return does_prompt_use_visual
@@ -156,22 +157,30 @@ function M.select()
     end
   end, vim.tbl_values(require("opencode.config").opts.prompts))
 
-  vim.ui.select(
-    prompts,
-    {
-      prompt = "Prompt opencode: ",
-      ---@param item opencode.Prompt
-      format_item = function(item)
-        return item.description
-      end,
-    },
-    ---@param choice opencode.Prompt
-    function(choice)
-      if choice then
+  ---@type (opencode.Prompt|{ description: string, __ask_item: true })[]
+  local items = prompts
+
+  if opts.show_ask_item then
+    table.insert(items, 1, {
+      description = "Ask…",
+      __ask_item = true,
+    })
+  end
+
+  vim.ui.select(items, {
+    prompt = "Prompt opencode: ",
+    format_item = function(item)
+      return item.description
+    end,
+  }, function(choice)
+    if choice then
+      if choice.__ask_item then
+        M.ask()
+      else
         M.prompt(choice.prompt, choice.opts)
       end
     end
-  )
+  end)
 end
 
 ---Toggle an embedded `opencode`.
