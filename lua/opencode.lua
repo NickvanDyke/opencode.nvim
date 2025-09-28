@@ -139,10 +139,11 @@ end
 ---   - When using `blink.cmp`, registers `opts.auto_register_cmp_sources`.
 ---
 ---@param default? string Text to prefill the input with.
-function M.ask(default)
+---@param opts? opencode.prompt.Opts
+function M.ask(default, opts)
   require("opencode.input").input(default, function(value)
     if value and value ~= "" then
-      M.prompt(value)
+      M.prompt(value, opts)
     end
   end)
 end
@@ -177,7 +178,7 @@ function M.select()
     function(choice)
       if choice then
         if choice.ask then
-          M.ask(choice.prompt)
+          M.ask(choice.prompt, choice.opts)
         else
           M.prompt(choice.prompt, choice.opts)
         end
