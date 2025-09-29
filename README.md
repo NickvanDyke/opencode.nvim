@@ -14,7 +14,7 @@ https://github.com/user-attachments/assets/340ce139-173c-4e81-b39a-f089862db9ce
 - Inject relevant editor context (buffer, selection, cursor, diagnostics, etc.).
 - Auto-reload buffers edited by `opencode` in real-time.
 - Forward `opencode`'s Server-Sent-Events as Neovim autocmds for automation.
-- Sensible defaults with well-documented, flexible configuration and API.
+- Sensible defaults with well-documented, flexible configuration and API to fit your workflow.
 
 ## 📦 Setup
 
