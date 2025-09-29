@@ -16,7 +16,7 @@ function M.setup()
     group = vim.api.nvim_create_augroup("OpencodeAutoReload", { clear = true }),
     pattern = "OpencodeEvent",
     callback = function(args)
-      if args.data.type == "file.edited" then
+      if args.data.type == "message.updated" then
         -- :checktime checks all buffers - no need to check event's file
         vim.cmd("checktime")
       end
