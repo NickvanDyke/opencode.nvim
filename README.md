@@ -72,7 +72,7 @@ programs.nixvim = {
 
 ## ⚙️ Configuration
 
-`opencode.nvim` strives to provide a rich and reliable default experience, with a well-documented and flexible [configuration](./lua/opencode/config.lua#L47) and [API](./lua/opencode.lua) for you to customize and build on according to your preferences.
+`opencode.nvim` strives to provide a rich and reliable default experience, with a well-documented and flexible [configuration](./lua/opencode/config.lua#L47) and [API](./lua/opencode.lua) for you to customize and build on according to your preferences and workflow.
 
 ## 🕵️ Context
 
