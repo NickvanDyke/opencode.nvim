@@ -14,7 +14,7 @@ https://github.com/user-attachments/assets/340ce139-173c-4e81-b39a-f089862db9ce
 - Inject relevant editor context (buffer, selection, cursor, diagnostics, etc.).
 - Auto-reload buffers edited by `opencode` in real-time.
 - Forward `opencode`'s Server-Sent-Events as Neovim autocmds for automation.
-- Sensible defaults with well-documented, granular configuration.
+- Sensible defaults with well-documented, flexible configuration and API.
 
 ## 📦 Setup
 
@@ -72,7 +72,7 @@ programs.nixvim = {
 
 ## ⚙️ Configuration
 
-`opencode.nvim` strives to provide a rich and reliable default experience, with a well-documented and flexible [configuration](./lua/opencode/config.lua#L47) and [API](./lua/opencode.lua) for you to customize and compose according to your preferences.
+`opencode.nvim` strives to provide a rich and reliable default experience, with a well-documented and flexible [configuration](./lua/opencode/config.lua#L47) and [API](./lua/opencode.lua) for you to customize and build on according to your preferences.
 
 ## 🕵️ Context
 
