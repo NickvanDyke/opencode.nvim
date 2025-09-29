@@ -70,13 +70,23 @@ programs.nixvim = {
 ```
 </details>
 
-## ⚙️ Configuration
+## ⚙️ [Configuration](./lua/opencode/config.lua)
 
-`opencode.nvim` strives to provide a rich and reliable default experience, with a well-documented and flexible [configuration](./lua/opencode/config.lua#L47) and [API](./lua/opencode.lua) for you to customize and build on according to your preferences and workflow.
+`opencode.nvim` strives to provide a rich and reliable default experience — see available options and their defaults [here](./lua/opencode/config.lua#L47).
 
-## 🕵️ Context
+## 💻 [API](./lua/opencode.lua)
 
-When your prompt contains placeholders, `opencode.nvim` replaces them with context before sending:
+| Function    | Description |
+|-------------|-------------|
+| `prompt`  | Send a prompt to `opencode`. The programmatic entrypoint to all functionality. |
+| `command` | Send a [command](https://opencode.ai/docs/keybinds) to `opencode`. |
+| `ask`     | Input a prompt to send to `opencode`. |
+| `select`  | Select a prompt to send to `opencode`. |
+| `toggle`  | Toggle an embedded `opencode`. |
+
+## 🕵️ Contexts
+
+Before sending prompts, `opencode.nvim` replaces placeholders with their corresponding contexts:
 
 | Placeholder | Context |
 | - | - |
@@ -90,8 +100,6 @@ When your prompt contains placeholders, `opencode.nvim` replaces them with conte
 | `@quickfix` | Quickfix list |
 | `@diff` | Git diff |
 | `@grapple` | [grapple.nvim](https://github.com/cbochs/grapple.nvim) tags |
-
-Add custom contexts to `opts.contexts`.
 
 ## 👀 Events
 

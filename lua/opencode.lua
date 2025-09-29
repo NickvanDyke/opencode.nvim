@@ -45,7 +45,7 @@ end
 ---@field append? boolean Append to the TUI input.
 ---@field submit? boolean Submit the TUI input.
 
----Prompt `opencode`.
+---Send a prompt to `opencode`.
 ---
 ---By default, clears the TUI's prompt input, appends `prompt`, and submits it — use `opts` to execute only specific steps.
 ---
@@ -112,8 +112,7 @@ function M.prompt(prompt, opts)
   end)
 end
 
----Send a command to `opencode`.
----See https://opencode.ai/docs/keybinds/ for available commands.
+---Send a [command](https://opencode.ai/docs/keybinds) to `opencode`.
 ---
 ---@param command string
 ---@param callback fun(response: table)|nil
@@ -133,7 +132,7 @@ end
 
 ---Input a prompt to send to `opencode`.
 ---
---- - Highlights `opts.contexts` in the input.
+--- - Highlights `opts.contexts` placeholders.
 --- - Offers completions for `opts.contexts` when using `snacks.input`.
 ---   - Press `<Tab>` or `<C-x><C-o>` to trigger built-in completion.
 ---   - When using `blink.cmp`, registers `opts.auto_register_cmp_sources`.
