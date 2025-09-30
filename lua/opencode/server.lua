@@ -125,9 +125,11 @@ local function poll_for_port(fn, callback)
       local ok, find_port_result = pcall(fn)
       if ok then
         timer:stop()
+        timer:close()
         callback(true, find_port_result)
       elseif retries >= 20 then
         timer:stop()
+        timer:close()
         callback(false, find_port_result)
       else
         retries = retries + 1
