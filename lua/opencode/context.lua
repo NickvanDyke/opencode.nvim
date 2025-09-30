@@ -39,7 +39,7 @@ local function file_path(buf)
   return vim.fn.fnamemodify(name, ":.")
 end
 
----Inject context into a prompt.
+---Inject context into `prompt`.
 ---@param prompt string
 ---@return string
 function M.inject(prompt)
@@ -54,8 +54,8 @@ function M.inject(prompt)
   -- But so far haven't managed to make that happen, so maybe it's fine.
   for _, placeholder in ipairs(placeholders) do
     prompt = prompt:gsub(placeholder, function()
-      -- Pass a function so it's only called when the placeholder is matched
-      return contexts[placeholder].value() or placeholder
+      -- Default to empty string so users can safely always include contexts like @diagnostics even if there are none
+      return contexts[placeholder].value() or ""
     end)
   end
 
