@@ -177,9 +177,46 @@ function M.create_session(port, callback)
   M.call(port, "/session", "POST", vim.empty_dict(), callback)
 end
 
+---Calls the `/event` SSE endpoint and invokes `callback` for each event received.
+---`opencode` sends a lot of events very quickly while responding, so the events are
+---buffered and flushed to `callback` every 10ms to avoid overwhelming Neovim and dropping.
+---
 ---@param port number
 ---@param callback fun(response: table)|nil
 function M.listen_to_sse(port, callback)
+  -- Buffer for incoming SSE events
+  -- so they don't overwhelm Neovim and get dropped
+  local event_queue = {}
+  local flush_timer = nil
+
+  local function flush_events()
+    if #event_queue > 0 and callback then
+      for _, event in ipairs(event_queue) do
+        callback(event)
+      end
+      event_queue = {}
+    end
+  end
+
+  local function buffered_callback(event)
+    if event then
+      table.insert(event_queue, event)
+      if not flush_timer then
+        flush_timer = vim.uv.new_timer()
+        flush_timer:start(
+          10,
+          0,
+          vim.schedule_wrap(function()
+            flush_events()
+            flush_timer:stop()
+            flush_timer:close()
+            flush_timer = nil
+          end)
+        )
+      end
+    end
+  end
+
   if sse_state.port ~= port then
     if sse_state.job_id then
       vim.fn.jobstop(sse_state.job_id)
@@ -188,7 +225,7 @@ function M.listen_to_sse(port, callback)
     sse_state = {
       port = port,
       buffer = {},
-      job_id = M.call(port, "/event", "GET", nil, callback, true),
+      job_id = M.call(port, "/event", "GET", nil, buffered_callback, true),
     }
   end
 end
