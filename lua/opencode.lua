@@ -149,20 +149,28 @@ function M.ask(default, opts)
 end
 
 ---Select a prompt from `opts.prompts` to send to `opencode`.
----Filters prompts according to whether they use `@selection` and whether we're in visual mode.
+---Filters prompts according to the current mode and whether they use the selection context.
 function M.select()
+  local is_visual = vim.fn.mode():match("[vV\22]")
+  ---@type opencode.Context[]
+  local selection_placeholders = vim.tbl_filter(function(placeholder)
+    -- Rarely relevant, but we check the value rather than the key to allow
+    -- users to rename the selection context in their config.
+    return require("opencode.config").opts.contexts[placeholder].value == require("opencode.context").visual_selection
+  end, vim.tbl_keys(require("opencode.config").opts.contexts))
+
   ---@type opencode.Prompt[]
   local prompts = vim.tbl_filter(function(prompt)
-    -- WARNING: Technically depends on user using built-in `@selection` context by name...
-    -- Could compare function references? Or add `visual = true/false` to contexts objects.
-    -- Probably more trouble than it's worth.
-    local is_visual = vim.fn.mode():match("[vV\22]")
-    local does_prompt_use_visual = prompt.prompt:match("@selection")
-    if is_visual then
-      return does_prompt_use_visual
-    else
-      return not does_prompt_use_visual
+    local uses_selection = false
+
+    for _, placeholder in ipairs(selection_placeholders) do
+      if prompt.prompt:find(placeholder, 1, true) then
+        uses_selection = true
+        break
+      end
     end
+
+    return (is_visual and uses_selection) or (not is_visual and not uses_selection)
   end, vim.tbl_values(require("opencode.config").opts.prompts))
 
   -- TODO: Ideally order should be stable. Seems to change on every nvim start.
