@@ -131,9 +131,10 @@ function M.command(command, callback)
 end
 
 ---Input a prompt to send to `opencode`.
+---Press the up arrow to browse recent prompts.
 ---
 --- - Highlights `opts.contexts` placeholders.
---- - Offers completions for `opts.contexts` when using `snacks.input`.
+--- - Completes `opts.contexts` placeholders when using `snacks.input`.
 ---   - Press `<Tab>` or `<C-x><C-o>` to trigger built-in completion.
 ---   - When using `blink.cmp`, registers `opts.auto_register_cmp_sources`.
 ---
