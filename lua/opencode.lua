@@ -173,7 +173,17 @@ function M.select()
     return (is_visual and uses_selection) or (not is_visual and not uses_selection)
   end, vim.tbl_values(require("opencode.config").opts.prompts))
 
-  -- TODO: Ideally order should be stable. Seems to change on every nvim start.
+  -- Sort keyed `opts.prompts` table for consistency, and prioritize ones that trigger `ask()`.
+  table.sort(prompts, function(a, b)
+    if a.ask and not b.ask then
+      return true
+    elseif not a.ask and b.ask then
+      return false
+    else
+      return a.description < b.description
+    end
+  end)
+
   vim.ui.select(
     prompts,
     {
