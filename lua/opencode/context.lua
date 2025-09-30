@@ -147,13 +147,11 @@ function M.visible_text()
 end
 
 ---Formatted diagnostics for the current buffer.
----@param curr_line_only? boolean Whether to only include diagnostics for the current line.
 ---@return string|nil
-function M.diagnostics(curr_line_only)
+function M.diagnostics()
   local win = last_used_valid_win()
   local buf = vim.api.nvim_win_get_buf(win)
-  local diagnostics =
-    vim.diagnostic.get(buf, { lnum = curr_line_only and vim.api.nvim_win_get_cursor(win)[1] - 1 or nil })
+  local diagnostics = vim.diagnostic.get(buf)
   if #diagnostics == 0 then
     return nil
   end

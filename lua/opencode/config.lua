@@ -57,12 +57,6 @@ local defaults = {
     ["@cursor"] = { description = "Cursor position", value = require("opencode.context").cursor_position },
     ["@selection"] = { description = "Selected text", value = require("opencode.context").visual_selection },
     ["@visible"] = { description = "Visible text", value = require("opencode.context").visible_text },
-    ["@diagnostic"] = {
-      description = "Current line diagnostics",
-      value = function()
-        return require("opencode.context").diagnostics(true)
-      end,
-    },
     ["@diagnostics"] = { description = "Current buffer diagnostics", value = require("opencode.context").diagnostics },
     ["@quickfix"] = { description = "Quickfix list", value = require("opencode.context").quickfix },
     ["@diff"] = { description = "Git diff", value = require("opencode.context").git_diff },

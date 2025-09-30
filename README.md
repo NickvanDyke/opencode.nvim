@@ -88,7 +88,6 @@ Before sending prompts, `opencode.nvim` replaces placeholders with their corresp
 | `@cursor` | Cursor position |
 | `@selection` | Selected text |
 | `@visible` | Visible text |
-| `@diagnostic` | Current line diagnostics |
 | `@diagnostics` | Current buffer diagnostics |
 | `@quickfix` | Quickfix list |
 | `@diff` | Git diff |
