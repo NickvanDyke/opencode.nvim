@@ -71,9 +71,9 @@ programs.nixvim = {
 | Function    | Description |
 |-------------|-------------|
 | `prompt`  | Send a prompt to `opencode`. The main entrypoint — build on it! |
-| `command` | Send a [command](https://opencode.ai/docs/keybinds) to `opencode`. |
 | `ask`     | Input a prompt to send to `opencode`. Highlights and completes contexts. |
 | `select`  | Select a prompt to send to `opencode`. |
+| `command` | Send a [command](https://opencode.ai/docs/keybinds) to `opencode`. |
 | `toggle`  | Toggle an embedded `opencode`. |
 
 ## 🕵️ Contexts
