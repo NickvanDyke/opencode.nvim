@@ -1,51 +1,12 @@
 local M = {}
 
-local function is_buf_valid(buf)
-  return vim.api.nvim_buf_is_loaded(buf) and vim.api.nvim_get_option_value("buftype", { buf = buf }) == ""
-end
-
--- While focusing the input and calling contexts for completion documentation,
--- the input will be the current window. So, find the last used "valid" window.
-local function last_used_valid_win()
-  local last_used_win = 0
-  local latest_lastused = 0
-
-  for _, win in ipairs(vim.api.nvim_list_wins()) do
-    local buf = vim.api.nvim_win_get_buf(win)
-    if is_buf_valid(buf) then
-      local last_used = vim.fn.getbufinfo(buf)[1].lastused or 0
-      if last_used > latest_lastused then
-        latest_lastused = last_used
-        last_used_win = win
-      end
-    end
-  end
-
-  return last_used_win
-end
-
----Given a buffer number, returns the file path relative to Neovim's CWD, or nil if not associated with a file.
----Opencode seems to easily ignore directories in the path above its CWD, so it's okay to use paths relative to Neovim's CWD,
----given that we verify the former is inside the latter.
----Unless the user does something weird like set opts.port to an opencode running in an entirely different directory.
----@param buf number
----@return string|nil
-local function file_path(buf)
-  local name = vim.api.nvim_buf_get_name(buf)
-  if name == "" then
-    return nil
-  end
-
-  return vim.fn.fnamemodify(name, ":.")
-end
-
----Inject context into `prompt`.
+---Inject `opts.contexts` into `prompt`.
 ---@param prompt string
 ---@return string
 function M.inject(prompt)
   local contexts = require("opencode.config").opts.contexts or {}
   local placeholders = vim.tbl_keys(contexts)
-  -- Replace the longest placeholders first, in case they overlap. e.g. @buffer should not replace "@buffers" in the prompt.
+  -- Replace the longest placeholders first, in case they overlap. e.g. "@buffer" should not replace "@buffers" in the prompt.
   table.sort(placeholders, function(a, b)
     return #a > #b
   end)
@@ -62,23 +23,89 @@ function M.inject(prompt)
   return prompt
 end
 
----The current buffer's file path.
----@return string|nil
-function M.buffer()
-  return file_path(vim.api.nvim_win_get_buf(last_used_valid_win()))
+local function is_buf_valid(buf)
+  return vim.api.nvim_buf_is_loaded(buf)
+    and vim.api.nvim_get_option_value("buftype", { buf = buf }) == ""
+    and vim.api.nvim_buf_get_name(buf) ~= ""
 end
 
----All open buffers' file paths.
+---Format a location for `opencode`.
+---Prepends `@` to the path so `opencode` attaches the file's content to the prompt.
+---(CWDs must match, or `opencode` falls back to its `read` tool).
+---Numbers should be 1-indexed.
+---Returns `nil` if the provided buffer is invalid.
+---@param args { buf?: number, path?: string, start_line?: number, end_line?: number, start_col?: number, end_col?: number }
+---@return string|nil
+function M.format_location(args)
+  if not args.buf and not args.path then
+    error("Must provide either `buf` or `path`")
+  elseif args.buf and not is_buf_valid(args.buf) then
+    return nil
+  end
+
+  local rel_path = vim.fn.fnamemodify(args.path or vim.api.nvim_buf_get_name(args.buf), ":.")
+  -- The path must be its own word for `opencode`, i.e. preceeded and followed by nothing or whitespace.
+  local result = "@" .. rel_path
+
+  if args.start_line and args.end_line and args.start_line > args.end_line then
+    -- Handle "backwards" selection
+    args.start_line, args.end_line = args.end_line, args.start_line
+  end
+
+  if args.start_line then
+    result = result .. string.format(" L%d", args.start_line)
+    if args.start_col then
+      result = result .. string.format(":C%d", args.start_col)
+    end
+    if args.end_line then
+      result = result .. string.format("-L%d", args.end_line)
+      if args.end_col then
+        result = result .. string.format(":C%d", args.end_col)
+      end
+    end
+  end
+
+  return result
+end
+
+-- While focusing the input and calling contexts for completion documentation,
+-- the input will be the current window. So, find the last used "valid" window.
+---@return number
+local function last_used_valid_win()
+  local last_used_win = 0
+  local latest_last_used = 0
+
+  for _, win in ipairs(vim.api.nvim_list_wins()) do
+    local buf = vim.api.nvim_win_get_buf(win)
+    if is_buf_valid(buf) then
+      local last_used = vim.fn.getbufinfo(buf)[1].lastused or 0
+      if last_used > latest_last_used then
+        latest_last_used = last_used
+        last_used_win = win
+      end
+    end
+  end
+
+  return last_used_win
+end
+
+---The current buffer.
+---@return string|nil
+function M.buffer()
+  return M.format_location({
+    buf = vim.api.nvim_win_get_buf(last_used_valid_win()),
+  })
+end
+
+---All open buffers.
 ---@return string|nil
 function M.buffers()
   local file_list = {}
 
   for _, buf in ipairs(vim.api.nvim_list_bufs()) do
-    if is_buf_valid(buf) then
-      local path = file_path(buf)
-      if path then
-        table.insert(file_list, path)
-      end
+    local path = M.format_location({ buf = buf })
+    if path then
+      table.insert(file_list, path)
     end
   end
 
@@ -86,67 +113,71 @@ function M.buffers()
     return nil
   end
 
-  return table.concat(file_list, ", ")
+  return table.concat(file_list, " ")
 end
 
----The current cursor position in the format `file_path:Lline:Ccol`.
----@return string
+---The current cursor position.
+---@return string|nil
 function M.cursor_position()
   local win = last_used_valid_win()
   local pos = vim.api.nvim_win_get_cursor(win)
-  local line = pos[1]
-  local col = pos[2] + 1 -- Convert to 1-based index
 
-  return string.format("%s:L%d:C%d", file_path(vim.api.nvim_win_get_buf(win)), line, col)
+  return M.format_location({
+    buf = vim.api.nvim_win_get_buf(win),
+    start_line = pos[1],
+    start_col = pos[2] + 1,
+  })
 end
 
----The visual selection range in the format `file_path:Lstart-end`.
+---The currently selected lines in visual mode, or the lines that were selected before exiting visual mode.
 ---@return string|nil
 function M.visual_selection()
   local is_visual = vim.fn.mode():match("[vV\22]")
-  local path = file_path(vim.api.nvim_win_get_buf(last_used_valid_win()))
-  if not path then
-    return nil
-  end
 
   -- Need to change our getpos arg when in visual mode because '< and '> update upon exiting visual mode, not during.
   -- Whereas `snacks.input` clears visual mode, so we need to get the now-set range.
-  local _, start_line = unpack(vim.api.nvim_win_call(last_used_valid_win(), function()
+  local _, start_line, start_col = unpack(vim.api.nvim_win_call(last_used_valid_win(), function()
     return vim.fn.getpos(is_visual and "v" or "'<")
   end))
-  local _, end_line = unpack(vim.api.nvim_win_call(last_used_valid_win(), function()
+  local _, end_line, end_col = unpack(vim.api.nvim_win_call(last_used_valid_win(), function()
     return vim.fn.getpos(is_visual and "." or "'>")
   end))
-  if start_line > end_line then
-    -- Handle "backwards" selection
-    start_line, end_line = end_line, start_line
-  end
 
-  return string.format("%s:L%d-%d", path, start_line, end_line)
+  return M.format_location({
+    buf = vim.api.nvim_win_get_buf(last_used_valid_win()),
+    start_line = start_line,
+    start_col = start_col,
+    end_line = end_line,
+    end_col = end_col,
+  })
 end
 
+---The visible lines in all open windows.
+---@return string|nil
 function M.visible_text()
   local visible = {}
   for _, win in ipairs(vim.api.nvim_list_wins()) do
     local buf = vim.api.nvim_win_get_buf(win)
-    if is_buf_valid(buf) then
-      local path = file_path(buf)
-      if path then
-        local start_line = vim.fn.line("w0", win)
-        local end_line = vim.fn.line("w$", win)
-        table.insert(visible, string.format("%s:L%d-%d", path, start_line, end_line))
-      end
-    end
+    local start_line = vim.fn.line("w0", win)
+    local end_line = vim.fn.line("w$", win)
+    table.insert(
+      visible,
+      M.format_location({
+        buf = buf,
+        start_line = start_line,
+        end_line = end_line,
+      })
+    )
   end
 
   if #visible == 0 then
     return nil
   end
 
-  return table.concat(visible, ", ")
+  return table.concat(visible, " ")
 end
 
----Formatted diagnostics for the current buffer.
+---Diagnostics for the current buffer.
 ---@return string|nil
 function M.diagnostics()
   local win = last_used_valid_win()
@@ -156,29 +187,31 @@ function M.diagnostics()
     return nil
   end
 
-  local message = #diagnostics .. " diagnostic" .. (#diagnostics > 1 and "s" or "") .. ":"
+  local diagnostic_strings = {}
 
   for _, diagnostic in ipairs(diagnostics) do
-    local start_line = diagnostic.lnum + 1 -- Convert to 1-based line numbers
-    local start_col = diagnostic.col + 1
-    local end_line = diagnostic.end_lnum + 1
-    local end_col = diagnostic.end_col + 1
-    local short_message = diagnostic.message:gsub("%s+", " "):gsub("^%s", ""):gsub("%s$", "")
-
-    message = string.format(
-      "%s %s:L%d:C%d-L%d:C%d: (%s) %s",
-      message,
-      file_path(buf),
-      start_line,
-      start_col,
-      end_line,
-      end_col,
-      diagnostic.source or "unknown source",
-      short_message
+    table.insert(
+      diagnostic_strings,
+      string.format(
+        "%s (%s): %s",
+        M.format_location({
+          buf = buf,
+          start_line = diagnostic.lnum + 1,
+          start_col = diagnostic.col + 1,
+          end_line = diagnostic.end_lnum + 1,
+          end_col = diagnostic.end_col + 1,
+        }),
+        diagnostic.source or "unknown source",
+        diagnostic.message:gsub("%s+", " "):gsub("^%s", ""):gsub("%s$", "")
+      )
     )
   end
 
-  return message
+  return #diagnostics
+    .. " diagnostic"
+    .. (#diagnostics > 1 and "s" or "")
+    .. ": "
+    .. table.concat(diagnostic_strings, "; ")
 end
 
 ---Formatted quickfix list entries.
@@ -191,15 +224,20 @@ function M.quickfix()
 
   local lines = {}
   for _, entry in ipairs(qflist) do
-    local filename = entry.bufnr ~= 0 and file_path(entry.bufnr) or nil
-    if filename then
-      local lnum = entry.lnum
-      local col = entry.col
-      table.insert(lines, string.format("%s:L%d:C%d", filename, lnum, col))
+    local has_buf = entry.bufnr ~= 0 and vim.api.nvim_buf_get_name(entry.bufnr) ~= ""
+    if has_buf then
+      table.insert(
+        lines,
+        M.format_location({
+          buf = entry.bufnr,
+          start_line = entry.lnum,
+          start_col = entry.col,
+        })
+      )
     end
   end
-  local result = table.concat(lines, ", ")
-  return result
+
+  return table.concat(lines, " ")
 end
 
 ---The git diff (unified diff format).
@@ -217,7 +255,7 @@ function M.git_diff()
   return nil
 end
 
----Tags from the `grapple.nvim` plugin.
+---[`grapple.nvim`](https://github.com/cbochs/grapple.nvim) tags.
 ---@return string|nil
 function M.grapple_tags()
   local is_available, grapple = pcall(require, "grapple")
@@ -232,9 +270,9 @@ function M.grapple_tags()
 
   local paths = {}
   for _, tag in ipairs(tags) do
-    table.insert(paths, tag.path)
+    table.insert(paths, M.format_location({ path = tag.path }))
   end
-  return table.concat(paths, ", ")
+  return table.concat(paths, " ")
 end
 
 return M
