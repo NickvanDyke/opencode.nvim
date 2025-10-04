@@ -11,23 +11,6 @@ local function get_port(callback)
   end)
 end
 
----@param steps { cond: boolean, fn: fun(cb: fun()) }[]
----@param i? number
-local function chain_conditional_async(steps, i)
-  i = i or 1
-  local step = steps[i]
-  if not step then
-    return
-  end
-  if step.cond then
-    step.fn(function()
-      chain_conditional_async(steps, i + 1)
-    end)
-  else
-    chain_conditional_async(steps, i + 1)
-  end
-end
-
 ---@deprecated Pass options via `vim.g.opencode_opts` instead. See [README](https://github.com/NickvanDyke/opencode.nvim) for example.
 ---
 ---@param opts opencode.Opts
@@ -69,24 +52,24 @@ function M.prompt(prompt, opts)
   }
 
   get_port(function(port)
-    chain_conditional_async({
-      {
-        cond = opts.clear == true,
-        fn = function(cb)
-          require("opencode.client").tui_clear_prompt(port, cb)
-        end,
-      },
-      {
-        cond = opts.append == true and prompt ~= nil,
-        fn = function(cb)
-          ---@cast prompt string
+    require("opencode.async").chain_async({
+      function(next)
+        if opts.clear == true then
+          require("opencode.client").tui_clear_prompt(port, next)
+        else
+          next()
+        end
+      end,
+      function(next)
+        if opts.append == true and prompt ~= nil then
           prompt = require("opencode.context").inject(prompt)
-          require("opencode.client").tui_append_prompt(prompt, port, cb)
-        end,
-      },
-      {
-        cond = opts.submit == true,
-        fn = function(cb)
+          require("opencode.client").tui_append_prompt(prompt, port, next)
+        else
+          next()
+        end
+      end,
+      function(_)
+        if opts.submit == true then
           -- WARNING: If user never prompts opencode via the plugin, we'll never receive SSEs or register auto_reload autocmds.
           -- Could register in `/plugin` and even periodically check, but is it worth the complexity?
           if require("opencode.config").opts.auto_reload then
@@ -105,9 +88,9 @@ function M.prompt(prompt, opts)
             vim.notify("Error in `opts.on_submit`: " .. on_submit_err, vim.log.levels.WARN, { title = "opencode" })
           end
 
-          require("opencode.client").tui_submit_prompt(port, cb)
-        end,
-      },
+          require("opencode.client").tui_submit_prompt(port)
+        end
+      end,
     })
   end)
 end

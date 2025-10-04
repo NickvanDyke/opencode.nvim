@@ -160,21 +160,29 @@ function M.get_port(callback)
     return find_server_inside_nvim_cwd().port
   end
 
-  local found_port, find_port_result = pcall(find_port_fn)
-  if found_port then
-    callback(true, find_port_result)
-  else
-    local ok, was_opencode_started = pcall(require("opencode.config").opts.on_opencode_not_found)
-    if ok then
-      if was_opencode_started then
-        poll_for_port(find_port_fn, callback)
+  require("opencode.async").chain_async({
+    function(next)
+      local ok, result = pcall(find_port_fn)
+      if ok then
+        callback(true, result)
       else
-        callback(false, find_port_result)
+        next()
       end
-    else
-      callback(false, "Error in `opts.on_opencode_not_found`: " .. was_opencode_started)
-    end
-  end
+    end,
+    function(next)
+      local ok, result = pcall(require("opencode.config").opts.on_opencode_not_found)
+      if not ok then
+        callback(false, "Error in `opts.on_opencode_not_found`: " .. result)
+      elseif result then
+        next()
+      else
+        callback(false, result)
+      end
+    end,
+    function(_)
+      poll_for_port(find_port_fn, callback)
+    end,
+  })
 end
 
 return M
