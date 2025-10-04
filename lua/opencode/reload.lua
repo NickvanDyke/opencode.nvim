@@ -17,8 +17,11 @@ function M.setup()
     pattern = "OpencodeEvent",
     callback = function(args)
       if args.data.type == "file.edited" then
-        -- :checktime checks all buffers - no need to check event's file
-        vim.cmd("checktime")
+        -- `schedule` because blocking the event loop during rapid SSE influx can drop events
+        vim.schedule(function()
+          -- :checktime checks all buffers - no need to check event's file
+          vim.cmd("checktime")
+        end)
       end
     end,
     desc = "Reload buffers edited by opencode",
