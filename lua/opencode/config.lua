@@ -74,23 +74,23 @@ local defaults = {
       prompt = "",
       ask = true,
     },
-    explain = {
+    explain_cursor = {
       description = "Explain code near cursor",
       prompt = "Explain @cursor and its context",
     },
-    fix = {
-      description = "Fix diagnostics",
-      prompt = "Fix these @diagnostics",
+    explain_diagnostics = {
+      description = "Explain diagnostics",
+      prompt = "Explain @diagnostics",
     },
-    optimize = {
+    optimize_selection = {
       description = "Optimize selection",
       prompt = "Optimize @selection for performance and readability",
     },
-    document = {
+    document_selection = {
       description = "Document selection",
       prompt = "Add documentation comments for @selection",
     },
-    test = {
+    test_selection = {
       description = "Add tests for selection",
       prompt = "Add tests for @selection",
     },
