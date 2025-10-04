@@ -4,11 +4,11 @@ Integrate the [opencode](https://github.com/sst/opencode) AI assistant with Neov
 
 https://github.com/user-attachments/assets/340ce139-173c-4e81-b39a-f089862db9ce
 
-> Uses `opencode`'s currently undocumented [API](https://github.com/sst/opencode/blob/dev/packages/opencode/src/server/server.ts) — latest tested version: `v0.9.1`
+> Uses `opencode`'s currently undocumented [API](https://github.com/sst/opencode/blob/dev/packages/opencode/src/server/server.ts) — latest tested version: `v0.14.1`
 
 ## ✨ Features
 
-- Open `opencode` in an embedded terminal, or auto-connect to one matching Neovim's CWD.
+- Auto-connect to `opencode` matching Neovim's CWD, or toggle an embedded instance.
 - Input prompts with completions, highlights, and normal-mode support.
 - Select from a built-in prompt library and define custom prompts.
 - Inject relevant editor context (buffer, selection, cursor, diagnostics, etc.).
