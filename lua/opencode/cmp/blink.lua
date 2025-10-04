@@ -97,7 +97,9 @@ function source:resolve(item, callback)
   item = vim.deepcopy(item)
   local context = require("opencode.config").opts.contexts[item.label]
 
-  item.documentation.value = item.documentation.value .. ":\n" .. "```" .. (context.value() or "nil") .. "```"
+  -- Newspaces after and before the triple backticks in case the context value starts or ends with backticks.
+  -- Adds unnecessary empty lines though...
+  item.documentation.value = item.documentation.value .. ":\n" .. "```\n" .. (context.value() or "nil") .. "\n```"
 
   callback(item)
 end
