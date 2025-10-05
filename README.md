@@ -123,6 +123,10 @@ Toggle an embedded `opencode` terminal (requires [`snacks.nvim`](https://github.
 
 To use your own method (terminal app or plugin, multiplexer, etc.), launch `opencode` with it and optionally override `vim.g.opencode_opts.on_opencode_not_found` and `vim.g.opencode_opts.on_submit` for convenience, then use `opencode.nvim` normally.
 
+### ➕ Add — `:[range]OpencodeAdd`
+
+Add `[range]` (or current line if none) to the current prompt.
+
 ## 🕵️ Contexts
 
 `opencode.nvim` replaces placeholders in prompts with their corresponding [contexts](lua/opencode/config.lua#L51):
