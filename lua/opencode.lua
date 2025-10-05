@@ -99,9 +99,21 @@ function M.prompt(prompt, opts)
   end)
 end
 
+---@alias opencode.Command
+---| 'session_new'
+---| 'session_share'
+---| 'session_interrupt'
+---| 'session_compact'
+---| 'messages_page_up'
+---| 'messages_page_down'
+---| 'messages_half_page_up'
+---| 'messages_half_page_down'
+---| 'messages_first'
+---| 'messages_last'
+
 ---Send a [command](https://opencode.ai/docs/keybinds) to `opencode`.
 ---
----@param command string
+---@param command opencode.Command|string
 ---@param callback fun(response: table)|nil
 function M.command(command, callback)
   get_port(function(port)

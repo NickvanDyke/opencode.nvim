@@ -100,7 +100,20 @@ Select from [prompts](lua/opencode/config.lua#65) to review, explain, and improv
 
 ### 🧑‍🏫 Command — `require('opencode').command()`
 
-Send a [command](https://opencode.ai/docs/keybinds). 
+Send a [command](https://opencode.ai/docs/keybinds):
+
+| Command                   | Description                                               |
+|---------------------------|----------------------------------------------------------|
+| `session_new`             | Start a new session                             |
+| `session_share`           | Share the current session                                |
+| `session_interrupt`       | Interrupt the current session                            |
+| `session_compact`         | Compact the current session (reduce context size)     |
+| `messages_page_up`        | Scroll messages up by one page                           |
+| `messages_page_down`      | Scroll messages down by one page                         |
+| `messages_half_page_up`   | Scroll messages up by half a page                        |
+| `messages_half_page_down` | Scroll messages down by half a page                      |
+| `messages_first`          | Jump to the first message in the session                 |
+| `messages_last`           | Jump to the last message in the session                  |
 
 ### 💻 Toggle — `require('opencode').toggle()`
 
