@@ -85,7 +85,11 @@ function M.prompt(prompt, opts)
 
           local on_submit_ok, on_submit_err = pcall(require("opencode.config").opts.on_submit)
           if not on_submit_ok then
-            vim.notify("Error in `opts.on_submit`: " .. on_submit_err, vim.log.levels.WARN, { title = "opencode" })
+            vim.notify(
+              "Error in `vim.g.opencode_opts.on_submit`: " .. on_submit_err,
+              vim.log.levels.WARN,
+              { title = "opencode" }
+            )
           end
 
           require("opencode.client").tui_submit_prompt(port)
@@ -106,7 +110,11 @@ function M.command(command, callback)
 
     local on_submit_ok, on_submit_err = pcall(require("opencode.config").opts.on_submit)
     if not on_submit_ok then
-      vim.notify("Error in `opts.on_submit`: " .. on_submit_err, vim.log.levels.WARN, { title = "opencode" })
+      vim.notify(
+        "Error in `vim.g.opencode_opts.on_submit`: " .. on_submit_err,
+        vim.log.levels.WARN,
+        { title = "opencode" }
+      )
     end
 
     require("opencode.client").tui_execute_command(command, port, callback)
@@ -119,7 +127,7 @@ end
 --- - Highlights `opts.contexts` placeholders.
 --- - Completes `opts.contexts` placeholders when using `snacks.input`.
 ---   - Press `<Tab>` or `<C-x><C-o>` to trigger built-in completion.
----   - When using `blink.cmp`, registers `opts.auto_register_cmp_sources`.
+---   - Registers `opts.auto_register_cmp_sources` with `blink.cmp`.
 ---
 ---@param default? string Text to prefill the input with.
 ---@param opts? opencode.prompt.Opts

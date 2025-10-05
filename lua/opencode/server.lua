@@ -7,7 +7,7 @@ local function exec(command)
   -- (or even the newer `vim.system`? Could update client.lua too? Or maybe not because SSE is long-running.)
   local executable = vim.split(command, " ")[1]
   if vim.fn.executable(executable) == 0 then
-    error("'" .. executable .. "' command is not available", 0)
+    error("`" .. executable .. "` command is not available", 0)
   end
 
   local handle = io.popen(command)
@@ -24,7 +24,7 @@ end
 local function find_servers()
   if vim.fn.executable("lsof") == 0 then
     -- lsof is a common utility to list open files and ports, but not always available by default.
-    error("'lsof' command is not available — please install it to auto-find opencode, or set opts.port", 0)
+    error("`lsof` command is not available — please install it to auto-find `opencode`, or set `vim.g.opencode_opts.port`", 0)
   end
   -- Going straight to `lsof` relieves us of parsing `ps` and all the non-portable 'opencode'-containing processes it might return.
   -- With these flags, we'll only get processes that are listening on TCP ports and have 'opencode' in their command name.
@@ -43,7 +43,7 @@ local function find_servers()
     local pid = tonumber(parts[2])
     local port = tonumber(parts[9]:match(":(%d+)$")) -- Extract port from NAME field (which is e.g. "127.0.0.1:12345")
     if not pid or not port then
-      error("Couldn't parse opencode PID and port from 'lsof' entry: " .. line, 0)
+      error("Couldn't parse `opencode` PID and port from `lsof` entry: " .. line, 0)
     end
 
     local cwd = exec("lsof -w -a -p " .. pid .. " -d cwd"):match("%s+(/.*)$")
@@ -107,7 +107,7 @@ local function find_server_inside_nvim_cwd()
   end
 
   if not found_server then
-    error("Couldn't find an opencode process running inside Neovim's CWD", 0)
+    error("Couldn't find an `opencode` process running inside Neovim's CWD", 0)
   end
 
   return found_server
@@ -172,7 +172,7 @@ function M.get_port(callback)
     function(next)
       local ok, result = pcall(require("opencode.config").opts.on_opencode_not_found)
       if not ok then
-        callback(false, "Error in `opts.on_opencode_not_found`: " .. result)
+        callback(false, "Error in `vim.g.opencode_opts.on_opencode_not_found`: " .. result)
       elseif result then
         next()
       else

@@ -8,9 +8,9 @@ https://github.com/user-attachments/assets/340ce139-173c-4e81-b39a-f089862db9ce
 
 ## ✨ Features
 
-- Auto-connect to `opencode` matching Neovim's CWD, or toggle an embedded instance.
+- Auto-connect to *any* `opencode` inside Neovim's CWD, or toggle an embedded instance.
 - Input prompts with completions, highlights, and normal-mode support.
-- Select from a built-in prompt library and define custom prompts.
+- Select from a prompt library and define custom prompts.
 - Inject relevant editor context (buffer, selection, cursor, diagnostics, etc.).
 - Auto-reload buffers edited by `opencode` in real-time.
 - Forward `opencode`'s Server-Sent-Events as Neovim autocmds for automation.
@@ -32,7 +32,7 @@ https://github.com/user-attachments/assets/340ce139-173c-4e81-b39a-f089862db9ce
       -- Your configuration, if any — see `lua/opencode/config.lua`
     }
 
-    -- Required for `opts.auto_reload`
+    -- Required for `vim.g.opencode_opts.auto_reload`
     vim.opt.autoread = true
 
     -- Recommended/example keymaps
@@ -62,23 +62,57 @@ programs.nixvim = {
 ```
 </details>
 
-## ⚙️ [Configuration](./lua/opencode/config.lua)
+## ⚙️ Configuration
 
-`opencode.nvim` provides a rich and reliable default experience — see available options and their defaults [here](./lua/opencode/config.lua#L47).
+`opencode.nvim` provides a rich and reliable default experience — see all available options and their defaults [here](./lua/opencode/config.lua#L47).
 
-## 💻 [API](./lua/opencode.lua)
+## 🚀 Usage
 
-| Function    | Description |
-|-------------|-------------|
-| `prompt`  | Send a prompt to `opencode`. The main entrypoint — build on it! |
-| `ask`     | Input a prompt to send to `opencode`. Highlights and completes contexts. |
-| `select`  | Select a prompt to send to `opencode`. |
-| `command` | Send a [command](https://opencode.ai/docs/keybinds) to `opencode`. |
-| `toggle`  | Toggle an embedded `opencode`. |
+### 🙋 Prompt — `require('opencode').prompt()`
+
+Send a prompt. The main entrypoint — build on it!
+
+### ✍️ Ask — `require('opencode').ask()`
+
+Input a prompt.
+
+- Highlights [contexts](lua/opencode/config.lua#L51).
+- Completes [contexts](lua/opencode/config.lua#L51) when using [`snacks.input`](https://github.com/folke/snacks.nvim/blob/main/docs/input.md).
+  - Press `<Tab>` or `<C-x><C-o>` to trigger built-in completion.
+  - Registers `vim.g.opencode_opts.auto_register_cmp_sources` with [`blink.cmp`](https://github.com/Saghen/blink.cmp).
+
+### 📝 Select — `require('opencode').select()`
+
+Select from [prompts](lua/opencode/config.lua#65) to review, explain, and improve your code:
+
+| Description                        | Prompt                                                    |
+|------------------------------------|-----------------------------------------------------------|
+| Ask…                               | *(user input required)*                                   |
+| Explain code near cursor           | Explain @cursor and its context                           |
+| Explain diagnostics              | Explain @diagnostics                                        |
+| Optimize selection                | Optimize @selection for performance and readability        |
+| Document selection                | Add documentation comments for @selection                  |
+| Add tests for selection            | Add tests for @selection                                  |
+| Review buffer                      | Review @buffer for correctness and readability            |
+| Review git diff                    | Review the following git diff for correctness and readability:\n@diff |
+| Add buffer to prompt               | @buffer                                                   |
+| Add selection to prompt            | @selection                                                |
+
+### 🧑‍🏫 Command — `require('opencode').command()`
+
+Send a [command](https://opencode.ai/docs/keybinds). 
+
+### 💻 Toggle — `require('opencode').toggle()`
+
+Toggle an embedded `opencode` terminal (requires [`snacks.nvim`](https://github.com/folke/snacks.nvim)).
+
+`opencode.nvim` connects to *any* `opencode` inside Neovim's CWD, but provides this for convenience.
+
+To use your own method (terminal app or plugin, multiplexer, etc.), launch `opencode` with it and optionally override `vim.g.opencode_opts.on_opencode_not_found` and `vim.g.opencode_opts.on_submit` for convenience, then use `opencode.nvim` normally.
 
 ## 🕵️ Contexts
 
-Before sending prompts, `opencode.nvim` replaces placeholders with their corresponding contexts:
+`opencode.nvim` replaces placeholders in prompts with their corresponding [contexts](lua/opencode/config.lua#L51):
 
 | Placeholder | Context |
 | - | - |

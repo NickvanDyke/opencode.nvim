@@ -122,8 +122,7 @@ local defaults = {
     highlight = require("opencode.ask").highlight,
     -- Options below here only apply to [snacks.input](https://github.com/folke/snacks.nvim/blob/main/docs/input.md).
     icon = "󱚣 ",
-    -- Built-in completion - trigger via `<Tab>` or `<C-x><C-o>` in insert mode.
-    -- Only available when using `snacks.input` - built-in `vim.ui.input` does not support `omnifunc`.
+    -- Only available when using `snacks.input` - `vim.ui.input` does not support `custom/customlist`.
     -- It's okay to enable simultaneously with `blink.cmp` because those keymaps take priority.
     -- TODO: https://github.com/folke/snacks.nvim/issues/2217
     completion = "customlist,v:lua.require'opencode.cmp.omni'",
@@ -157,7 +156,7 @@ local defaults = {
     -- So override that.
     auto_close = true,
     win = {
-      -- "right" seems like a better default than `snacks.terminal`'s `"float"` default
+      -- `"right"` seems like a better default than `snacks.terminal`'s `"float"` default
       position = "right",
       -- Stay in the editor after opening the terminal
       enter = false,
