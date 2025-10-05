@@ -129,7 +129,7 @@ function M.cursor_position()
   })
 end
 
----The currently selected lines in visual mode, or the lines that were selected before exiting visual mode.
+---The current visual selection, or the last visual selection if not currently in visual mode.
 ---@return string|nil
 function M.visual_selection()
   local is_visual = vim.fn.mode():match("[vV\22]")
@@ -143,12 +143,14 @@ function M.visual_selection()
     return vim.fn.getpos(is_visual and "." or "'>")
   end))
 
+  local is_linewise = start_col == 1 and end_col == vim.v.maxcol
+
   return M.format_location({
     buf = vim.api.nvim_win_get_buf(last_used_valid_win()),
     start_line = start_line,
-    start_col = start_col,
+    start_col = not is_linewise and start_col or nil,
     end_line = end_line,
-    end_col = end_col,
+    end_col = not is_linewise and end_col or nil,
   })
 end
 
