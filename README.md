@@ -22,10 +22,10 @@ https://github.com/user-attachments/assets/340ce139-173c-4e81-b39a-f089862db9ce
 
 ```lua
 {
-  'NickvanDyke/opencode.nvim',
+  "NickvanDyke/opencode.nvim",
   dependencies = {
     -- Recommended for `ask()`, and required for `toggle()` — otherwise optional
-    { 'folke/snacks.nvim', opts = { input = { enabled = true } } },
+    { "folke/snacks.nvim", opts = { input = { enabled = true } } },
   },
   config = function()
     vim.g.opencode_opts = {
@@ -36,16 +36,16 @@ https://github.com/user-attachments/assets/340ce139-173c-4e81-b39a-f089862db9ce
     vim.opt.autoread = true
 
     -- Recommended/example keymaps
-    vim.keymap.set('n', '<leader>ot', function() require('opencode').toggle() end, { desc = 'Toggle embedded' })
-    vim.keymap.set('n', '<leader>oa', function() require('opencode').ask('@cursor: ') end, { desc = 'Ask about this' })
-    vim.keymap.set('v', '<leader>oa', function() require('opencode').ask('@selection: ') end, { desc = 'Ask about selection' })
-    vim.keymap.set('n', '<leader>o+', function() require('opencode').prompt('@buffer', { append = true }) end, { desc = 'Add buffer to prompt' })
-    vim.keymap.set('v', '<leader>o+', function() require('opencode').prompt('@selection', { append = true }) end, { desc = 'Add selection to prompt' })
-    vim.keymap.set('n', '<leader>oe', function() require('opencode').prompt('Explain @cursor and its context') end, { desc = 'Explain this code' })
-    vim.keymap.set('n', '<leader>on', function() require('opencode').command('session_new') end, { desc = 'New session' })
-    vim.keymap.set('n', '<S-C-u>',    function() require('opencode').command('messages_half_page_up') end, { desc = 'Messages half page up' })
-    vim.keymap.set('n', '<S-C-d>',    function() require('opencode').command('messages_half_page_down') end, { desc = 'Messages half page down' })
-    vim.keymap.set({ 'n', 'v' }, '<leader>os', function() require('opencode').select() end, { desc = 'Select prompt' })
+    vim.keymap.set("n", "<leader>ot", function() require("opencode").toggle() end, { desc = "Toggle embedded" })
+    vim.keymap.set("n", "<leader>oa", function() require("opencode").ask("@cursor: ") end, { desc = "Ask about this" })
+    vim.keymap.set("v", "<leader>oa", function() require("opencode").ask("@selection: ") end, { desc = "Ask about selection" })
+    vim.keymap.set("n", "<leader>o+", function() require("opencode").prompt("@buffer", { append = true }) end, { desc = "Add buffer to prompt" })
+    vim.keymap.set("v", "<leader>o+", function() require("opencode").prompt("@selection", { append = true }) end, { desc = "Add selection to prompt" })
+    vim.keymap.set("n", "<leader>oe", function() require("opencode").prompt("Explain @cursor and its context") end, { desc = "Explain this code" })
+    vim.keymap.set("n", "<leader>on", function() require("opencode").command("session_new") end, { desc = "New session" })
+    vim.keymap.set("n", "<S-C-u>",    function() require("opencode").command("messages_half_page_up") end, { desc = "Messages half page up" })
+    vim.keymap.set("n", "<S-C-d>",    function() require("opencode").command("messages_half_page_down") end, { desc = "Messages half page down" })
+    vim.keymap.set({ "n", "v" }, "<leader>os", function() require("opencode").select() end, { desc = "Select prompt" })
   end,
 }
 ```
@@ -68,11 +68,11 @@ programs.nixvim = {
 
 ## 🚀 Usage
 
-### 🙋 Prompt — `require('opencode').prompt()`
+### 🙋 Prompt — `require("opencode").prompt()`
 
 Send a prompt. The main entrypoint — build on it!
 
-### ✍️ Ask — `require('opencode').ask()`
+### ✍️ Ask — `require("opencode").ask()`
 
 Input a prompt.
 
@@ -81,7 +81,7 @@ Input a prompt.
   - Press `<Tab>` or `<C-x><C-o>` to trigger built-in completion.
   - Registers `vim.g.opencode_opts.auto_register_cmp_sources` with [`blink.cmp`](https://github.com/Saghen/blink.cmp).
 
-### 📝 Select — `require('opencode').select()`
+### 📝 Select — `require("opencode").select()`
 
 Select from [prompts](lua/opencode/config.lua#65) to review, explain, and improve your code:
 
@@ -98,16 +98,16 @@ Select from [prompts](lua/opencode/config.lua#65) to review, explain, and improv
 | Add buffer to prompt               | @buffer                                                   |
 | Add selection to prompt            | @selection                                                |
 
-### 🧑‍🏫 Command — `require('opencode').command()`
+### 🧑‍🏫 Command — `require("opencode").command()`
 
 Send a [command](https://opencode.ai/docs/keybinds):
 
-| Command                   | Description                                               |
+| Command                   | Description                                              |
 |---------------------------|----------------------------------------------------------|
-| `session_new`             | Start a new session                             |
+| `session_new`             | Start a new session                                      |
 | `session_share`           | Share the current session                                |
 | `session_interrupt`       | Interrupt the current session                            |
-| `session_compact`         | Compact the current session (reduce context size)     |
+| `session_compact`         | Compact the current session (reduce context size)        |
 | `messages_page_up`        | Scroll messages up by one page                           |
 | `messages_page_down`      | Scroll messages down by one page                         |
 | `messages_half_page_up`   | Scroll messages up by half a page                        |
@@ -115,7 +115,7 @@ Send a [command](https://opencode.ai/docs/keybinds):
 | `messages_first`          | Jump to the first message in the session                 |
 | `messages_last`           | Jump to the last message in the session                  |
 
-### 💻 Toggle — `require('opencode').toggle()`
+### 💻 Toggle — `require("opencode").toggle()`
 
 Toggle an embedded `opencode` terminal (requires [`snacks.nvim`](https://github.com/folke/snacks.nvim)).
 
