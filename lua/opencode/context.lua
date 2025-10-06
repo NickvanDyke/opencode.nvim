@@ -54,6 +54,11 @@ function M.format_location(args)
   if args.start_line and args.end_line and args.start_line > args.end_line then
     -- Handle "backwards" selection
     args.start_line, args.end_line = args.end_line, args.start_line
+
+    -- Move cols with their lines
+    if args.start_col and args.end_col then
+      args.start_col, args.end_col = args.end_col, args.start_col
+    end
   end
 
   if args.start_line then
