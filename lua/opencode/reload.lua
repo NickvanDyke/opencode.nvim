@@ -5,7 +5,7 @@ function M.setup()
     -- Unfortunately autoread is kinda necessary, for :checktime.
     -- Alternatively we could :edit! but that would lose any unsaved changes.
     vim.notify(
-      "Please enable `vim.opt.autoread` to use `opencode.nvim` auto_reload, or disable `vim.g.opencode_opts.auto_reload`",
+      "Please set `vim.opt.autoread = true` to use `opencode.nvim` auto_reload, or disable `vim.g.opencode_opts.auto_reload`",
       vim.log.levels.WARN,
       { title = "opencode" }
     )

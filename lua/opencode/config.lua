@@ -57,7 +57,7 @@ local defaults = {
     ["@cursor"] = { description = "Cursor position", value = require("opencode.context").cursor_position },
     ["@selection"] = { description = "Visual selection", value = require("opencode.context").visual_selection },
     ["@this"] = {
-      description = "Visual selection (if any) or cursor position",
+      description = "Visual selection if any, else cursor position",
       value = require("opencode.context").this,
     },
     ["@visible"] = { description = "Visible text", value = require("opencode.context").visible_text },

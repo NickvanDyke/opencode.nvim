@@ -78,7 +78,7 @@ Replaces placeholders with their corresponding [contexts](lua/opencode/config.lu
 | `@buffers` | Open buffers |
 | `@cursor` | Cursor position |
 | `@selection` | Visual selection |
-| `@this` | Visual selection (if any) or cursor position |
+| `@this` | Visual selection if any, else cursor position |
 | `@visible` | Visible text |
 | `@diagnostics` | Current buffer diagnostics |
 | `@quickfix` | Quickfix list |
