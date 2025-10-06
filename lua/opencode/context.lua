@@ -1,7 +1,8 @@
 local M = {}
 
 ---Stored visual mode state for `@this`.
----Because `snacks.input` clears visual mode before we can query it.
+---Because `snacks.nvim` input and select clears visual mode before we can query it.
+---Note that `prompt` is async, so this must be reset in a callback to it.
 M.was_visual_mode = false
 
 ---Inject `opts.contexts` into `prompt`.

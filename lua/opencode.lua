@@ -163,12 +163,15 @@ end
 ---Filters prompts according to the current mode and whether they use the selection context.
 function M.select()
   local is_visual = vim.fn.mode():match("[vV\22]")
+  require("opencode.context").was_visual_mode = is_visual
+
   ---@type opencode.Context[]
   local selection_placeholders = vim.tbl_filter(function(placeholder)
+    local context = require("opencode.config").opts.contexts[placeholder]
     -- Rarely relevant, but we check the value rather than the key to allow
     -- users to rename the selection context in their config.
-    return require("opencode.config").opts.contexts[placeholder].value == require("opencode.context").visual_selection
-      or require("opencode.config").opts.contexts[placeholder].value == require("opencode.context").this
+    return context.value == require("opencode.context").visual_selection
+      or context.value == require("opencode.context").this
   end, vim.tbl_keys(require("opencode.config").opts.contexts))
 
   ---@type opencode.Prompt[]
@@ -182,7 +185,7 @@ function M.select()
       end
     end
 
-    return (is_visual and uses_selection) or (not is_visual and not uses_selection)
+    return (is_visual and uses_selection) or (not is_visual and not uses_selection) or prompt.ask
   end, vim.tbl_values(require("opencode.config").opts.prompts))
 
   -- Sort keyed `opts.prompts` table for consistency, and prioritize ones that trigger `ask()`.
@@ -210,7 +213,9 @@ function M.select()
         if choice.ask then
           M.ask(choice.prompt, choice.opts)
         else
-          M.prompt(choice.prompt, choice.opts)
+          M.prompt(choice.prompt, choice.opts, function()
+            require("opencode.context").was_visual_mode = false
+          end)
         end
       end
     end
