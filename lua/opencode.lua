@@ -11,18 +11,6 @@ local function get_port(callback)
   end)
 end
 
----@deprecated Pass options via `vim.g.opencode_opts` instead. See [README](https://github.com/NickvanDyke/opencode.nvim) for example.
----
----@param opts opencode.Opts
-function M.setup(opts)
-  vim.g.opencode_opts = opts
-  vim.notify(
-    "`opencode.setup()` is deprecated — pass options via `vim.g.opencode_opts` instead. See [README](https://github.com/NickvanDyke/opencode.nvim) for example.",
-    vim.log.levels.WARN,
-    { title = "opencode" }
-  )
-end
-
 ---@class opencode.prompt.Opts
 ---@field clear? boolean Clear the TUI input.
 ---@field append? boolean Append to the TUI input.
