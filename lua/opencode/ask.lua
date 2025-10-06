@@ -1,16 +1,19 @@
 local M = {}
 
 ---@param default? string Text to pre-fill the input with.
----@param on_confirm fun(value: string|nil)
+---@param on_confirm fun(value: string|nil, callback: fun())
 function M.input(default, on_confirm)
   require("opencode.context").was_visual_mode = vim.fn.mode():match("[vV\22]")
+
   vim.ui.input(
     vim.tbl_deep_extend("force", require("opencode.config").opts.input, {
       default = default,
     }),
     function(value)
-      on_confirm(value)
-      require("opencode.context").was_visual_mode = false
+      on_confirm(value, function()
+        -- Bit convoluted but we have to reset this in a post-confirm callback because prompting is async
+        require("opencode.context").was_visual_mode = false
+      end)
     end
   )
 end

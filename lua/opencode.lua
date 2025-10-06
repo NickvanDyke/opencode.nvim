@@ -42,7 +42,8 @@ end
 ---
 ---@param prompt? string
 ---@param opts? opencode.prompt.Opts
-function M.prompt(prompt, opts)
+---@param callback? fun()
+function M.prompt(prompt, opts, callback)
   -- When *any* `opts` are passed, we don't default the rest so the
   -- user can intuitively pass positives rather than negatives.
   opts = opts or {
@@ -68,7 +69,7 @@ function M.prompt(prompt, opts)
           next()
         end
       end,
-      function(_)
+      function(next)
         if opts.submit == true then
           -- WARNING: If user never prompts opencode via the plugin, we'll never receive SSEs or register auto_reload autocmds.
           -- Could register in `/plugin` and even periodically check, but is it worth the complexity?
@@ -92,7 +93,14 @@ function M.prompt(prompt, opts)
             )
           end
 
-          require("opencode.client").tui_submit_prompt(port)
+          require("opencode.client").tui_submit_prompt(port, next)
+        else
+          next()
+        end
+      end,
+      function()
+        if callback then
+          callback()
         end
       end,
     })
@@ -144,9 +152,9 @@ end
 ---@param default? string Text to prefill the input with.
 ---@param opts? opencode.prompt.Opts
 function M.ask(default, opts)
-  require("opencode.ask").input(default, function(value)
+  require("opencode.ask").input(default, function(value, callback)
     if value and value ~= "" then
-      M.prompt(value, opts)
+      M.prompt(value, opts, callback)
     end
   end)
 end
