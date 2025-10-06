@@ -73,56 +73,77 @@ local defaults = {
     ---@field ask? boolean Call `ask(prompt)` instead of `prompt(prompt)`. Useful for prompts that expect additional user input.
     ---@field opts? opencode.prompt.Opts Options for sending the prompt.
     ask = {
-      -- With an "Ask" item, the select menu can serve as the only entrypoint to all plugin-exclusive functionality, as opposed to numerous keymaps.
+      -- With an "Ask" item, the select menu can serve as the only entrypoint to all plugin-exclusive functionality, without numerous keymaps.
       description = "Ask…",
       prompt = "",
       ask = true,
+      opts = {
+        submit = true,
+      },
     },
     explain = {
       description = "Explain",
       prompt = "Explain @this and its context",
+      opts = {
+        submit = true,
+      },
     },
     optimize = {
       description = "Optimize",
       prompt = "Optimize @this for performance and readability",
+      opts = {
+        submit = true,
+      },
     },
     document = {
       description = "Document",
       prompt = "Add documentation comments for @this",
+      opts = {
+        submit = true,
+      },
     },
     test = {
       description = "Add tests",
       prompt = "Add tests for @this",
+      opts = {
+        submit = true,
+      },
     },
     review = {
       description = "Review buffer",
       prompt = "Review @buffer for correctness and readability",
+      opts = {
+        submit = true,
+      },
     },
     diagnostics = {
       description = "Explain diagnostics",
       prompt = "Explain @diagnostics",
+      opts = {
+        submit = true,
+      },
     },
     fix = {
       description = "Fix diagnostics",
       prompt = "Fix @diagnostics",
+      opts = {
+        submit = true,
+      },
     },
     diff = {
       description = "Review git diff",
       prompt = "Review the following git diff for correctness and readability:\n@diff",
+      opts = {
+        submit = true,
+      },
     },
     add_buffer = {
-      description = "Add buffer to prompt",
+      description = "Add buffer",
       prompt = "@buffer",
-      opts = {
-        append = true,
-      },
     },
     add_this = {
-      description = "Add this to prompt",
+      description = "Add this",
       prompt = "@this",
-      opts = {
-        append = true,
-      },
     },
   },
   input = {

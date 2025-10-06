@@ -36,9 +36,9 @@ https://github.com/user-attachments/assets/340ce139-173c-4e81-b39a-f089862db9ce
     vim.opt.autoread = true
 
     -- Recommended/example keymaps
-    vim.keymap.set({ "n", "x" }, "<leader>oa", function() require("opencode").ask("@this: ") end, { desc = "Ask about this" })
-    vim.keymap.set({ "n", "x" }, "<leader>o+", function() require("opencode").prompt("@this", { append = true }) end, { desc = "Add this to prompt" })
-    vim.keymap.set({ "n", "x" }, "<leader>oe", function() require("opencode").prompt("Explain @this and its context") end, { desc = "Explain this" })
+    vim.keymap.set({ "n", "x" }, "<leader>oa", function() require("opencode").ask("@this: ", { submit = true }) end, { desc = "Ask about this" })
+    vim.keymap.set({ "n", "x" }, "<leader>o+", function() require("opencode").prompt("@this") end, { desc = "Add this" })
+    vim.keymap.set({ "n", "x" }, "<leader>oe", function() require("opencode").prompt("Explain @this and its context", { submit = true }) end, { desc = "Explain this" })
     vim.keymap.set({ "n", "x" }, "<leader>os", function() require("opencode").select() end, { desc = "Select prompt" })
     vim.keymap.set("n", "<leader>ot", function() require("opencode").toggle() end, { desc = "Toggle embedded" })
     vim.keymap.set("n", "<leader>on", function() require("opencode").command("session_new") end, { desc = "New session" })

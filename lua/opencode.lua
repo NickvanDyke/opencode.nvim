@@ -12,13 +12,10 @@ local function get_port(callback)
 end
 
 ---@class opencode.prompt.Opts
----@field clear? boolean Clear the TUI input.
----@field append? boolean Append to the TUI input.
----@field submit? boolean Submit the TUI input.
+---@field clear? boolean Clear the TUI input first.
+---@field submit? boolean Submit the TUI input after.
 
 ---Send a prompt to `opencode`.
----
----By default, clears the TUI's prompt input, appends `prompt`, and submits it — use `opts` to execute only specific steps.
 ---
 ---Before appending:
 ---1. Injects `opts.contexts` into `prompt`.
@@ -28,37 +25,30 @@ end
 ---2. Calls `opts.on_submit`.
 ---3. Listens for SSEs from `opencode` to forward as `OpencodeEvent` autocmd.
 ---
----@param prompt? string
+---@param prompt string
 ---@param opts? opencode.prompt.Opts
 ---@param callback? fun()
 function M.prompt(prompt, opts, callback)
-  -- When *any* `opts` are passed, we don't default the rest so the
-  -- user can intuitively pass positives rather than negatives.
-  opts = opts or {
-    clear = true,
-    append = true,
-    submit = true,
+  opts = {
+    clear = opts and opts.clear or false,
+    submit = opts and opts.submit or false,
   }
 
   get_port(function(port)
     require("opencode.async").chain_async({
       function(next)
-        if opts.clear == true then
+        if opts.clear then
           require("opencode.client").tui_clear_prompt(port, next)
         else
           next()
         end
       end,
       function(next)
-        if opts.append == true and prompt ~= nil then
-          prompt = require("opencode.context").inject(prompt)
-          require("opencode.client").tui_append_prompt(prompt, port, next)
-        else
-          next()
-        end
+        prompt = require("opencode.context").inject(prompt)
+        require("opencode.client").tui_append_prompt(prompt, port, next)
       end,
       function(next)
-        if opts.submit == true then
+        if opts.submit then
           -- WARNING: If user never prompts opencode via the plugin, we'll never receive SSEs or register auto_reload autocmds.
           -- Could register in `/plugin` and even periodically check, but is it worth the complexity?
           if require("opencode.config").opts.auto_reload then
