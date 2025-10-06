@@ -6,6 +6,7 @@ local M = {}
 M.was_visual = false
 
 ---Inject `opts.contexts` into `prompt`.
+---Exits visual mode after "consuming" the visual selection.
 ---@param prompt string
 ---@return string
 function M.inject(prompt)
@@ -23,6 +24,11 @@ function M.inject(prompt)
       -- Default to empty string so users can safely always include contexts like @diagnostics even if there are none
       return contexts[placeholder].value() or ""
     end)
+  end
+
+  M.was_visual = false
+  if vim.fn.mode():match("[vV\22]") then
+    vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Esc>", true, false, true), "n", true)
   end
 
   return prompt
