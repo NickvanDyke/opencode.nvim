@@ -55,7 +55,11 @@ local defaults = {
     ["@buffer"] = { description = "Current buffer", value = require("opencode.context").buffer },
     ["@buffers"] = { description = "Open buffers", value = require("opencode.context").buffers },
     ["@cursor"] = { description = "Cursor position", value = require("opencode.context").cursor_position },
-    ["@selection"] = { description = "Selected text", value = require("opencode.context").visual_selection },
+    ["@selection"] = { description = "Visual selection", value = require("opencode.context").visual_selection },
+    ["@this"] = {
+      description = "Visual selection (if any) or cursor position",
+      value = require("opencode.context").this,
+    },
     ["@visible"] = { description = "Visible text", value = require("opencode.context").visible_text },
     ["@diagnostics"] = { description = "Current buffer diagnostics", value = require("opencode.context").diagnostics },
     ["@quickfix"] = { description = "Quickfix list", value = require("opencode.context").quickfix },
@@ -74,31 +78,35 @@ local defaults = {
       prompt = "",
       ask = true,
     },
-    explain_cursor = {
-      description = "Explain code near cursor",
-      prompt = "Explain @cursor and its context",
+    explain = {
+      description = "Explain",
+      prompt = "Explain @this and its context",
     },
-    explain_diagnostics = {
-      description = "Explain diagnostics",
-      prompt = "Explain @diagnostics",
+    optimize = {
+      description = "Optimize",
+      prompt = "Optimize @this for performance and readability",
     },
-    optimize_selection = {
-      description = "Optimize selection",
-      prompt = "Optimize @selection for performance and readability",
+    document = {
+      description = "Document",
+      prompt = "Add documentation comments for @this",
     },
-    document_selection = {
-      description = "Document selection",
-      prompt = "Add documentation comments for @selection",
+    test = {
+      description = "Add tests",
+      prompt = "Add tests for @this",
     },
-    test_selection = {
-      description = "Add tests for selection",
-      prompt = "Add tests for @selection",
-    },
-    review_buffer = {
+    review = {
       description = "Review buffer",
       prompt = "Review @buffer for correctness and readability",
     },
-    review_diff = {
+    diagnostics = {
+      description = "Explain diagnostics",
+      prompt = "Explain @diagnostics",
+    },
+    fix = {
+      description = "Fix diagnostics",
+      prompt = "Fix @diagnostics",
+    },
+    diff = {
       description = "Review git diff",
       prompt = "Review the following git diff for correctness and readability:\n@diff",
     },
@@ -109,9 +117,9 @@ local defaults = {
         append = true,
       },
     },
-    add_selection = {
-      description = "Add selection to prompt",
-      prompt = "@selection",
+    add_this = {
+      description = "Add this to prompt",
+      prompt = "@this",
       opts = {
         append = true,
       },

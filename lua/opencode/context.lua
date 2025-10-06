@@ -1,5 +1,9 @@
 local M = {}
 
+---Stored visual mode state for `@this`.
+---Because `snacks.input` clears visual mode before we can query it.
+M.was_visual_mode = false
+
 ---Inject `opts.contexts` into `prompt`.
 ---@param prompt string
 ---@return string
@@ -87,6 +91,18 @@ local function last_used_valid_win()
   end
 
   return last_used_win
+end
+
+---Normal mode: cursor position.
+---Visual mode: selection.
+---@return string|nil
+function M.this()
+  local is_visual = vim.fn.mode():match("[vV\22]")
+  if is_visual or M.was_visual_mode then
+    return M.visual_selection()
+  else
+    return M.cursor_position()
+  end
 end
 
 ---The current buffer.

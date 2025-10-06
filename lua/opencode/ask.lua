@@ -3,12 +3,15 @@ local M = {}
 ---@param default? string Text to pre-fill the input with.
 ---@param on_confirm fun(value: string|nil)
 function M.input(default, on_confirm)
-  -- Recommended configuration uses snacks.input, so `opts.input` includes options for it too, not just for vim.ui.input.
+  require("opencode.context").was_visual_mode = vim.fn.mode():match("[vV\22]")
   vim.ui.input(
     vim.tbl_deep_extend("force", require("opencode.config").opts.input, {
       default = default,
     }),
-    on_confirm
+    function(value)
+      on_confirm(value)
+      require("opencode.context").was_visual_mode = false
+    end
   )
 end
 
