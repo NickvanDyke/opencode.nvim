@@ -171,7 +171,7 @@ function M.visual_selection()
     return vim.fn.getpos(is_visual and "." or "'>")
   end))
 
-  local is_linewise = start_col == 1 and end_col == vim.v.maxcol
+  local is_linewise = vim.fn.mode() == "V" or start_col == 1 and end_col == vim.v.maxcol
 
   return M.format_location({
     buf = vim.api.nvim_win_get_buf(last_used_valid_win()),
