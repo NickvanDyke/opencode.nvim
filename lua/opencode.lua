@@ -152,30 +152,8 @@ end
 function M.select()
   require("opencode.context").store_mode()
 
-  ---@type opencode.Context[]
-  local selection_placeholders = vim.tbl_filter(function(placeholder)
-    local context = require("opencode.config").opts.contexts[placeholder]
-    -- Rarely relevant, but we check the value rather than the key to allow
-    -- users to rename the selection context in their config.
-    return context.value == require("opencode.context").visual_selection
-      or context.value == require("opencode.context").this
-  end, vim.tbl_keys(require("opencode.config").opts.contexts))
-
-  local is_visual = vim.fn.mode():match("[vV\22]")
-
   ---@type opencode.Prompt[]
-  local prompts = vim.tbl_filter(function(prompt)
-    local uses_selection = false
-
-    for _, placeholder in ipairs(selection_placeholders) do
-      if prompt.prompt:find(placeholder, 1, true) then
-        uses_selection = true
-        break
-      end
-    end
-
-    return (is_visual and uses_selection) or (not is_visual and not uses_selection) or prompt.ask
-  end, vim.tbl_values(require("opencode.config").opts.prompts))
+  local prompts = vim.tbl_values(require("opencode.config").opts.prompts)
 
   -- Sort keyed `opts.prompts` table for consistency, and prioritize ones that trigger `ask()`.
   table.sort(prompts, function(a, b)
