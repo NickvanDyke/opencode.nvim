@@ -140,11 +140,9 @@ end
 ---@param default? string Text to prefill the input with.
 ---@param opts? opencode.prompt.Opts
 function M.ask(default, opts)
-  require("opencode.ask").input(default, function(value, callback)
+  require("opencode.ask").input(default, function(value)
     if value and value ~= "" then
-      M.prompt(value, opts, callback)
-    else
-      callback()
+      M.prompt(value, opts)
     end
   end)
 end
@@ -153,7 +151,7 @@ end
 ---Filters prompts according to the current mode and whether they use the selection context.
 function M.select()
   local is_visual = vim.fn.mode():match("[vV\22]")
-  require("opencode.context").was_visual_mode = is_visual
+  require("opencode.context").was_visual = is_visual
 
   ---@type opencode.Context[]
   local selection_placeholders = vim.tbl_filter(function(placeholder)
@@ -203,12 +201,8 @@ function M.select()
         if choice.ask then
           M.ask(choice.prompt, choice.opts)
         else
-          M.prompt(choice.prompt, choice.opts, function()
-            require("opencode.context").was_visual_mode = false
-          end)
+          M.prompt(choice.prompt, choice.opts)
         end
-      else
-        require("opencode.context").was_visual_mode = false
       end
     end
   )

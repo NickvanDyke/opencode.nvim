@@ -1,9 +1,9 @@
 local M = {}
 
 ---Stored visual mode state for `@this`.
----Because `snacks.nvim` input and select clears visual mode before we can query it.
----Note that `prompt` is async, so this must be reset in a callback to it.
-M.was_visual_mode = false
+---Because plugins that override `vim.ui.select` and `vim.ui.input` clear visual mode before we can query it.
+---Note that the built-in `input` and `select` do not clear visual mode *at all*.
+M.was_visual = false
 
 ---Inject `opts.contexts` into `prompt`.
 ---@param prompt string
@@ -104,7 +104,7 @@ end
 ---@return string|nil
 function M.this()
   local is_visual = vim.fn.mode():match("[vV\22]")
-  if is_visual or M.was_visual_mode then
+  if is_visual or M.was_visual then
     return M.visual_selection()
   else
     return M.cursor_position()

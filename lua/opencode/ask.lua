@@ -1,10 +1,10 @@
 local M = {}
 
 ---@param default? string Text to pre-fill the input with.
----@param on_confirm fun(value: string|nil, callback: fun())
+---@param on_confirm fun(value: string|nil)
 function M.input(default, on_confirm)
   -- Retain `true` in case it was set from `select()` which then called `ask()`
-  require("opencode.context").was_visual_mode = require("opencode.context").was_visual_mode
+  require("opencode.context").was_visual = require("opencode.context").was_visual
     or vim.fn.mode():match("[vV\22]")
 
   vim.ui.input(
@@ -12,9 +12,7 @@ function M.input(default, on_confirm)
       default = default,
     }),
     function(value)
-      on_confirm(value, function()
-        require("opencode.context").was_visual_mode = false
-      end)
+      on_confirm(value)
     end
   )
 end
