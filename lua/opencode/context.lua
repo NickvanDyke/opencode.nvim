@@ -53,14 +53,14 @@ function M.format_location(args)
   end
 
   if args.start_line then
-    result = result .. string.format(" %d", args.start_line)
+    result = result .. string.format(" L%d", args.start_line)
     if args.start_col then
-      result = result .. string.format(":%d", args.start_col)
+      result = result .. string.format(":C%d", args.start_col)
     end
     if args.end_line then
-      result = result .. string.format("-%d", args.end_line)
+      result = result .. string.format("-L%d", args.end_line)
       if args.end_col then
-        result = result .. string.format(":%d", args.end_col)
+        result = result .. string.format(":C%d", args.end_col)
       end
     end
   end
