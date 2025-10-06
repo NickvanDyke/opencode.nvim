@@ -168,6 +168,7 @@ function M.select()
     -- Rarely relevant, but we check the value rather than the key to allow
     -- users to rename the selection context in their config.
     return require("opencode.config").opts.contexts[placeholder].value == require("opencode.context").visual_selection
+      or require("opencode.config").opts.contexts[placeholder].value == require("opencode.context").this
   end, vim.tbl_keys(require("opencode.config").opts.contexts))
 
   ---@type opencode.Prompt[]
