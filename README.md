@@ -70,6 +70,21 @@ programs.nixvim = {
 
 Send a prompt. The main entrypoint — build on it!
 
+Replaces placeholders with their corresponding [contexts](lua/opencode/config.lua#L51):
+
+| Placeholder | Context |
+| - | - |
+| `@buffer` | Current buffer |
+| `@buffers` | Open buffers |
+| `@cursor` | Cursor position |
+| `@selection` | Visual selection |
+| `@this` | Visual selection (if any) or cursor position |
+| `@visible` | Visible text |
+| `@diagnostics` | Current buffer diagnostics |
+| `@quickfix` | Quickfix list |
+| `@diff` | Git diff |
+| `@grapple` | [grapple.nvim](https://github.com/cbochs/grapple.nvim) tags |
+
 ### ✍️ Ask — `require("opencode").ask()`
 
 Input a prompt.
@@ -122,23 +137,6 @@ To use your own method (terminal app or plugin, multiplexer, etc.), launch `open
 ### ➕ Add — `:[range]OpencodeAdd`
 
 Add `[range]` (or current line if none) to the current prompt.
-
-## 🕵️ Contexts
-
-`opencode.nvim` replaces placeholders in prompts with their corresponding [contexts](lua/opencode/config.lua#L51):
-
-| Placeholder | Context |
-| - | - |
-| `@buffer` | Current buffer |
-| `@buffers` | Open buffers |
-| `@cursor` | Cursor position |
-| `@selection` | Visual selection |
-| `@this` | Visual selection (if any) or cursor position |
-| `@visible` | Visible text |
-| `@diagnostics` | Current buffer diagnostics |
-| `@quickfix` | Quickfix list |
-| `@diff` | Git diff |
-| `@grapple` | [grapple.nvim](https://github.com/cbochs/grapple.nvim) tags |
 
 ## 👀 Events
 
