@@ -3,9 +3,7 @@ local M = {}
 ---@param default? string Text to pre-fill the input with.
 ---@param on_confirm fun(value: string|nil)
 function M.input(default, on_confirm)
-  -- Retain `true` in case it was set from `select()` which then called `ask()`
-  require("opencode.context").was_visual = require("opencode.context").was_visual
-    or vim.fn.mode():match("[vV\22]")
+  require("opencode.context").store_mode()
 
   vim.ui.input(
     vim.tbl_deep_extend("force", require("opencode.config").opts.input, {

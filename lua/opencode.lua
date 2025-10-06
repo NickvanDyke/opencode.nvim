@@ -150,8 +150,7 @@ end
 ---Select a prompt from `opts.prompts` to send to `opencode`.
 ---Filters prompts according to the current mode and whether they use the selection context.
 function M.select()
-  local is_visual = vim.fn.mode():match("[vV\22]")
-  require("opencode.context").was_visual = is_visual
+  require("opencode.context").store_mode()
 
   ---@type opencode.Context[]
   local selection_placeholders = vim.tbl_filter(function(placeholder)
@@ -161,6 +160,8 @@ function M.select()
     return context.value == require("opencode.context").visual_selection
       or context.value == require("opencode.context").this
   end, vim.tbl_keys(require("opencode.config").opts.contexts))
+
+  local is_visual = vim.fn.mode():match("[vV\22]")
 
   ---@type opencode.Prompt[]
   local prompts = vim.tbl_filter(function(prompt)

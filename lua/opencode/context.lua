@@ -1,12 +1,21 @@
 local M = {}
 
----Stored visual mode state for `@this`.
+local was_mode = nil
+
+---Store current mode for `@this`.
 ---Because plugins that override `vim.ui.select` and `vim.ui.input` clear visual mode before we can query it.
 ---Note that the built-in `input` and `select` do not clear visual mode *at all*.
-M.was_visual = false
+---The stored mode is cleared by `inject()`.
+function M.store_mode()
+  if not was_mode then
+    -- Only store once, in case `select()` calls `ask()`
+    was_mode = vim.fn.mode()
+  end
+end
 
 ---Inject `opts.contexts` into `prompt`.
----Exits visual mode after "consuming" the visual selection.
+---Clears the stored mode.
+---Exits visual mode (if applicable) after "consuming" the selection.
 ---@param prompt string
 ---@return string
 function M.inject(prompt)
@@ -26,7 +35,7 @@ function M.inject(prompt)
     end)
   end
 
-  M.was_visual = false
+  was_mode = nil
   if vim.fn.mode():match("[vV\22]") then
     vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Esc>", true, false, true), "n", true)
   end
@@ -109,8 +118,7 @@ end
 ---Visual mode: selection.
 ---@return string|nil
 function M.this()
-  local is_visual = vim.fn.mode():match("[vV\22]")
-  if is_visual or M.was_visual then
+  if (was_mode or vim.fn.mode()):match("[vV\22]") then
     return M.visual_selection()
   else
     return M.cursor_position()
