@@ -155,6 +155,8 @@ function M.ask(default, opts)
   require("opencode.ask").input(default, function(value, callback)
     if value and value ~= "" then
       M.prompt(value, opts, callback)
+    else
+      callback()
     end
   end)
 end
@@ -217,6 +219,8 @@ function M.select()
             require("opencode.context").was_visual_mode = false
           end)
         end
+      else
+        require("opencode.context").was_visual_mode = false
       end
     end
   )

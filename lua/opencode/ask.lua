@@ -13,7 +13,6 @@ function M.input(default, on_confirm)
     }),
     function(value)
       on_confirm(value, function()
-        -- Bit convoluted but we have to reset this in a post-confirm callback because prompting is async
         require("opencode.context").was_visual_mode = false
       end)
     end
