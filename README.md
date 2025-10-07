@@ -71,7 +71,7 @@ programs.nixvim = {
 
 Send a prompt. The main entrypoint — build on it!
 
-Replaces placeholders with their corresponding [contexts](lua/opencode/config.lua#L51):
+Replaces placeholders with the corresponding [contexts](lua/opencode/config.lua#L51):
 
 | Placeholder | Context |
 | - | - |
@@ -90,8 +90,8 @@ Replaces placeholders with their corresponding [contexts](lua/opencode/config.lu
 
 Input a prompt.
 
-- Highlights [contexts](lua/opencode/config.lua#L51).
-- Completes [contexts](lua/opencode/config.lua#L51) when using [`snacks.input`](https://github.com/folke/snacks.nvim/blob/main/docs/input.md) and [`blink.cmp`](https://github.com/Saghen/blink.cmp).
+- Highlights placeholders.
+- Completes placeholders when using [`snacks.input`](https://github.com/folke/snacks.nvim/blob/main/docs/input.md) and [`blink.cmp`](https://github.com/Saghen/blink.cmp).
 
 ### 📝 Select — `require("opencode").select()`
 
@@ -127,11 +127,13 @@ Send a [command](https://opencode.ai/docs/keybinds):
 | `messages_first`          | Jump to the first message in the session                 |
 | `messages_last`           | Jump to the last message in the session                  |
 
+> Supports *all* commands — these are just the most useful ones
+
 ### 💻 Toggle — `require("opencode").toggle()`
 
 Toggle an embedded `opencode` terminal (requires [`snacks.nvim`](https://github.com/folke/snacks.nvim)).
 
-`opencode.nvim` connects to *any* `opencode` inside Neovim's CWD, but provides this for convenience.
+`opencode.nvim` connects to *any* `opencode` inside Neovim's CWD, but provides this for quickstart.
 
 To use your own method (terminal app or plugin, multiplexer, etc.), launch `opencode` with it and optionally override `vim.g.opencode_opts.on_opencode_not_found` and `vim.g.opencode_opts.on_submit` for convenience, then use `opencode.nvim` normally.
 
