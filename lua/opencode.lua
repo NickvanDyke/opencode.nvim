@@ -12,20 +12,21 @@ local function get_port(callback)
 end
 
 ---@class opencode.prompt.Opts
----@field clear? boolean Clear the TUI input first.
+---@field clear? boolean Clear the TUI input before.
 ---@field submit? boolean Submit the TUI input after.
 
----Send a prompt to `opencode`.
+---Prompt `opencode`.
 ---
----Before appending:
----1. Injects `opts.contexts` into `prompt`.
+---1. Clears the TUI input if `opts.clear`.
+---2. Appends `prompt` to the TUI input.
+---  - Injects `opts.contexts` into `prompt`.
+---3. Submits the TUI input if `opts.submit`.
+---  - Sets up `opts.auto_reload` if enabled.
+---  - Listens for Server-Sent-Events to forward as `OpencodeEvent` autocmd.
+---  - Calls `opts.on_submit`.
+---4. Calls `callback` if provided.
 ---
----Before submitting:
----1. Sets up `opts.auto_reload` if enabled.
----2. Calls `opts.on_submit`.
----3. Listens for SSEs from `opencode` to forward as `OpencodeEvent` autocmd.
----
----@param prompt string
+---@param prompt string The prompt to send to `opencode`, with optional `opts.contexts` placeholders.
 ---@param opts? opencode.prompt.Opts
 ---@param callback? fun()
 function M.prompt(prompt, opts, callback)
@@ -128,7 +129,7 @@ end
 ---   - Registers `opts.auto_register_cmp_sources` with `blink.cmp`.
 ---
 ---@param default? string Text to prefill the input with.
----@param opts? opencode.prompt.Opts
+---@param opts? opencode.prompt.Opts Options for `prompt()`.
 function M.ask(default, opts)
   require("opencode.ask").input(default, function(value)
     if value and value ~= "" then

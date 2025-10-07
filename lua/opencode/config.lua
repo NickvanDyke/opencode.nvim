@@ -71,7 +71,7 @@ local defaults = {
     ---@field description string Description of the prompt. Shown in selection menu.
     ---@field prompt string The prompt to send to `opencode`, with placeholders for context like `@cursor`, `@buffer`, etc.
     ---@field ask? boolean Call `ask(prompt)` instead of `prompt(prompt)`. Useful for prompts that expect additional user input.
-    ---@field opts? opencode.prompt.Opts Options for sending the prompt.
+    ---@field opts? opencode.prompt.Opts Options for `prompt()`.
     ask = {
       -- With an "Ask" item, the select menu can serve as the only entrypoint to all plugin-exclusive functionality, without numerous keymaps.
       description = "Ask…",

@@ -67,7 +67,7 @@ programs.nixvim = {
 
 ## 🚀 Usage
 
-### 🗣️ Prompt — `require("opencode").prompt()` | `:[range]OpencodePrompt [prompt] [submit=true] [clear=true]`
+### 🗣️ Prompt — `require("opencode").prompt()` | `:[range]OpencodePrompt`
 
 Send a prompt. The main entrypoint — build on it!
 
