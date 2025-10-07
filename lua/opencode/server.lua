@@ -24,7 +24,10 @@ end
 local function find_servers()
   if vim.fn.executable("lsof") == 0 then
     -- lsof is a common utility to list open files and ports, but not always available by default.
-    error("`lsof` command is not available — please install it to auto-find `opencode`, or set `vim.g.opencode_opts.port`", 0)
+    error(
+      "`lsof` command is not available — please install it to auto-find `opencode`, or set `vim.g.opencode_opts.port`",
+      0
+    )
   end
   -- Going straight to `lsof` relieves us of parsing `ps` and all the non-portable 'opencode'-containing processes it might return.
   -- With these flags, we'll only get processes that are listening on TCP ports and have 'opencode' in their command name.
@@ -32,7 +35,7 @@ local function find_servers()
   -- `-w` flag suppresses warnings about inaccessible filesystems (e.g. Docker FUSE).
   local output = exec("lsof -w -iTCP -sTCP:LISTEN -P -n | grep opencode")
   if output == "" then
-    error("Couldn't find any opencode processes", 0)
+    error("Couldn't find any `opencode` processes", 0)
   end
 
   local servers = {}
@@ -144,7 +147,7 @@ end
 ---@return number
 local function test_port(port)
   vim.cmd("silent !curl -s http://localhost:" .. port)
-  return vim.v.shell_error == 0 and port or error("Opencode process not found on port: " .. port, 0)
+  return vim.v.shell_error == 0 and port or error("Couldn't find an `opencode` process on port: " .. port, 0)
 end
 
 ---Attempt to get the opencode server port. Tries, in order:
@@ -173,10 +176,9 @@ function M.get_port(callback)
       local ok, result = pcall(require("opencode.config").opts.on_opencode_not_found)
       if not ok then
         callback(false, "Error in `vim.g.opencode_opts.on_opencode_not_found`: " .. result)
-      elseif result then
-        next()
       else
-        callback(false, result)
+        -- Always proceed - even if `opencode` wasn't started, failing to find it will give a more helpful error message.
+        next()
       end
     end,
     function(_)
