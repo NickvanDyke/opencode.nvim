@@ -146,9 +146,9 @@ vim.api.nvim_create_autocmd("User", {
   callback = function(args)
     -- See the available event types and their properties
     vim.notify(vim.inspect(args.data))
-    -- Do something interesting, like show a notification when `opencode` finishes responding
+    -- Do something useful
     if args.data.type == "session.idle" then
-      vim.notify("opencode finished responding")
+      vim.notify("`opencode` finished responding")
     end
   end,
 })
