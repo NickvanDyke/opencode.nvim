@@ -10,8 +10,8 @@ https://github.com/user-attachments/assets/340ce139-173c-4e81-b39a-f089862db9ce
 
 - Auto-connect to *any* `opencode` inside Neovim's CWD, or toggle an embedded instance.
 - Input prompts with completions, highlights, and normal-mode support.
-- Select from a prompt library and define custom prompts.
-- Inject relevant editor context (buffer, selection, cursor, diagnostics, etc.).
+- Select from a prompt library and define your own.
+- Inject relevant editor context (buffer, cursor, selection, diagnostics, ...).
 - Auto-reload buffers edited by `opencode` in real-time.
 - Forward `opencode`'s Server-Sent-Events as Neovim autocmds for automation.
 - Sensible defaults with well-documented, flexible configuration and API to fit your workflow.
