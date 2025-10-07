@@ -57,9 +57,8 @@ end
 ---@param args { buf?: number, path?: string, start_line?: number, end_line?: number, start_col?: number, end_col?: number }
 ---@return string|nil
 function M.format_location(args)
-  if not args.buf and not args.path then
-    error("Must provide either `buf` or `path`")
-  elseif args.buf and not is_buf_valid(args.buf) then
+  assert(args.buf or args.path, "Must provide either `buf` or `path`")
+  if args.buf and not is_buf_valid(args.buf) then
     return nil
   end
 
