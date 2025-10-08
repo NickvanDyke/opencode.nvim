@@ -124,9 +124,9 @@ end
 ---Press the up arrow to browse recent prompts.
 ---
 --- - Highlights `opts.contexts` placeholders.
---- - Completes `opts.contexts` placeholders when using `snacks.input`.
----   - Press `<Tab>` or `<C-x><C-o>` to trigger built-in completion.
----   - Registers `opts.auto_register_cmp_sources` with `blink.cmp`.
+--- - Completes `opts.contexts` placeholders.
+---   - Press `<Tab>` to trigger built-in completion.
+---   - When using `blink.cmp` and `snacks.input`, registers `opts.auto_register_cmp_sources`.
 ---
 ---@param default? string Text to prefill the input with.
 ---@param opts? opencode.prompt.Opts Options for `prompt()`.

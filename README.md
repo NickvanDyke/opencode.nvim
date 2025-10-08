@@ -91,7 +91,9 @@ Replaces placeholders with the corresponding [contexts](lua/opencode/config.lua#
 Input a prompt.
 
 - Highlights placeholders.
-- Completes placeholders when using [`snacks.input`](https://github.com/folke/snacks.nvim/blob/main/docs/input.md) and [`blink.cmp`](https://github.com/Saghen/blink.cmp).
+- Completes placeholders.
+  - Press `<Tab>` to trigger built-in completion.
+  - When using `blink.cmp` and `snacks.input`, registers `opts.auto_register_cmp_sources`.
 
 ### 📝 Select — `require("opencode").select()`
 

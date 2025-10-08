@@ -25,6 +25,8 @@ function M.highlight(line)
   local placeholders = vim.tbl_keys(require("opencode.config").opts.contexts)
   local hls = {}
 
+  -- FIX: breaks when highlighting overlapping placeholders
+  -- Maybe it's the post-sort?
   for _, placeholder in ipairs(placeholders) do
     local init = 1
     while true do
@@ -88,6 +90,35 @@ function M.setup_completion(buf)
       end
     end,
   })
+end
+
+-- FIX: Overridden by blink.cmp cmdline completion if both are enabled, and that won't have our items.
+-- Possible to register our blink source there? But only active in our own vim.ui.input calls.
+
+---Completion function for `vim.ui.input` to suggest context placeholders.
+---Must be a global variable; reference as `opts.completion = "customlist,v:lua.opencode_completion"`.
+---Trigger with `<Tab>`.
+---
+---@param ArgLead string The text being completed.
+---@param CmdLine string The entire current input line.
+---@param CursorPos number The cursor position in the input line.
+---@return table<string> items A list of filtered completion items.
+_G.opencode_completion = function(ArgLead, CmdLine, CursorPos)
+  -- Not sure if it's me or vim, but ArgLead = CmdLine... so we have to parse and complete the entire line, not just the last word.
+  local start_idx, end_idx = CmdLine:find("([^%s]+)$")
+  local latest_word = start_idx and CmdLine:sub(start_idx, end_idx) or nil
+
+  local items = {}
+  for placeholder, _ in pairs(require("opencode.config").opts.contexts) do
+    if not latest_word then
+      local new_cmd = CmdLine .. placeholder
+      table.insert(items, new_cmd)
+    elseif placeholder:find(latest_word, 1, true) == 1 then
+      local new_cmd = CmdLine:sub(1, start_idx - 1) .. placeholder .. CmdLine:sub(end_idx + 1)
+      table.insert(items, new_cmd)
+    end
+  end
+  return items
 end
 
 return M

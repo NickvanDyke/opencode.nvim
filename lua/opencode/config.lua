@@ -114,12 +114,9 @@ local defaults = {
   input = {
     prompt = "Ask opencode: ",
     highlight = require("opencode.ui.ask").highlight,
+    completion = "customlist,v:lua.opencode_completion",
     -- Options below here only apply to [snacks.input](https://github.com/folke/snacks.nvim/blob/main/docs/input.md).
     icon = "󱚣 ",
-    -- Only available when using `snacks.input` - `vim.ui.input` does not support `custom/customlist`.
-    -- It's okay to enable simultaneously with `blink.cmp` because those keymaps take priority.
-    -- TODO: https://github.com/folke/snacks.nvim/issues/2217
-    completion = "customlist,v:lua.require'opencode.cmp.omni'",
     win = {
       title_pos = "left",
       relative = "cursor",
