@@ -81,7 +81,7 @@ local defaults = {
       submit = true,
     },
     document = {
-      prompt = "Add documentation comments for @this",
+      prompt = "Add comments documenting @this",
       submit = true,
     },
     test = {

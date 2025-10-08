@@ -102,7 +102,7 @@ Select from [prompts](lua/opencode/config.lua#65) to review, explain, and improv
 | Ask…                               | *(user input required)*                                   |
 | Explain this           | Explain @this and its context                           |
 | Optimize this                | Optimize @this for performance and readability        |
-| Document this                | Add documentation comments for @this                  |
+| Document this                | Add comments documenting @this                  |
 | Add tests for this            | Add tests for @this                                  |
 | Review buffer                      | Review @buffer for correctness and readability            |
 | Review git diff                    | Review the following git diff for correctness and readability:\n@diff |
