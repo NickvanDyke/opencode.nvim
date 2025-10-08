@@ -113,7 +113,7 @@ local defaults = {
   },
   input = {
     prompt = "Ask opencode: ",
-    highlight = require("opencode.ui.ask").highlight,
+    highlight = require("opencode.ui.highlight").highlight,
     completion = "customlist,v:lua.opencode_completion",
     -- Options below here only apply to [snacks.input](https://github.com/folke/snacks.nvim/blob/main/docs/input.md).
     icon = "󱚣 ",
