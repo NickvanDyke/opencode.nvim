@@ -143,12 +143,12 @@ end
 ---Select a prompt from `opts.prompts` to send to `opencode`.
 ---Includes preview when using `snacks.nvim`.
 function M.select()
-  require("opencode.ui.select").select(function(choice, cb)
-    if choice then
-      if choice.ask then
-        require("opencode").ask(choice.prompt, choice.opts)
+  require("opencode.ui.select").select(function(prompt, cb)
+    if prompt then
+      if prompt.ask then
+        require("opencode").ask(prompt.prompt, prompt.opts)
       else
-        require("opencode").prompt(choice.prompt, choice.opts, cb)
+        require("opencode").prompt(prompt.prompt, prompt.opts, cb)
       end
     else
       cb()

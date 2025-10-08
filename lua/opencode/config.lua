@@ -67,9 +67,8 @@ local defaults = {
   },
   prompts = {
     ask = {
-      -- With an "Ask" item, the select menu can serve as the only entrypoint to all plugin-exclusive functionality, without numerous keymaps.
-      description = "Ask…",
       prompt = "",
+      -- With an "Ask" item, the select menu can serve as the only entrypoint to all plugin-exclusive functionality, without numerous keymaps.
       ask = true,
       opts = {
         submit = true,
@@ -118,7 +117,7 @@ local defaults = {
       },
     },
     diff = {
-      prompt = "Review the following git diff for correctness and readability:\n@diff",
+      prompt = "Review the following git diff for correctness and readability: @diff",
       opts = {
         submit = true,
       },
