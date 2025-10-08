@@ -23,10 +23,15 @@ end
 ---@return table[]
 function M.highlight(line)
   local placeholders = vim.tbl_keys(require("opencode.config").opts.contexts)
+  table.sort(placeholders, function(a, b)
+    return #a > #b -- longest first
+  end)
   local hls = {}
 
-  -- FIX: breaks when highlighting overlapping placeholders
-  -- Maybe it's the post-sort?
+  local function overlaps(s1, e1, s2, e2)
+    return not (e1 < s2 or s1 > e2)
+  end
+
   for _, placeholder in ipairs(placeholders) do
     local init = 1
     while true do
@@ -34,12 +39,20 @@ function M.highlight(line)
       if not start_pos then
         break
       end
-      table.insert(hls, {
-        start_pos - 1,
-        end_pos,
-        -- I don't expect users to care to customize this, so keep it simple with a sensible built-in highlight.
-        "@lsp.type.enum",
-      })
+      local overlap = false
+      for _, hl in ipairs(hls) do
+        if overlaps(start_pos, end_pos, hl[1] + 1, hl[2]) then
+          overlap = true
+          break
+        end
+      end
+      if not overlap then
+        table.insert(hls, {
+          start_pos - 1,
+          end_pos,
+          "@lsp.type.enum",
+        })
+      end
       init = end_pos + 1
     end
   end
