@@ -24,8 +24,9 @@ https://github.com/user-attachments/assets/340ce139-173c-4e81-b39a-f089862db9ce
 {
   "NickvanDyke/opencode.nvim",
   dependencies = {
-    -- Recommended for `ask()`, required for `toggle()` — otherwise optional
-    { "folke/snacks.nvim", opts = { input = { enabled = true } } },
+    -- Recommended for `ask()` and `select()`.
+    -- Required for `toggle()`.
+    { "folke/snacks.nvim", opts = { input = {}, picker = {} } },
   },
   config = function()
     vim.g.opencode_opts = {
