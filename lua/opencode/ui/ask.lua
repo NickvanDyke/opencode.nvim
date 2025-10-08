@@ -72,15 +72,14 @@ function M.setup_highlight(buf)
     group = vim.api.nvim_create_augroup("OpencodeAskHighlight", { clear = true }),
     buffer = buf,
     callback = function(args)
+      local ns_id = vim.api.nvim_create_namespace("opencode_placeholders")
+      vim.api.nvim_buf_clear_namespace(args.buf, ns_id, 0, -1)
+
       local lines = vim.api.nvim_buf_get_lines(args.buf, 0, -1, false)
-      for _, line in ipairs(lines) do
+      for i, line in ipairs(lines) do
         local hls = M.highlight(line)
-
-        local ns_id = vim.api.nvim_create_namespace("opencode_placeholders")
-        vim.api.nvim_buf_clear_namespace(buf, ns_id, 0, -1)
-
         for _, hl in ipairs(hls) do
-          vim.api.nvim_buf_set_extmark(buf, ns_id, 0, hl[1], {
+          vim.api.nvim_buf_set_extmark(args.buf, ns_id, i - 1, hl[1], {
             end_col = hl[2],
             hl_group = hl[3],
           })
