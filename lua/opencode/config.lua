@@ -82,7 +82,7 @@ local defaults = {
   input = {
     prompt = "Ask opencode: ",
     -- [snacks.input](https://github.com/folke/snacks.nvim/blob/main/docs/input.md) options
-    icon = "󱚣 ",
+    icon = "󱚣",
     win = {
       title_pos = "left",
       relative = "cursor",
