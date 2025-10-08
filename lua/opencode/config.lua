@@ -70,57 +70,39 @@ local defaults = {
       prompt = "",
       -- With an "Ask" item, the select menu can serve as the only entrypoint to all plugin-exclusive functionality, without numerous keymaps.
       ask = true,
-      opts = {
-        submit = true,
-      },
+      submit = true,
     },
     explain = {
       prompt = "Explain @this and its context",
-      opts = {
-        submit = true,
-      },
+      submit = true,
     },
     optimize = {
       prompt = "Optimize @this for performance and readability",
-      opts = {
-        submit = true,
-      },
+      submit = true,
     },
     document = {
       prompt = "Add documentation comments for @this",
-      opts = {
-        submit = true,
-      },
+      submit = true,
     },
     test = {
       prompt = "Add tests for @this",
-      opts = {
-        submit = true,
-      },
+      submit = true,
     },
     review = {
       prompt = "Review @buffer for correctness and readability",
-      opts = {
-        submit = true,
-      },
+      submit = true,
     },
     diagnostics = {
       prompt = "Explain @diagnostics",
-      opts = {
-        submit = true,
-      },
+      submit = true,
     },
     fix = {
       prompt = "Fix @diagnostics",
-      opts = {
-        submit = true,
-      },
+      submit = true,
     },
     diff = {
       prompt = "Review the following git diff for correctness and readability: @diff",
-      opts = {
-        submit = true,
-      },
+      submit = true,
     },
     add_buffer = {
       prompt = "@buffer",

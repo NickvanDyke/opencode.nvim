@@ -146,9 +146,9 @@ function M.select()
   require("opencode.ui.select").select(function(prompt, cb)
     if prompt then
       if prompt.ask then
-        require("opencode").ask(prompt.prompt, prompt.opts)
+        require("opencode").ask(prompt.prompt, prompt)
       else
-        require("opencode").prompt(prompt.prompt, prompt.opts, cb)
+        require("opencode").prompt(prompt.prompt, prompt, cb)
       end
     else
       cb()
