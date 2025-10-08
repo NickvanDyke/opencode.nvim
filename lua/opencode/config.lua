@@ -66,50 +66,18 @@ local defaults = {
     ["@grapple"] = { description = "Grapple tags", value = require("opencode.context").grapple_tags },
   },
   prompts = {
-    ask = {
-      prompt = "",
-      -- With an "Ask" item, the select menu can serve as the only entrypoint to all plugin-exclusive functionality, without numerous keymaps.
-      ask = true,
-      submit = true,
-    },
-    explain = {
-      prompt = "Explain @this and its context",
-      submit = true,
-    },
-    optimize = {
-      prompt = "Optimize @this for performance and readability",
-      submit = true,
-    },
-    document = {
-      prompt = "Add comments documenting @this",
-      submit = true,
-    },
-    test = {
-      prompt = "Add tests for @this",
-      submit = true,
-    },
-    review = {
-      prompt = "Review @buffer for correctness and readability",
-      submit = true,
-    },
-    diagnostics = {
-      prompt = "Explain @diagnostics",
-      submit = true,
-    },
-    fix = {
-      prompt = "Fix @diagnostics",
-      submit = true,
-    },
-    diff = {
-      prompt = "Review the following git diff for correctness and readability: @diff",
-      submit = true,
-    },
-    add_buffer = {
-      prompt = "@buffer",
-    },
-    add_this = {
-      prompt = "@this",
-    },
+    -- With an "Ask" item, the select menu can serve as the only entrypoint to all plugin-exclusive functionality, without numerous keymaps.
+    ask = { prompt = "", ask = true, submit = true },
+    explain = { prompt = "Explain @this and its context", submit = true },
+    optimize = { prompt = "Optimize @this for performance and readability", submit = true },
+    document = { prompt = "Add comments documenting @this", submit = true },
+    test = { prompt = "Add tests for @this", submit = true },
+    review = { prompt = "Review @buffer for correctness and readability", submit = true },
+    diagnostics = { prompt = "Explain @diagnostics", submit = true },
+    fix = { prompt = "Fix @diagnostics", submit = true },
+    diff = { prompt = "Review the following git diff for correctness and readability: @diff", submit = true },
+    add_buffer = { prompt = "@buffer" },
+    add_this = { prompt = "@this" },
   },
   input = {
     prompt = "Ask opencode: ",
