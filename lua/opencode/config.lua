@@ -1,3 +1,5 @@
+---@module 'snacks'
+
 local M = {}
 
 ---Your `opencode.nvim` configuration.
@@ -49,9 +51,6 @@ local defaults = {
   auto_reload = true,
   auto_register_cmp_sources = { "opencode", "buffer" },
   contexts = {
-    ---@class opencode.Context
-    ---@field description string Description of the context. Shown in completion docs.
-    ---@field value fun(): string|nil Function that returns the text that will replace the placeholder.
     ["@buffer"] = { description = "Current buffer", value = require("opencode.context").buffer },
     ["@buffers"] = { description = "Open buffers", value = require("opencode.context").buffers },
     ["@cursor"] = { description = "Cursor position", value = require("opencode.context").cursor_position },
@@ -67,11 +66,6 @@ local defaults = {
     ["@grapple"] = { description = "Grapple tags", value = require("opencode.context").grapple_tags },
   },
   prompts = {
-    ---@class opencode.Prompt
-    ---@field prompt string The prompt to send to `opencode`, with placeholders for context like `@cursor`, `@buffer`, etc.
-    ---@field description? string Description of the prompt. Shown in selection menu.
-    ---@field ask? boolean Call `ask(prompt)` instead of `prompt(prompt)`. Useful for prompts that expect additional user input.
-    ---@field opts? opencode.prompt.Opts Options for `prompt()`.
     ask = {
       -- With an "Ask" item, the select menu can serve as the only entrypoint to all plugin-exclusive functionality, without numerous keymaps.
       description = "Ask…",
@@ -205,8 +199,6 @@ local defaults = {
     pcall(require("opencode.terminal").show_if_exists)
   end,
 }
-
----@module 'snacks'
 
 ---Plugin options, lazily merged from `defaults` and `vim.g.opencode_opts`.
 ---@type opencode.Opts

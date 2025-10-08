@@ -1,5 +1,9 @@
 local M = {}
 
+---@class opencode.Context
+---@field description string Description of the context. Shown in completion docs.
+---@field value fun(): string|nil Function that returns the text that will replace the placeholder.
+
 local was_mode = nil
 
 ---Store current mode for `@this`.

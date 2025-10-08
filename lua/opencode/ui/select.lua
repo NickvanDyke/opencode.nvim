@@ -1,5 +1,11 @@
 local M = {}
 
+---@class opencode.Prompt
+---@field prompt string The prompt to send to `opencode`, with placeholders for context like `@cursor`, `@buffer`, etc.
+---@field description? string Description of the prompt. Shown in selection menu.
+---@field ask? boolean Call `ask(prompt)` instead of `prompt(prompt)`. Useful for prompts that expect additional user input.
+---@field opts? opencode.prompt.Opts Options for `prompt()`.
+
 ---@param on_choice fun(prompt: opencode.Prompt, cb?: fun())
 function M.select(on_choice)
   require("opencode.context").store_mode()
