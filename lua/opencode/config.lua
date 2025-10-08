@@ -113,29 +113,13 @@ local defaults = {
   },
   input = {
     prompt = "Ask opencode: ",
-    highlight = require("opencode.ui.highlight").highlight,
-    completion = "customlist,v:lua.opencode_completion",
-    -- Options below here only apply to [snacks.input](https://github.com/folke/snacks.nvim/blob/main/docs/input.md).
+    -- [snacks.input](https://github.com/folke/snacks.nvim/blob/main/docs/input.md) options
     icon = "󱚣 ",
     win = {
       title_pos = "left",
       relative = "cursor",
       row = -3, -- Row above the cursor
       col = 0, -- Align with the cursor
-      b = {
-        -- Enable `blink.cmp` completion
-        completion = true,
-      },
-      bo = {
-        -- Custom filetype to enable `blink.cmp` source on
-        filetype = "opencode_ask",
-      },
-      on_buf = function(win)
-        require("opencode.ui.ask").setup_completion(win.buf)
-        -- `snacks.input` doesn't seem to actually call `opts.highlight`? So highlight its buffer ourselves.
-        --  TODO: https://github.com/folke/snacks.nvim/issues/2216
-        require("opencode.ui.ask").setup_highlight(win.buf)
-      end,
     },
   },
   ---@class opencode.Opts.terminal : snacks.terminal.Opts
