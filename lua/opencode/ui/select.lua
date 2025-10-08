@@ -20,15 +20,17 @@ function M.select(on_choice)
       return true
     elseif not a.ask and b.ask then
       return false
-    else
+    elseif a.description and b.description then
       return a.description < b.description
+    else
+      return a.prompt < b.prompt
     end
   end)
 
   vim.ui.select(items, {
     prompt = "Prompt opencode: ",
     format_item = function(item)
-      return item.description
+      return item.description or item.prompt
     end,
     picker = {
       preview = "preview",

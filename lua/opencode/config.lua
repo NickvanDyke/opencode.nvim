@@ -68,8 +68,8 @@ local defaults = {
   },
   prompts = {
     ---@class opencode.Prompt
-    ---@field description string Description of the prompt. Shown in selection menu.
     ---@field prompt string The prompt to send to `opencode`, with placeholders for context like `@cursor`, `@buffer`, etc.
+    ---@field description? string Description of the prompt. Shown in selection menu.
     ---@field ask? boolean Call `ask(prompt)` instead of `prompt(prompt)`. Useful for prompts that expect additional user input.
     ---@field opts? opencode.prompt.Opts Options for `prompt()`.
     ask = {
@@ -82,67 +82,57 @@ local defaults = {
       },
     },
     explain = {
-      description = "Explain",
       prompt = "Explain @this and its context",
       opts = {
         submit = true,
       },
     },
     optimize = {
-      description = "Optimize",
       prompt = "Optimize @this for performance and readability",
       opts = {
         submit = true,
       },
     },
     document = {
-      description = "Document",
       prompt = "Add documentation comments for @this",
       opts = {
         submit = true,
       },
     },
     test = {
-      description = "Add tests",
       prompt = "Add tests for @this",
       opts = {
         submit = true,
       },
     },
     review = {
-      description = "Review buffer",
       prompt = "Review @buffer for correctness and readability",
       opts = {
         submit = true,
       },
     },
     diagnostics = {
-      description = "Explain diagnostics",
       prompt = "Explain @diagnostics",
       opts = {
         submit = true,
       },
     },
     fix = {
-      description = "Fix diagnostics",
       prompt = "Fix @diagnostics",
       opts = {
         submit = true,
       },
     },
     diff = {
-      description = "Review git diff",
       prompt = "Review the following git diff for correctness and readability:\n@diff",
       opts = {
         submit = true,
       },
     },
     add_buffer = {
-      description = "Add buffer",
       prompt = "@buffer",
     },
     add_this = {
-      description = "Add this",
       prompt = "@this",
     },
   },
