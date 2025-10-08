@@ -63,7 +63,7 @@ programs.nixvim = {
 
 ## ⚙️ Configuration
 
-`opencode.nvim` provides a rich and reliable default experience — see all available options and their defaults [here](./lua/opencode/config.lua#L47).
+`opencode.nvim` provides a rich and reliable default experience — see all available options and their defaults [here](./lua/opencode/config.lua#L49).
 
 ## 🚀 Usage
 
@@ -71,7 +71,7 @@ programs.nixvim = {
 
 Send a prompt. The main entrypoint — build on it!
 
-Replaces placeholders with the corresponding [contexts](lua/opencode/config.lua#L51):
+Replaces placeholders with the corresponding [contexts](lua/opencode/config.lua#L53):
 
 | Placeholder | Context |
 | - | - |
@@ -97,7 +97,7 @@ Input a prompt.
 
 ### 📝 Select — `require("opencode").select()`
 
-Select from [prompts](lua/opencode/config.lua#65) to review, explain, and improve your code:
+Select from [prompts](lua/opencode/config.lua#68) to review, explain, and improve your code:
 
 | Description                        | Prompt                                                    |
 |------------------------------------|-----------------------------------------------------------|
