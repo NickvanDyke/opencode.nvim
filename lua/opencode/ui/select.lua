@@ -47,13 +47,17 @@ function M.select(on_choice)
     ---@param item snacks.picker.finder.Item
     ---@param is_snacks boolean
     format_item = function(item, is_snacks)
-      -- TODO: Not sure how other `select` overrides align items. But this aligns them for built-in.
-      -- local indent = is_snacks and 0 or (#tostring(#items) - #tostring(item.idx))
-      return ("[%s] %s"):format(
-        -- string.rep(" ", indent),
-        item.name,
-        string.rep(" ", 18 - #item.name) .. item.text
-      )
+      if is_snacks then
+        ---@type snacks.picker.Highlight[]
+        return {
+          { item.name, "Title" },
+          { string.rep(" ", 18 - #item.name) },
+          { item.text },
+        }
+      else
+        local indent = #tostring(#items) - #tostring(item.idx)
+        return ("%s[%s] %s"):format(string.rep(" ", indent), item.name, string.rep(" ", 18 - #item.name) .. item.text)
+      end
     end,
     picker = {
       preview = "preview",
