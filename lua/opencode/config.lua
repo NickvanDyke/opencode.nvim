@@ -185,4 +185,19 @@ local defaults = {
 ---@type opencode.Opts
 M.opts = vim.tbl_deep_extend("force", vim.deepcopy(defaults), vim.g.opencode_opts or {})
 
+-- Allow removing default `prompts` and `contexts` by setting them to `false` in your user config.
+-- Example:
+--   prompts = { ask = false } -- removes the default 'ask' prompt
+--   contexts = { ['@buffer'] = false } -- removes the default '@buffer' context
+local user_opts = vim.g.opencode_opts or {}
+for _, field in ipairs({ "prompts", "contexts" }) do
+  if user_opts[field] and M.opts[field] then
+    for k, v in pairs(user_opts[field]) do
+      if not v then
+        M.opts[field][k] = nil
+      end
+    end
+  end
+end
+
 return M
