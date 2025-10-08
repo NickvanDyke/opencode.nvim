@@ -1,8 +1,7 @@
----@module 'snacks'
-
 local M = {}
 
-function M.select()
+---@param on_choice fun(prompt: opencode.Prompt, cb?: fun())
+function M.select(on_choice)
   require("opencode.context").store_mode()
 
   local items = vim.tbl_map(function(prompt)
@@ -38,13 +37,9 @@ function M.select()
       },
     },
   }, function(choice)
-    if choice then
-      if choice.ask then
-        M.ask(choice.prompt, choice.opts)
-      else
-        M.prompt(choice.prompt, choice.opts)
-      end
-    end
+    on_choice(choice, function()
+      require("opencode.context").clear_mode()
+    end)
   end)
 end
 

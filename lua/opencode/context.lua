@@ -13,9 +13,15 @@ function M.store_mode()
   end
 end
 
+function M.clear_mode()
+  was_mode = nil
+  if vim.fn.mode():match("[vV\22]") then
+    -- Built-in `input` and `select` don't clear visual mode, so we do - inconvenient/weird for users for it to still be selected after "using".
+    vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Esc>", true, false, true), "n", true)
+  end
+end
+
 ---Inject `opts.contexts` into `prompt`.
----Clears the stored mode.
----Exits visual mode (if applicable) after "consuming" the selection.
 ---@param prompt string
 ---@return string
 function M.inject(prompt)
@@ -33,13 +39,6 @@ function M.inject(prompt)
       -- Default to empty string so users can safely always include contexts like @diagnostics even if there are none
       return contexts[placeholder].value() or ""
     end)
-  end
-
-  -- TODO: Surprised this doesn't clear after previewing in `select()`...?
-  -- FIX: Won't clear after closing `ask` without prompting.
-  was_mode = nil
-  if vim.fn.mode():match("[vV\22]") then
-    vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Esc>", true, false, true), "n", true)
   end
 
   return prompt

@@ -1,7 +1,7 @@
 local M = {}
 
 ---@param default? string Text to pre-fill the input with.
----@param on_confirm fun(value: string|nil)
+---@param on_confirm fun(value: string|nil, cb?: fun())
 function M.input(default, on_confirm)
   require("opencode.context").store_mode()
 
@@ -10,7 +10,9 @@ function M.input(default, on_confirm)
       default = default,
     }),
     function(value)
-      on_confirm(value)
+      on_confirm(value, function()
+        require("opencode.context").clear_mode()
+      end)
     end
   )
 end
