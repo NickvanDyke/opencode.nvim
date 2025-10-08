@@ -148,7 +148,7 @@ local defaults = {
   },
   input = {
     prompt = "Ask opencode: ",
-    highlight = require("opencode.ask").highlight,
+    highlight = require("opencode.ui.ask").highlight,
     -- Options below here only apply to [snacks.input](https://github.com/folke/snacks.nvim/blob/main/docs/input.md).
     icon = "󱚣 ",
     -- Only available when using `snacks.input` - `vim.ui.input` does not support `custom/customlist`.
@@ -169,10 +169,10 @@ local defaults = {
         filetype = "opencode_ask",
       },
       on_buf = function(win)
-        require("opencode.ask").setup_completion(win.buf)
+        require("opencode.ui.ask").setup_completion(win.buf)
         -- `snacks.input` doesn't seem to actually call `opts.highlight`? So highlight its buffer ourselves.
         --  TODO: https://github.com/folke/snacks.nvim/issues/2216
-        require("opencode.ask").setup_highlight(win.buf)
+        require("opencode.ui.ask").setup_highlight(win.buf)
       end,
     },
   },

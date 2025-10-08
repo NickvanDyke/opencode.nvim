@@ -131,7 +131,7 @@ end
 ---@param default? string Text to prefill the input with.
 ---@param opts? opencode.prompt.Opts Options for `prompt()`.
 function M.ask(default, opts)
-  require("opencode.ask").input(default, function(value)
+  require("opencode.ui.ask").input(default, function(value)
     if value and value ~= "" then
       M.prompt(value, opts)
     end
@@ -139,43 +139,9 @@ function M.ask(default, opts)
 end
 
 ---Select a prompt from `opts.prompts` to send to `opencode`.
----Filters prompts according to the current mode and whether they use the selection context.
+---Includes preview when using `snacks.nvim`.
 function M.select()
-  require("opencode.context").store_mode()
-
-  ---@type opencode.Prompt[]
-  local prompts = vim.tbl_values(require("opencode.config").opts.prompts)
-
-  -- Sort keyed `opts.prompts` table for consistency, and prioritize ones that trigger `ask()`.
-  table.sort(prompts, function(a, b)
-    if a.ask and not b.ask then
-      return true
-    elseif not a.ask and b.ask then
-      return false
-    else
-      return a.description < b.description
-    end
-  end)
-
-  vim.ui.select(
-    prompts,
-    {
-      prompt = "Prompt opencode: ",
-      format_item = function(item)
-        return item.description
-      end,
-    },
-    ---@param choice opencode.Prompt|nil
-    function(choice)
-      if choice then
-        if choice.ask then
-          M.ask(choice.prompt, choice.opts)
-        else
-          M.prompt(choice.prompt, choice.opts)
-        end
-      end
-    end
-  )
+  require("opencode.ui.select").select()
 end
 
 ---Toggle an embedded `opencode`.

@@ -35,6 +35,8 @@ function M.inject(prompt)
     end)
   end
 
+  -- TODO: Surprised this doesn't clear after previewing in `select()`...?
+  -- FIX: Won't clear after closing `ask` without prompting.
   was_mode = nil
   if vim.fn.mode():match("[vV\22]") then
     vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Esc>", true, false, true), "n", true)
