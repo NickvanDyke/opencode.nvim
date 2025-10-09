@@ -1,67 +1,70 @@
+---@module 'snacks.input'
+
 local M = {}
 
 ---@param default? string Text to pre-fill the input with.
 ---@param on_confirm fun(value: string|nil, cb?: fun())
 function M.input(default, on_confirm)
   require("opencode.context").store_mode()
-  vim.ui.input(
-    vim.tbl_deep_extend("keep", require("opencode.config").opts.input, {
-      default = default,
-      highlight = require("opencode.ui.highlight").highlight,
-      completion = "customlist,v:lua.opencode_completion",
-      -- `snacks.input` options
-      win = {
-        b = {
-          -- Enable `blink.cmp` completion
-          completion = true,
-        },
-        bo = {
-          -- Custom filetype to enable `blink.cmp` source on
-          filetype = "opencode_ask",
-        },
-        on_buf = function(win)
-          -- `snacks.input` doesn't seem to actually call `opts.highlight`? So highlight its buffer ourselves.
-          --  TODO: https://github.com/folke/snacks.nvim/issues/2216
-          vim.api.nvim_create_autocmd({ "TextChanged", "TextChangedI", "BufWinEnter" }, {
-            group = vim.api.nvim_create_augroup("OpencodeAskHighlight", { clear = true }),
-            buffer = win.buf,
-            callback = function(args)
-              local ns_id = vim.api.nvim_create_namespace("opencode_placeholders")
-              vim.api.nvim_buf_clear_namespace(args.buf, ns_id, 0, -1)
 
-              local lines = vim.api.nvim_buf_get_lines(args.buf, 0, -1, false)
-              for i, line in ipairs(lines) do
-                local hls = require("opencode.ui.highlight").highlight(line)
-                for _, hl in ipairs(hls) do
-                  vim.api.nvim_buf_set_extmark(args.buf, ns_id, i - 1, hl[1], {
-                    end_col = hl[2],
-                    hl_group = hl[3],
-                  })
-                end
-              end
-            end,
-          })
-
-          -- Wait as long as possible to check for `blink.cmp` loaded - many users lazy-load on `InsertEnter`.
-          -- And OptionSet :runtimepath didn't seem to fire for lazy.nvim. And/or it may never fire if already loaded.
-          vim.api.nvim_create_autocmd("InsertEnter", {
-            once = true,
-            buffer = win.buf,
-            callback = function()
-              if package.loaded["blink.cmp"] then
-                require("opencode.cmp.blink").setup(require("opencode.config").opts.auto_register_cmp_sources)
-              end
-            end,
-          })
-        end,
+  ---@type snacks.input.Opts
+  local input_opts = {
+    default = default,
+    highlight = require("opencode.ui.highlight").highlight,
+    completion = "customlist,v:lua.opencode_completion",
+    -- snacks-only options
+    win = {
+      b = {
+        -- Enable `blink.cmp` completion
+        completion = true,
       },
-    }),
-    function(value)
-      on_confirm(value, function()
-        require("opencode.context").clear_mode()
-      end)
-    end
-  )
+      bo = {
+        -- Custom filetype to enable `blink.cmp` source on
+        filetype = "opencode_ask",
+      },
+      on_buf = function(win)
+        -- `snacks.input` doesn't seem to actually call `opts.highlight`? So highlight its buffer ourselves.
+        --  TODO: https://github.com/folke/snacks.nvim/issues/2216
+        vim.api.nvim_create_autocmd({ "TextChanged", "TextChangedI", "BufWinEnter" }, {
+          group = vim.api.nvim_create_augroup("OpencodeAskHighlight", { clear = true }),
+          buffer = win.buf,
+          callback = function(args)
+            local ns_id = vim.api.nvim_create_namespace("opencode_placeholders")
+            vim.api.nvim_buf_clear_namespace(args.buf, ns_id, 0, -1)
+
+            local lines = vim.api.nvim_buf_get_lines(args.buf, 0, -1, false)
+            for i, line in ipairs(lines) do
+              local hls = require("opencode.ui.highlight").highlight(line)
+              for _, hl in ipairs(hls) do
+                vim.api.nvim_buf_set_extmark(args.buf, ns_id, i - 1, hl[1], {
+                  end_col = hl[2],
+                  hl_group = hl[3],
+                })
+              end
+            end
+          end,
+        })
+
+        -- Wait as long as possible to check for `blink.cmp` loaded - many users lazy-load on `InsertEnter`.
+        -- And OptionSet :runtimepath didn't seem to fire for lazy.nvim. And/or it may never fire if already loaded.
+        vim.api.nvim_create_autocmd("InsertEnter", {
+          once = true,
+          buffer = win.buf,
+          callback = function()
+            if package.loaded["blink.cmp"] then
+              require("opencode.cmp.blink").setup(require("opencode.config").opts.auto_register_cmp_sources)
+            end
+          end,
+        })
+      end,
+    },
+  }
+
+  vim.ui.input(vim.tbl_deep_extend("keep", require("opencode.config").opts.input, input_opts), function(value)
+    on_confirm(value, function()
+      require("opencode.context").clear_mode()
+    end)
+  end)
 end
 
 -- FIX: Overridden by blink.cmp cmdline completion if both are enabled, and that won't have our items.
