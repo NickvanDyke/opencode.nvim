@@ -131,11 +131,11 @@ end
 ---@param default? string Text to prefill the input with.
 ---@param opts? opencode.prompt.Opts Options for `prompt()`.
 function M.ask(default, opts)
-  require("opencode.ui.ask").input(default, function(value, cb)
+  require("opencode.ui.ask").input(default, function(value, callback)
     if value and value ~= "" then
-      M.prompt(value, opts, cb)
+      M.prompt(value, opts, callback)
     else
-      cb()
+      callback()
     end
   end)
 end
@@ -143,15 +143,15 @@ end
 ---Select a prompt from `opts.prompts` to send to `opencode`.
 ---Includes preview when using `snacks.nvim`.
 function M.select()
-  require("opencode.ui.select").select(function(prompt, cb)
+  require("opencode.ui.select").select(function(prompt, callback)
     if prompt then
       if prompt.ask then
         require("opencode").ask(prompt.prompt, prompt)
       else
-        require("opencode").prompt(prompt.prompt, prompt, cb)
+        require("opencode").prompt(prompt.prompt, prompt, callback)
       end
     else
-      cb()
+      callback()
     end
   end)
 end

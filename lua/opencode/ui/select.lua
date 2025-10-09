@@ -31,7 +31,7 @@ end
 ---@field prompt string The prompt to send to `opencode`, with placeholders for context like `@cursor`, `@buffer`, etc.
 ---@field ask? boolean Call `ask(prompt)` instead of `prompt(prompt)`. Useful for prompts that expect additional user input.
 
----@param on_choice fun(prompt: opencode.Prompt, cb?: fun())
+---@param on_choice fun(prompt: opencode.Prompt, callback?: fun())
 function M.select(on_choice)
   local prompts = require("opencode.config").opts.prompts or {}
 
