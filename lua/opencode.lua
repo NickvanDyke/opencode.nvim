@@ -97,6 +97,7 @@ end
 ---| 'messages_half_page_down'
 ---| 'messages_first'
 ---| 'messages_last'
+---| 'agent_cycle'
 
 ---Send a [command](https://opencode.ai/docs/keybinds) to `opencode`.
 ---
