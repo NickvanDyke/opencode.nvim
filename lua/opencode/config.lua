@@ -29,10 +29,13 @@ vim.g.opencode_opts = vim.g.opencode_opts
 ---Prompts to select from.
 ---@field prompts? table<string, opencode.Prompt>
 ---
----Input options for `ask` — see also [snacks.input](https://github.com/folke/snacks.nvim/blob/main/docs/input.md) (if enabled).
+---Input options for `ask()` — see also [snacks.input](https://github.com/folke/snacks.nvim/blob/main/docs/input.md) (if enabled).
 ---@field input? snacks.input.Opts
 ---
----Embedded terminal options — see also [snacks.terminal](https://github.com/folke/snacks.nvim/blob/main/docs/terminal.md).
+---Select options for `select()` — see also [snacks.picker](https://github.com/folke/snacks.nvim/blob/main/docs/picker.md) (if enabled).
+---@field select? snacks.picker.ui_select.Opts
+---
+---Embedded terminal options for `toggle()` — see also [snacks.terminal](https://github.com/folke/snacks.nvim/blob/main/docs/terminal.md).
 ---@field terminal? opencode.Opts.terminal
 ---
 ---Called when no `opencode` process is found.
@@ -81,13 +84,23 @@ local defaults = {
   },
   input = {
     prompt = "Ask opencode: ",
-    -- [snacks.input](https://github.com/folke/snacks.nvim/blob/main/docs/input.md) options
+    -- `snacks.input`-only options
     icon = "󱚣",
     win = {
       title_pos = "left",
       relative = "cursor",
       row = -3, -- Row above the cursor
       col = 0, -- Align with the cursor
+    },
+  },
+  select = {
+    prompt = "Prompt opencode: ",
+    -- `snacks.picker`-only options
+    picker = {
+      preview = "preview",
+      layout = {
+        preview = true,
+      },
     },
   },
   ---@class opencode.Opts.terminal : snacks.terminal.Opts

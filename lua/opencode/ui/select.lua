@@ -72,7 +72,6 @@ function M.select(on_choice)
 
   ---@type snacks.picker.ui_select.Opts
   local select_opts = {
-    prompt = "Prompt opencode: ",
     ---@param item snacks.picker.finder.Item
     ---@param is_snacks boolean
     format_item = function(item, is_snacks)
@@ -87,20 +86,18 @@ function M.select(on_choice)
         return ("%s[%s] %s"):format(string.rep(" ", indent), item.name, string.rep(" ", 18 - #item.name) .. item.text)
       end
     end,
-    picker = {
-      preview = "preview",
-      layout = {
-        preview = true,
-      },
-    },
   }
 
   require("opencode.context").store_mode()
-  vim.ui.select(items, select_opts, function(choice)
-    on_choice(prompts[choice and choice.name], function()
-      require("opencode.context").clear_mode()
-    end)
-  end)
+  vim.ui.select(
+    items,
+    vim.tbl_deep_extend("keep", require("opencode.config").opts.select, select_opts),
+    function(choice)
+      on_choice(prompts[choice and choice.name], function()
+        require("opencode.context").clear_mode()
+      end)
+    end
+  )
 end
 
 return M
