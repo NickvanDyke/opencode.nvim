@@ -102,16 +102,17 @@ Select from [prompts](lua/opencode/config.lua#68) to review, explain, and improv
 
 | Description                        | Prompt                                                    |
 |------------------------------------|-----------------------------------------------------------|
-| Ask…                               | *(user input required)*                                   |
-| Explain this           | Explain @this and its context                           |
-| Optimize this                | Optimize @this for performance and readability        |
-| Document this                | Add comments documenting @this                  |
-| Add tests for this            | Add tests for @this                                  |
-| Review buffer                      | Review @buffer for correctness and readability            |
-| Review git diff                    | Review the following git diff for correctness and readability:\n@diff |
-| Explain diagnostics              | Explain @diagnostics                                        |
-| Add buffer to prompt               | @buffer                                                   |
-| Add this to prompt            | @this                                                |
+| `ask`         | *(user input required)*                                           |
+| `explain`     | Explain `@this` and its context                                   |
+| `optimize`    | Optimize `@this` for performance and readability                  |
+| `document`    | Add comments documenting `@this`                                  |
+| `test`        | Add tests for `@this`                                             |
+| `review`      | Review `@buffer` for correctness and readability                  |
+| `diagnostics` | Explain `@diagnostics`                                            |
+| `fix`         | Fix `@diagnostics`                                                |
+| `diff`        | Review the following git diff for correctness and readability: `@diff`         |
+| `add_buffer`  | `@buffer`                                                         |
+| `add_this`    | `@this`                                                           |
 
 > [!TIP]
 > Create keymaps for your favorite prompts:
