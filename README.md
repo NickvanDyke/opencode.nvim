@@ -116,8 +116,8 @@ Select from [prompts](lua/opencode/config.lua#68) to review, explain, and improv
 > [!TIP]
 > Create keymaps for your favorite prompts:
 > ```lua
-> local prompt = require("opencode.config").opts.prompts.explain
-> vim.keymap.set({ "n", "x" }, "<leader>oe", function() require("opencode").prompt(prompt.prompt, prompt) end, { desc = "Explain this" })
+> local explain = require("opencode.config").opts.prompts.explain
+> vim.keymap.set({ "n", "x" }, "<leader>oe", function() require("opencode").prompt(explain.prompt, explain) end, { desc = "Explain this" })
 > ```
 
 ### 🧑‍🏫 Command — `require("opencode").command()`
@@ -136,6 +136,7 @@ Send a [command](https://opencode.ai/docs/keybinds):
 | `messages_half_page_down` | Scroll messages down by half a page                      |
 | `messages_first`          | Jump to the first message in the session                 |
 | `messages_last`           | Jump to the last message in the session                  |
+| `agent_cycle`             | Cycle the selected agent                                 |
 
 > Supports *all* commands — these are just the most useful ones
 
