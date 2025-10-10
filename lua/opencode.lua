@@ -101,24 +101,58 @@ end
 
 ---Send a [command](https://opencode.ai/docs/keybinds) to `opencode`.
 ---
----@param command opencode.Command|string
+---@param command opencode.Command|string|nil The command to send to `opencode`. If `nil`, opens `vim.ui.select` to choose a command.
 ---@param callback fun(response: table)|nil
 function M.command(command, callback)
-  get_port(function(port)
-    -- No need to register SSE or auto_reload here - commands trigger neither
-    -- (except maybe the `input_*` commands? but no reason for user to use those).
+  require("opencode.async").chain_async({
+    function(next)
+      if not command then
+        vim.ui.select({
+          { name = "New session", command = "session_new" },
+          { name = "Share session", command = "session_share" },
+          { name = "Interrupt", command = "session_interrupt" },
+          { name = "Compact messages", command = "session_compact" },
+          { name = "Messages page up", command = "messages_page_up" },
+          { name = "Messages page down", command = "messages_page_down" },
+          { name = "Messages half page up", command = "messages_half_page_up" },
+          { name = "Messages half page down", command = "messages_half_page_down" },
+          { name = "Messages first", command = "messages_first" },
+          { name = "Messages last", command = "messages_last" },
+          { name = "Cycle agent", command = "agent_cycle" },
+        }, {
+          prompt = "Command opencode: ",
+          format_item = function(item)
+            return item.name
+          end,
+        }, function(choice)
+          if choice then
+            command = choice.command
+            next()
+          end
+        end)
+      else
+        next()
+      end
+    end,
+    function()
+      get_port(function(port)
+        -- No need to register SSE or auto_reload here - commands trigger neither
+        -- (except maybe the `input_*` commands? but no reason for user to use those).
 
-    local on_submit_ok, on_submit_err = pcall(require("opencode.config").opts.on_submit)
-    if not on_submit_ok then
-      vim.notify(
-        "Error in `vim.g.opencode_opts.on_submit`: " .. on_submit_err,
-        vim.log.levels.WARN,
-        { title = "opencode" }
-      )
-    end
+        local on_submit_ok, on_submit_err = pcall(require("opencode.config").opts.on_submit)
+        if not on_submit_ok then
+          vim.notify(
+            "Error in `vim.g.opencode_opts.on_submit`: " .. on_submit_err,
+            vim.log.levels.WARN,
+            { title = "opencode" }
+          )
+        end
 
-    require("opencode.client").tui_execute_command(command, port, callback)
-  end)
+        ---@cast command opencode.Command|string
+        require("opencode.client").tui_execute_command(command, port, callback)
+      end)
+    end,
+  })
 end
 
 ---Input a prompt to send to `opencode`.
