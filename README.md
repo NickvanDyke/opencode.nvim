@@ -4,7 +4,7 @@ Integrate the [opencode](https://github.com/sst/opencode) AI assistant with Neov
 
 https://github.com/user-attachments/assets/340ce139-173c-4e81-b39a-f089862db9ce
 
-> Uses `opencode`'s currently undocumented [API](https://github.com/sst/opencode/blob/dev/packages/opencode/src/server/server.ts) — latest tested version: `v0.14.1`
+> Uses `opencode`'s currently undocumented [API](https://github.com/sst/opencode/blob/dev/packages/opencode/src/server/server.ts) — latest tested version: `v0.14.7`
 
 ## ✨ Features
 

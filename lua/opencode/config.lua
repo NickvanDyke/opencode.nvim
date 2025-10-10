@@ -99,6 +99,7 @@ local defaults = {
     picker = {
       preview = "preview",
       layout = {
+        ---@diagnostic disable-next-line: assign-type-mismatch
         preview = true,
       },
     },
@@ -107,12 +108,9 @@ local defaults = {
   ---@field cmd string The command to run in the embedded terminal. See [here](https://opencode.ai/docs/cli) for options.
   terminal = {
     cmd = "opencode",
-    -- This will default to false if `auto_insert` or `start_insert` are set to false.
-    -- But it's very confusing if the embedded terminal doesn't exit when `opencode` exits.
-    -- So override that.
+    -- Close the terminal when `opencode` exits
     auto_close = true,
     win = {
-      -- `"right"` seems like a better default than `snacks.terminal`'s `"float"` default
       position = "right",
       -- Stay in the editor after opening the terminal
       enter = false,
