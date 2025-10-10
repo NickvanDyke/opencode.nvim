@@ -75,7 +75,7 @@ local defaults = {
     optimize = { prompt = "Optimize @this for performance and readability", submit = true },
     document = { prompt = "Add comments documenting @this", submit = true },
     test = { prompt = "Add tests for @this", submit = true },
-    review = { prompt = "Review @buffer for correctness and readability", submit = true },
+    review = { prompt = "Review @this for correctness and readability", submit = true },
     diagnostics = { prompt = "Explain @diagnostics", submit = true },
     fix = { prompt = "Fix @diagnostics", submit = true },
     diff = { prompt = "Review the following git diff for correctness and readability: @diff", submit = true },

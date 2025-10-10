@@ -108,7 +108,7 @@ Select from [prompts](lua/opencode/config.lua#68) to review, explain, and improv
 | `optimize`    | Optimize `@this` for performance and readability                  |
 | `document`    | Add comments documenting `@this`                                  |
 | `test`        | Add tests for `@this`                                             |
-| `review`      | Review `@buffer` for correctness and readability                  |
+| `review`      | Review `@this` for correctness and readability                    |
 | `diagnostics` | Explain `@diagnostics`                                            |
 | `fix`         | Fix `@diagnostics`                                                |
 | `diff`        | Review the following git diff for correctness and readability: `@diff`         |
