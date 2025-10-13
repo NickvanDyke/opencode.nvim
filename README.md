@@ -12,6 +12,7 @@ https://github.com/user-attachments/assets/4dd19151-89e4-4272-abac-6710dbc6edc1
 - Input prompts with completions, highlights, and normal-mode support.
 - Select from a prompt library and define your own.
 - Inject relevant editor context (buffer, cursor, selection, diagnostics, ...).
+- Control `opencode` with commands.
 - Auto-reload buffers edited by `opencode` in real-time.
 - Forward `opencode`'s Server-Sent-Events as Neovim autocmds for automation.
 - Sensible defaults with well-documented, flexible configuration and API to fit your workflow.
