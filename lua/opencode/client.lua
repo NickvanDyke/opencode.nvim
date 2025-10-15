@@ -178,8 +178,6 @@ function M.create_session(port, callback)
 end
 
 ---Calls the `/event` SSE endpoint and invokes `callback` for each event received.
----`opencode` sends a lot of events very quickly while responding, so the events are
----buffered and flushed to `callback` every 10ms to avoid overwhelming Neovim and dropping.
 ---
 ---@param port number
 ---@param callback fun(response: table)|nil
