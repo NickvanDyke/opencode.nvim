@@ -46,7 +46,7 @@ vim.g.opencode_opts = vim.g.opencode_opts
 ---
 ---Called when a prompt or command is sent to `opencode`.
 ---By default, shows the embedded terminal if it exists.
----@field on_submit? fun()
+---@field on_send? fun()
 
 ---@type opencode.Opts
 local defaults = {
@@ -134,7 +134,7 @@ local defaults = {
     -- Could incidentally hide an unexpected error in `snacks.terminal`, but seems unlikely.
     pcall(require("opencode.terminal").open)
   end,
-  on_submit = function()
+  on_send = function()
     -- "if exists" because user may alternate between embedded and external `opencode`.
     -- `opts.on_opencode_not_found` comments also apply here.
     pcall(require("opencode.terminal").show_if_exists)

@@ -149,7 +149,7 @@ Toggle an embedded `opencode` terminal (requires [`snacks.nvim`](https://github.
 
 `opencode.nvim` connects to *any* `opencode` inside Neovim's CWD, but provides this for quickstart.
 
-To use your own method (terminal app or plugin, multiplexer, etc.), launch `opencode` with it and optionally override `vim.g.opencode_opts.on_opencode_not_found` and `vim.g.opencode_opts.on_submit` for convenience, then use `opencode.nvim` normally.
+To use your own method (terminal app or plugin, multiplexer, etc.), launch `opencode` with it and optionally override `vim.g.opencode_opts.on_opencode_not_found` and `vim.g.opencode_opts.on_send` for convenience, then use `opencode.nvim` normally.
 
 ## 👀 Events
 
