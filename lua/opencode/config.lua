@@ -79,8 +79,8 @@ local defaults = {
     diagnostics = { prompt = "Explain @diagnostics", submit = true },
     fix = { prompt = "Fix @diagnostics", submit = true },
     diff = { prompt = "Review the following git diff for correctness and readability: @diff", submit = true },
-    add_buffer = { prompt = "@buffer" },
-    add_this = { prompt = "@this" },
+    buffer = { prompt = "@buffer" },
+    this = { prompt = "@this" },
   },
   input = {
     prompt = "Ask opencode: ",
