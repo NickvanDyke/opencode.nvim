@@ -44,7 +44,7 @@ vim.g.opencode_opts = vim.g.opencode_opts
 ---But you could also e.g. call your own terminal plugin, launch an external `opencode`, or no-op.
 ---@field on_opencode_not_found? fun()
 ---
----Called when a prompt or command is submitted to `opencode`.
+---Called when a prompt or command is sent to `opencode`.
 ---By default, shows the embedded terminal if it exists.
 ---@field on_submit? fun()
 

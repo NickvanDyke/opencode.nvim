@@ -36,6 +36,15 @@ function M.prompt(prompt, opts, callback)
   }
 
   get_port(function(port)
+    local on_submit_ok, on_submit_err = pcall(require("opencode.config").opts.on_submit)
+    if not on_submit_ok then
+      vim.notify(
+        "Error in `vim.g.opencode_opts.on_submit`: " .. on_submit_err,
+        vim.log.levels.WARN,
+        { title = "opencode" }
+      )
+    end
+
     require("opencode.async").chain_async({
       function(next)
         if opts.clear then
@@ -62,15 +71,6 @@ function M.prompt(prompt, opts, callback)
               data = response,
             })
           end)
-
-          local on_submit_ok, on_submit_err = pcall(require("opencode.config").opts.on_submit)
-          if not on_submit_ok then
-            vim.notify(
-              "Error in `vim.g.opencode_opts.on_submit`: " .. on_submit_err,
-              vim.log.levels.WARN,
-              { title = "opencode" }
-            )
-          end
 
           require("opencode.client").tui_submit_prompt(port, next)
         else
