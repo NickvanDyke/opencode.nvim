@@ -27,7 +27,7 @@ vim.api.nvim_create_user_command("OpencodePrompt", function(args)
   end
 
   require("opencode").prompt(prompt_text, prompt_opts)
-end, { desc = "Prompt `opencode`, prepending [range] if any", range = true, nargs = "*" })
+end, { desc = "Prompt `opencode`. Prepends [range]. Supports `submit=true`, `clear=true`.", range = true, nargs = "*" })
 
 vim.api.nvim_create_autocmd("User", {
   group = vim.api.nvim_create_augroup("OpencodeAutoReload", { clear = true }),
