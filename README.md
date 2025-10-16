@@ -120,8 +120,10 @@ Select from [prompts](lua/opencode/config.lua#68) to review, explain, and improv
 > [!TIP]
 > Create keymaps for your favorite prompts:
 > ```lua
-> local explain = require("opencode.config").opts.prompts.explain
-> vim.keymap.set({ "n", "x" }, "<leader>oe", function() require("opencode").prompt(explain.prompt, explain) end, { desc = "Explain this" })
+> vim.keymap.set({ "n", "x" }, "<leader>oe", function()
+>   local explain = require("opencode.config").opts.prompts.explain
+>   require("opencode").prompt(explain.prompt, explain)
+> end, { desc = "Explain this" })
 > ```
 
 ### 🧑‍🏫 Command — `require("opencode").command()`
