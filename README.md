@@ -97,6 +97,7 @@ Input a prompt.
 - Completes placeholders.
   - Press `<Tab>` to trigger built-in completion.
   - When using `blink.cmp` and `snacks.input`, registers `opts.auto_register_cmp_sources`.
+- Press `<Up>` to browse recent inputs.
 
 ### 📝 Select — `require("opencode").select()`
 
