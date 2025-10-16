@@ -22,7 +22,6 @@ end
 ---2. Appends `prompt` to the TUI input.
 ---  - Injects `opts.contexts` into `prompt`.
 ---3. Submits the TUI input if `opts.submit`.
----  - Sets up `opts.auto_reload` if enabled.
 ---  - Listens for Server-Sent-Events to forward as `OpencodeEvent` autocmd.
 ---  - Calls `opts.on_send`.
 ---4. Calls `callback` if provided.
@@ -57,12 +56,8 @@ function M.prompt(prompt, opts, callback)
       end,
       function(next)
         if opts.submit then
-          -- WARNING: If user never prompts opencode via the plugin, we'll never receive SSEs or register auto_reload autocmds.
-          -- Could register in `/plugin` and even periodically check, but is it worth the complexity?
-          if require("opencode.config").opts.auto_reload then
-            require("opencode.reload").setup()
-          end
-
+          -- WARNING: If user never prompts opencode via the plugin, we'll never receive SSEs.
+          -- Could register in `/plugin` and even periodically check, but is it worth the complexity and performance hit?
           require("opencode.client").listen_to_sse(port, function(response)
             vim.api.nvim_exec_autocmds("User", {
               pattern = "OpencodeEvent",
@@ -134,7 +129,7 @@ function M.command(command, callback)
     end,
     function()
       get_port(function(port)
-        -- No need to register SSE or auto_reload here - commands trigger neither
+        -- No need to register SSE here - commands don't trigger any.
         -- (except maybe the `input_*` commands? but no reason for user to use those).
 
         local on_send_ok, on_send_err = pcall(require("opencode.config").opts.on_send)
