@@ -14,6 +14,7 @@ end
 ---@class opencode.prompt.Opts
 ---@field clear? boolean Clear the TUI input before.
 ---@field submit? boolean Submit the TUI input after.
+---@field context? opencode.Context The context the prompt was written or selected in, if any.
 
 ---Prompt `opencode`.
 ---
@@ -33,6 +34,7 @@ function M.prompt(prompt, opts, callback)
   opts = {
     clear = opts and opts.clear or false,
     submit = opts and opts.submit or false,
+    context = opts and opts.context or require("opencode.context").new(),
   }
 
   get_port(function(port)
@@ -50,7 +52,7 @@ function M.prompt(prompt, opts, callback)
         end
       end,
       function(next)
-        prompt = require("opencode.context").inject(prompt)
+        prompt = opts.context:inject(prompt)
         require("opencode.client").tui_append_prompt(prompt, port, next)
       end,
       function(next)
@@ -162,11 +164,12 @@ end
 ---@param default? string Text to prefill the input with.
 ---@param opts? opencode.prompt.Opts Options for `prompt()`.
 function M.ask(default, opts)
-  require("opencode.ui.ask").input(default, function(value, callback)
+  local context = require("opencode.context").new()
+  opts = vim.tbl_deep_extend("force", opts, { context = context })
+
+  require("opencode.ui.ask").input(default, context, function(value)
     if value and value ~= "" then
-      M.prompt(value, opts, callback)
-    else
-      callback()
+      M.prompt(value, opts)
     end
   end)
 end
@@ -174,15 +177,16 @@ end
 ---Select a prompt from `opts.prompts` to send to `opencode`.
 ---Includes preview when using `snacks.nvim`.
 function M.select()
-  require("opencode.ui.select").select(function(prompt, callback)
+  local context = require("opencode.context").new()
+
+  require("opencode.ui.select").select(context, function(prompt)
     if prompt then
+      local opts = vim.tbl_deep_extend("force", prompt, { context = context })
       if prompt.ask then
-        require("opencode").ask(prompt.prompt, prompt)
+        require("opencode").ask(prompt.prompt, opts)
       else
-        require("opencode").prompt(prompt.prompt, prompt, callback)
+        require("opencode").prompt(prompt.prompt, opts)
       end
-    else
-      callback()
     end
   end)
 end

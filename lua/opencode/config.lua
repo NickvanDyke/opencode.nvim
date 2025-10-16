@@ -24,7 +24,7 @@ vim.g.opencode_opts = vim.g.opencode_opts
 ---@field auto_register_cmp_sources? string[]
 ---
 ---Contexts to inject into prompts, keyed by their placeholder.
----@field contexts? table<string, opencode.Context>
+---@field contexts? table<string, fun(context: opencode.Context): string|nil>
 ---
 ---Prompts to select from.
 ---@field prompts? table<string, opencode.Prompt>
@@ -53,20 +53,18 @@ local defaults = {
   port = nil,
   auto_reload = true,
   auto_register_cmp_sources = { "opencode", "buffer" },
+  -- stylua: ignore
   contexts = {
-    ["@buffer"] = { description = "Current buffer", value = require("opencode.context").buffer },
-    ["@buffers"] = { description = "Open buffers", value = require("opencode.context").buffers },
-    ["@cursor"] = { description = "Cursor position", value = require("opencode.context").cursor_position },
-    ["@selection"] = { description = "Visual selection", value = require("opencode.context").visual_selection },
-    ["@this"] = {
-      description = "Visual selection if any, else cursor position",
-      value = require("opencode.context").this,
-    },
-    ["@visible"] = { description = "Visible text", value = require("opencode.context").visible_text },
-    ["@diagnostics"] = { description = "Current buffer diagnostics", value = require("opencode.context").diagnostics },
-    ["@quickfix"] = { description = "Quickfix list", value = require("opencode.context").quickfix },
-    ["@diff"] = { description = "Git diff", value = require("opencode.context").git_diff },
-    ["@grapple"] = { description = "Grapple tags", value = require("opencode.context").grapple_tags },
+    ["@buffer"] = function(context) return context:buffer() end,
+    ["@buffers"] = function(context) return context:buffers() end,
+    ["@cursor"] = function(context) return context:cursor_position() end,
+    ["@selection"] = function(context) return context:visual_selection() end,
+    ["@this"] = function(context) return context:this() end,
+    ["@visible"] = function(context) return context:visible_text() end,
+    ["@diagnostics"] = function(context) return context:diagnostics() end,
+    ["@quickfix"] = function(context) return context:quickfix() end,
+    ["@diff"] = function(context) return context:git_diff() end,
+    ["@grapple"] = function(context) return context:grapple_tags() end,
   },
   prompts = {
     -- With an "Ask" item, the select menu can serve as the only entrypoint to all plugin-exclusive functionality, without numerous keymaps.

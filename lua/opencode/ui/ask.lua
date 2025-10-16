@@ -3,10 +3,9 @@
 local M = {}
 
 ---@param default? string Text to pre-fill the input with.
+---@param context opencode.Context
 ---@param on_confirm fun(value: string|nil, callback?: fun())
-function M.input(default, on_confirm)
-  require("opencode.context").store_mode()
-
+function M.input(default, context, on_confirm)
   ---@type snacks.input.Opts
   local input_opts = {
     default = default,
@@ -60,11 +59,9 @@ function M.input(default, on_confirm)
     },
   }
 
-  vim.ui.input(vim.tbl_deep_extend("keep", require("opencode.config").opts.input, input_opts), function(value)
-    on_confirm(value, function()
-      require("opencode.context").clear_mode()
-    end)
-  end)
+  require("opencode.cmp.blink").context = context
+
+  vim.ui.input(vim.tbl_deep_extend("keep", require("opencode.config").opts.input, input_opts), on_confirm)
 end
 
 -- FIX: Overridden by blink.cmp cmdline completion if both are enabled, and that won't have our items.

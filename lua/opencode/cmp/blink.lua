@@ -2,6 +2,9 @@
 --- @class blink.cmp.Source
 local source = {}
 
+---@type opencode.Context
+source.context = nil
+
 local is_setup = false
 
 ---@param sources string[]
@@ -59,7 +62,7 @@ function source:get_completions(ctx, callback)
       insertTextFormat = vim.lsp.protocol.InsertTextFormat.PlainText,
       documentation = {
         kind = "plaintext",
-        value = context.description .. ":\n" .. (context.value() or "nil"),
+        value = (context(source.context) or "nil"),
         ---Highlight the context value
         ---@param opts blink.cmp.CompletionDocumentationDrawOpts
         draw = function(opts)
@@ -71,9 +74,10 @@ function source:get_completions(ctx, callback)
           if not buf then
             return
           end
+          -- Highlight the context value
           local ns_id = vim.api.nvim_create_namespace("opencode_enum_highlight")
           local line_count = vim.api.nvim_buf_line_count(buf)
-          for i = 1, line_count - 1 do
+          for i = 0, line_count - 1 do
             local line = vim.api.nvim_buf_get_lines(buf, i, i + 1, false)[1] or ""
             vim.api.nvim_buf_set_extmark(buf, ns_id, i, 0, {
               end_col = #line,

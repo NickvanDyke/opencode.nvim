@@ -31,8 +31,9 @@ end
 ---@field prompt string The prompt to send to `opencode`, with placeholders for context like `@cursor`, `@buffer`, etc.
 ---@field ask? boolean Call `ask(prompt)` instead of `prompt(prompt)`. Useful for prompts that expect additional user input.
 
+---@param context opencode.Context
 ---@param on_choice fun(prompt: opencode.Prompt, callback?: fun())
-function M.select(on_choice)
+function M.select(context, on_choice)
   local prompts = require("opencode.config").opts.prompts or {}
 
   ---@type snacks.picker.finder.Item[]
@@ -49,7 +50,7 @@ function M.select(on_choice)
         end, hls),
       },
       preview = {
-        text = require("opencode.context").inject(prompt.prompt),
+        text = context:inject(prompt.prompt),
       },
     }
     table.insert(items, item)
@@ -88,14 +89,11 @@ function M.select(on_choice)
     end,
   }
 
-  require("opencode.context").store_mode()
   vim.ui.select(
     items,
     vim.tbl_deep_extend("keep", require("opencode.config").opts.select, select_opts),
     function(choice)
-      on_choice(prompts[choice and choice.name], function()
-        require("opencode.context").clear_mode()
-      end)
+      on_choice(prompts[choice and choice.name])
     end
   )
 end
