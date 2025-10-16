@@ -14,13 +14,12 @@ vim.g.opencode_opts = vim.g.opencode_opts
 ---Recommend launching `opencode` with `--port <port>` when setting this.
 ---@field port? number
 ---
----Automatically reload buffers edited by `opencode` in real-time.
+---Reload buffers edited by `opencode` in real-time.
 ---Requires `vim.opt.autoread = true`.
 ---@field auto_reload? boolean
 ---
----Completion sources to automatically register in the `ask` input with [blink.cmp](https://github.com/Saghen/blink.cmp) (if available).
+---Completion sources to automatically register in the `ask` input with [blink.cmp](https://github.com/Saghen/blink.cmp) and [snacks.input](https://github.com/folke/snacks.nvim/blob/main/docs/input.md).
 ---The `"opencode"` source offers completions and previews for contexts.
----Only possible when using [snacks.input](https://github.com/folke/snacks.nvim/blob/main/docs/input.md).
 ---@field auto_register_cmp_sources? string[]
 ---
 ---Contexts to inject into prompts, keyed by their placeholder.
@@ -29,17 +28,20 @@ vim.g.opencode_opts = vim.g.opencode_opts
 ---Prompts to select from.
 ---@field prompts? table<string, opencode.Prompt>
 ---
----Input options for `ask()` — see also [snacks.input](https://github.com/folke/snacks.nvim/blob/main/docs/input.md) (if enabled).
+---Input options for `ask()`.
+---Supports [snacks.input](https://github.com/folke/snacks.nvim/blob/main/docs/input.md).
 ---@field input? snacks.input.Opts
 ---
----Select options for `select()` — see also [snacks.picker](https://github.com/folke/snacks.nvim/blob/main/docs/picker.md) (if enabled).
+---Select options for `select()`.
+---Supports [snacks.picker](https://github.com/folke/snacks.nvim/blob/main/docs/picker.md).
 ---@field select? snacks.picker.ui_select.Opts
 ---
----Embedded terminal options for `toggle()` — see also [snacks.terminal](https://github.com/folke/snacks.nvim/blob/main/docs/terminal.md).
+---Embedded terminal options for `toggle()`.
+---Supports [snacks.terminal](https://github.com/folke/snacks.nvim/blob/main/docs/terminal.md).
 ---@field terminal? opencode.Opts.terminal
 ---
----Called when no `opencode` process is found.
----After calling this function, `opencode.nvim` will poll for a couple seconds to see if a process appears.
+---Called when no `opencode` process is found so you can start it.
+---After calling this function, `opencode.nvim` will poll for a couple seconds to see if an `opencode` process appears.
 ---By default, opens an embedded terminal using [snacks.terminal](https://github.com/folke/snacks.nvim/blob/main/docs/terminal.md) (if available).
 ---But you could also e.g. call your own terminal plugin, launch an external `opencode`, or no-op.
 ---@field on_opencode_not_found? fun()
