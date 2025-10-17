@@ -51,11 +51,6 @@ https://github.com/user-attachments/assets/4dd19151-89e4-4272-abac-6710dbc6edc1
 }
 ```
 
-> [!WARNING]
-> Using `vim.g.opencode_opts` does not work when the values are metatables or tables with mixed integer and string keys
-> (which may be relevant for some `snacks` options). In that case you may use the `require("opencode.config").opts`
-> table directly instead. See [issue #36](https://github.com/NickvanDyke/opencode.nvim/issues/36).
-
 <details>
 <summary><a href="https://github.com/nix-community/nixvim">nixvim</a></summary>
 

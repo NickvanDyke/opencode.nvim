@@ -4,6 +4,10 @@ local M = {}
 
 ---Your `opencode.nvim` configuration.
 ---Passed via global variable for [simpler UX and faster startup](https://mrcjkb.dev/posts/2023-08-22-setup.html).
+---
+---Note that using `vim.g.opencode_opts` does not work when the values are metatables or tables with mixed integer and
+---string keys (which may be relevant for some `snacks` options). In that case you may use the
+---`require("opencode.config").opts` table directly instead. See [issue #36](https://github.com/NickvanDyke/opencode.nvim/issues/36).
 ---@type opencode.Opts|nil
 vim.g.opencode_opts = vim.g.opencode_opts
 
