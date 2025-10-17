@@ -4,6 +4,10 @@ local M = {}
 
 ---Your `opencode.nvim` configuration.
 ---Passed via global variable for [simpler UX and faster startup](https://mrcjkb.dev/posts/2023-08-22-setup.html).
+---
+---Note that Neovim does not yet support metatables or mixed integer and string keys in `vim.g`, affecting some `snacks.nvim` options.
+---In that case you may modify `require("opencode.config").opts` directly.
+---See [opencode.nvim #36](https://github.com/NickvanDyke/opencode.nvim/issues/36) and [neovim #12544](https://github.com/neovim/neovim/issues/12544#issuecomment-1116794687).
 ---@type opencode.Opts|nil
 vim.g.opencode_opts = vim.g.opencode_opts
 
