@@ -66,7 +66,7 @@ programs.nixvim = {
 
 ## ⚙️ Configuration
 
-`opencode.nvim` provides a rich and reliable default experience — see all available options and their defaults [here](./lua/opencode/config.lua#L54).
+`opencode.nvim` provides a rich and reliable default experience — see all available options and their defaults [here](./lua/opencode/config.lua).
 
 ## 🚀 Usage
 
