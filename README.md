@@ -72,7 +72,7 @@ programs.nixvim = {
 
 ### 🗣️ Prompt — `require("opencode").prompt()` | `:[range]OpencodePrompt`
 
-Send a prompt. The main entrypoint — build on it!
+Send a prompt.
 
 Replaces placeholders with the corresponding [contexts](lua/opencode/config.lua#L53):
 
@@ -114,8 +114,8 @@ Select from [prompts](lua/opencode/config.lua#68) to review, explain, and improv
 | `diagnostics` | Explain `@diagnostics`                                            |
 | `fix`         | Fix `@diagnostics`                                                |
 | `diff`        | Review the following git diff for correctness and readability: `@diff`         |
-| `add_buffer`  | `@buffer`                                                         |
-| `add_this`    | `@this`                                                           |
+| `buffer`  | `@buffer`                                                         |
+| `this`    | `@this`                                                           |
 
 > [!TIP]
 > Create keymaps for your favorite prompts:
