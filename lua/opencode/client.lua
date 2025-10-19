@@ -110,7 +110,7 @@ end
 ---Call an opencode server endpoint.
 ---@param port number
 ---@param path string
----@param method string
+---@param method "GET"|"POST"
 ---@param body table|nil
 ---@param callback fun(response: table)|nil
 ---@param is_sse boolean|nil
@@ -177,6 +177,17 @@ end
 ---@param callback fun(session: table)
 function M.create_session(port, callback)
   M.call(port, "/session", "POST", vim.empty_dict(), callback)
+end
+
+---@param port number
+---@param session number
+---@param permission number
+---@param response "once"|"always"|"reject"
+---@param callback? fun(session: table)
+function M.permit(port, session, permission, response, callback)
+  M.call(port, "/session/" .. session .. "/permissions/" .. permission, "POST", {
+    response = response,
+  }, callback)
 end
 
 ---Calls the `/event` SSE endpoint and invokes `callback` for each event received.

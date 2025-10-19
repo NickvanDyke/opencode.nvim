@@ -33,7 +33,11 @@ vim.api.nvim_create_autocmd("User", {
   group = vim.api.nvim_create_augroup("OpencodeAutoReload", { clear = true }),
   pattern = "OpencodeEvent",
   callback = function(args)
-    if args.data.type == "file.edited" and require("opencode.config").opts.auto_reload then
+    local event = args.data.event
+    ---@type number
+    local port = args.data.port
+
+    if event.type == "file.edited" and require("opencode.config").opts.auto_reload then
       if not vim.o.autoread then
         -- Unfortunately `autoread` is kinda necessary, for `:checktime`.
         -- Alternatively we could `:edit!` but that would lose any unsaved changes.
@@ -49,6 +53,42 @@ vim.api.nvim_create_autocmd("User", {
           vim.cmd("checktime")
         end)
       end
+    end
+
+    if event.type == "permission.updated" then
+      --[[
+      --{
+        callID = "call_UgJGOepAJ5vQ7rkfGI5LNTaQ",
+        id = "per_9fe806323001XBhIAz9OrYTrgl",
+        messageID = "msg_9fe805f7700166572ZsmpxllBH",
+        metadata = {
+          command = "ls",
+          patterns = { "ls *" }
+        },
+        pattern = { "ls *" },
+        sessionID = "ses_60196b60affeVgP0AqbqjvORtu",
+        time = {
+          created = 1760911450915
+        },
+        title = "ls",
+        type = "bash"
+      }
+      --]]
+      vim.ui.select({ "Once", "Always", "Reject" }, {
+        prompt = 'opencode requested permission: "' .. event.properties.metadata.command .. '": ',
+        format_item = function(item)
+          return item
+        end,
+      }, function(choice)
+        if choice then
+          local session_id = event.properties.sessionID
+          local permission_id = event.properties.id
+          require("opencode.client").permit(port, session_id, permission_id, choice:lower())
+        end
+      end)
+    elseif event.type == "permission.replied" then
+      -- TODO: Close above select if user responded in TUI. Not possible w/ default...
+      -- We could prompt for approval only if it originated from a `prompt()`?
     end
   end,
   desc = "Reload buffers edited by `opencode`",

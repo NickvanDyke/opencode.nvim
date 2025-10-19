@@ -61,7 +61,10 @@ function M.prompt(prompt, opts, callback)
           require("opencode.client").listen_to_sse(port, function(response)
             vim.api.nvim_exec_autocmds("User", {
               pattern = "OpencodeEvent",
-              data = response,
+              data = {
+                event = response,
+                port = port,
+              },
             })
           end)
 
