@@ -31,13 +31,13 @@ https://github.com/user-attachments/assets/4dd19151-89e4-4272-abac-6710dbc6edc1
   },
   config = function()
     vim.g.opencode_opts = {
-      -- Your configuration, if any — see `lua/opencode/config.lua`
+      -- Your configuration, if any — see `lua/opencode/config.lua`, or "goto definition" on `opencode_opts`.
     }
 
-    -- Required for `vim.g.opencode_opts.auto_reload`
-    vim.opt.autoread = true
+    -- Required for `vim.g.opencode_opts.auto_reload`.
+    vim.o.autoread = true
 
-    -- Recommended/example keymaps
+    -- Recommended/example keymaps.
     vim.keymap.set({ "n", "x" }, "<leader>oa", function() require("opencode").ask("@this: ", { submit = true }) end, { desc = "Ask about this" })
     vim.keymap.set({ "n", "x" }, "<leader>os", function() require("opencode").select() end, { desc = "Select prompt" })
     vim.keymap.set({ "n", "x" }, "<leader>o+", function() require("opencode").prompt("@this") end, { desc = "Add this" })

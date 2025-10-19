@@ -38,7 +38,7 @@ vim.api.nvim_create_autocmd("User", {
         -- Unfortunately `autoread` is kinda necessary, for `:checktime`.
         -- Alternatively we could `:edit!` but that would lose any unsaved changes.
         vim.notify(
-          "Please set `vim.opt.autoread = true` to use `opencode.nvim` auto-reload, or disable `vim.g.opencode_opts.auto_reload`",
+          "Please set `vim.o.autoread = true` to use `opencode.nvim` auto-reload, or set `vim.g.opencode_opts.auto_reload = false`",
           vim.log.levels.WARN,
           { title = "opencode" }
         )

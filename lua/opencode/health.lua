@@ -36,7 +36,9 @@ function M.check()
       )
     end
   else
-    vim.health.error("`opencode` executable not found in `$PATH`.")
+    vim.health.error("`opencode` executable not found in `$PATH`.", {
+      "Install `opencode` and ensure it's in your `$PATH`.",
+    })
   end
 
   if vim.fn.executable("lsof") == 1 then
@@ -47,6 +49,15 @@ function M.check()
     vim.health.warn(
       "`lsof` executable not found in `$PATH`.",
       { "Install `lsof` and ensure it's in your `$PATH`, or set `vim.g.opencode_opts.port`." }
+    )
+  end
+
+  if require("opencode.config").opts.auto_reload and not vim.o.autoread then
+    vim.health.warn(
+      "`vim.g.opencode_opts.auto_reload = true` but `vim.o.autoread = false`: files edited by `opencode` won't be automatically reloaded in real-time.",
+      {
+        "Set `vim.o.autoread = true` or `vim.g.opencode_opts.auto_reload = false`",
+      }
     )
   end
 end

@@ -19,7 +19,7 @@ vim.g.opencode_opts = vim.g.opencode_opts
 ---@field port? number
 ---
 ---Reload buffers edited by `opencode` in real-time.
----Requires `vim.opt.autoread = true`.
+---Requires `vim.o.autoread = true`.
 ---@field auto_reload? boolean
 ---
 ---Completion sources to automatically register in the `ask` input with [blink.cmp](https://github.com/Saghen/blink.cmp) and [snacks.input](https://github.com/folke/snacks.nvim/blob/main/docs/input.md).
