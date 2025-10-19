@@ -32,8 +32,7 @@ body:
       required: true
   - type: input
     attributes:
-      label: "Opencode version (opencode -v)"
-      placeholder: "0.4.1"
+      label: "`:checkhealth opencode` output"
     validations:
       required: true
   - type: textarea

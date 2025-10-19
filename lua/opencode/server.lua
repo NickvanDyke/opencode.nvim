@@ -25,7 +25,7 @@ local function find_servers()
   if vim.fn.executable("lsof") == 0 then
     -- lsof is a common utility to list open files and ports, but not always available by default.
     error(
-      "`lsof` command is not available — please install it to auto-find `opencode`, or set `vim.g.opencode_opts.port`",
+      "`lsof` executable not found in `PATH` to auto-find `opencode` — please install it or set `vim.g.opencode_opts.port`",
       0
     )
   end

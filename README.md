@@ -4,7 +4,7 @@ Integrate the [opencode](https://github.com/sst/opencode) AI assistant with Neov
 
 https://github.com/user-attachments/assets/4dd19151-89e4-4272-abac-6710dbc6edc1
 
-> Uses `opencode`'s currently undocumented [API](https://github.com/sst/opencode/blob/dev/packages/opencode/src/server/server.ts) — latest tested version: `v0.14.7`
+> Uses `opencode`'s currently undocumented [API](https://github.com/sst/opencode/blob/dev/packages/opencode/src/server/server.ts) — latest tested version: `v0.15.8`.
 
 ## ✨ Features
 
@@ -63,6 +63,9 @@ programs.nixvim = {
 };
 ```
 </details>
+
+> [!TIP]
+> Run `:checkhealth opencode` after installation.
 
 ## ⚙️ Configuration
 
@@ -144,7 +147,7 @@ Send a [command](https://opencode.ai/docs/keybinds):
 | `messages_last`           | Jump to the last message in the session                  |
 | `agent_cycle`             | Cycle the selected agent                                 |
 
-> Supports *all* commands — these are just the most useful ones
+> Supports *all* commands — these are just the most useful ones.
 
 ### 💻 Toggle — `require("opencode").toggle()`
 
