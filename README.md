@@ -4,8 +4,6 @@ Integrate the [opencode](https://github.com/sst/opencode) AI assistant with Neov
 
 https://github.com/user-attachments/assets/4dd19151-89e4-4272-abac-6710dbc6edc1
 
-> Uses `opencode`'s currently undocumented [API](https://github.com/sst/opencode/blob/dev/packages/opencode/src/server/server.ts) — latest tested version: `v0.15.8`.
-
 ## ✨ Features
 
 - Auto-connect to *any* `opencode` inside Neovim's CWD, or toggle an embedded instance.

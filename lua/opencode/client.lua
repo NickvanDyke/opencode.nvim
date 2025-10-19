@@ -1,4 +1,6 @@
----Calls the opencode [server](https://github.com/sst/opencode/blob/dev/packages/opencode/src/server/server.ts).
+---Call the `opencode` server.
+--- - [docs](https://opencode.ai/docs/server/#apis)
+--- - [implementation](https://github.com/sst/opencode/blob/dev/packages/opencode/src/server/server.ts)
 local M = {}
 
 local sse_state = {
