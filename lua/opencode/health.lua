@@ -1,24 +1,10 @@
 local M = {}
 
+local external_instructions =
+  "Or launch `opencode` with your own method and optionally override `vim.g.opencode_opts.on_opencode_not_found` and `vim.g.opencode_opts.on_send` for convenience, then use `opencode.nvim` normally."
+
 function M.check()
   vim.health.start("opencode.nvim")
-
-  local snacks_ok, snacks = pcall(require, "snacks")
-  if snacks_ok then
-    vim.health.ok("`snacks.nvim` is available.")
-    if snacks.input and snacks.config.get("input", {}) ~= false then
-      vim.health.ok("`snacks.input` is enabled: `ask()` will be enhanced.")
-    else
-      vim.health.warn("`snacks.input` is disabled: `ask()` will not be enhanced.")
-    end
-    if snacks.picker and snacks.config.get("picker", {}).enabled ~= false then
-      vim.health.ok("`snacks.picker` is enabled: `select()` will be enhanced.")
-    else
-      vim.health.warn("`snacks.picker` is disabled: `select()` will not be enhanced.")
-    end
-  else
-    vim.health.warn("`snacks.nvim` is not available to enhance `ask()` and `select()`.")
-  end
 
   if vim.fn.executable("opencode") == 1 then
     local found_version = vim.fn.system("opencode --version")
@@ -48,17 +34,54 @@ function M.check()
   else
     vim.health.warn(
       "`lsof` executable not found in `$PATH`.",
-      { "Install `lsof` and ensure it's in your `$PATH`, or set `vim.g.opencode_opts.port`." }
+      { "Install `lsof` and ensure it's in your `$PATH`", "Or set `vim.g.opencode_opts.port`." }
     )
   end
 
   if require("opencode.config").opts.auto_reload and not vim.o.autoread then
     vim.health.warn(
-      "`vim.g.opencode_opts.auto_reload = true` but `vim.o.autoread = false`: files edited by `opencode` won't be automatically reloaded in real-time.",
+      "`vim.g.opencode_opts.auto_reload = true` but `vim.o.autoread = false`: files edited by `opencode` won't be automatically reloaded in buffers.",
       {
-        "Set `vim.o.autoread = true` or `vim.g.opencode_opts.auto_reload = false`",
+        "Set `vim.o.autoread = true`",
+        "Or set `vim.g.opencode_opts.auto_reload = false`",
       }
     )
+  end
+
+  vim.health.start("opencode.nvim [snacks]")
+
+  local snacks_ok, snacks = pcall(require, "snacks")
+  if snacks_ok then
+    if snacks.input and snacks.config.get("input", {}) ~= false then
+      vim.health.ok("`snacks.input` is enabled: `ask()` will be enhanced.")
+      local blink_ok = pcall(require, "blink.cmp")
+      if blink_ok then
+        vim.health.ok(
+          "`blink.cmp` is available: `vim.g.opencode_opts.auto_register_cmp_sources` will be registered in `ask()`."
+        )
+      end
+    else
+      vim.health.warn("`snacks.input` is disabled: `ask()` will not be enhanced.")
+    end
+    if snacks.picker and snacks.config.get("picker", {}).enabled ~= false then
+      vim.health.ok("`snacks.picker` is enabled: `select()` will be enhanced.")
+    else
+      vim.health.warn("`snacks.picker` is disabled: `select()` will not be enhanced.")
+    end
+    if snacks.picker and snacks.config.get("terminal", {}).enabled ~= false then
+      vim.health.ok("`snacks.terminal` is enabled: `toggle()` is available.")
+    else
+      vim.health.warn("`snacks.terminal` is disabled: `toggle()` is not available.", {
+        "Enable `snacks.terminal`",
+        external_instructions,
+      })
+    end
+  else
+    vim.health.warn("`snacks.nvim` is not available: `ask()` and `select()` will not be enhanced.")
+    vim.health.warn("`snacks.nvim` is not available: `toggle()` will not be available.", {
+      "Install `snacks.nvim`",
+      external_instructions,
+    })
   end
 end
 
