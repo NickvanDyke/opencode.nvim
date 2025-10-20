@@ -93,6 +93,9 @@ end
 ---| 'messages_half_page_down'
 ---| 'messages_first'
 ---| 'messages_last'
+---| 'messages_copy'
+---| 'messages_undo'
+---| 'messages_redo'
 ---| 'agent_cycle'
 
 ---Send a [command](https://opencode.ai/docs/keybinds) to `opencode`.
@@ -114,6 +117,9 @@ function M.command(command, callback)
           { name = "Messages half page down", command = "messages_half_page_down" },
           { name = "Messages first", command = "messages_first" },
           { name = "Messages last", command = "messages_last" },
+          { name = "Copy last message", command = "messages_copy" },
+          { name = "Undo last message", command = "messages_undo" },
+          { name = "Redo last message", command = "messages_redo" },
           { name = "Cycle agent", command = "agent_cycle" },
         }, {
           prompt = "Command opencode: ",

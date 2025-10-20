@@ -144,6 +144,9 @@ Send a [command](https://opencode.ai/docs/keybinds):
 | `messages_half_page_down` | Scroll messages down by half a page                      |
 | `messages_first`          | Jump to the first message in the session                 |
 | `messages_last`           | Jump to the last message in the session                  |
+| `messages_copy`           | Copy the last message in the session                     |
+| `messages_undo`           | Undo the last message in the session                     |
+| `messages_redo`           | Redo the last message in the session                     |
 | `agent_cycle`             | Cycle the selected agent                                 |
 
 > Supports *all* commands — these are just the most useful ones.
