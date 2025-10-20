@@ -48,6 +48,12 @@ function M.check()
     )
   end
 
+  if vim.g.opencode_opts then
+    vim.health.ok("`vim.g.opencode_opts` is " .. vim.inspect(vim.g.opencode_opts))
+  else
+    vim.health.warn("`vim.g.opencode_opts` is `nil`")
+  end
+
   vim.health.start("opencode.nvim [snacks]")
 
   local snacks_ok, snacks = pcall(require, "snacks")
