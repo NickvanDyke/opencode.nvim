@@ -103,8 +103,8 @@ local defaults = {
     picker = {
       preview = "preview",
       layout = {
-        ---@diagnostic disable-next-line: assign-type-mismatch
-        preview = true,
+        -- Override default hiding of preview in `vim.ui.select`
+        hidden = {},
       },
     },
   },
