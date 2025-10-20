@@ -9,7 +9,9 @@ function M.input(default, context, on_confirm)
   ---@type snacks.input.Opts
   local input_opts = {
     default = default,
-    highlight = require("opencode.ui.highlight").highlight,
+    highlight = function(text)
+      return require("opencode.util").snacks_texts_to_input_highlights(context:render(text).input)
+    end,
     completion = "customlist,v:lua.opencode_completion",
     -- snacks-only options
     win = {

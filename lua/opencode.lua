@@ -51,8 +51,9 @@ function M.prompt(prompt, opts, callback)
         end
       end,
       function(next)
-        prompt = opts.context:inject(prompt)
-        require("opencode.cli.client").tui_append_prompt(prompt, port, next)
+        local rendered = opts.context:render(prompt)
+        local plaintext = opts.context.plaintext(rendered.output)
+        require("opencode.cli.client").tui_append_prompt(plaintext, port, next)
       end,
       function(next)
         if opts.submit then

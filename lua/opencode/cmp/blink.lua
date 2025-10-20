@@ -52,7 +52,7 @@ function source:get_completions(ctx, callback)
   -- https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#completionItem
   --- @type lsp.CompletionItem[]
   local items = {}
-  for placeholder, context in pairs(require("opencode.config").opts.contexts) do
+  for placeholder in pairs(require("opencode.config").opts.contexts) do
     --- @type lsp.CompletionItem
     local item = {
       label = placeholder,
@@ -60,32 +60,6 @@ function source:get_completions(ctx, callback)
       filterText = placeholder,
       insertText = placeholder,
       insertTextFormat = vim.lsp.protocol.InsertTextFormat.PlainText,
-      documentation = {
-        kind = "plaintext",
-        value = (context(source.context) or "nil"),
-        ---Highlight the context value
-        ---@param opts blink.cmp.CompletionDocumentationDrawOpts
-        draw = function(opts)
-          opts.default_implementation({
-            kind = "plaintext",
-            value = opts.item.documentation.value,
-          })
-          local buf = opts.window.buf
-          if not buf then
-            return
-          end
-          -- Highlight the context value
-          local ns_id = vim.api.nvim_create_namespace("opencode_enum_highlight")
-          local line_count = vim.api.nvim_buf_line_count(buf)
-          for i = 0, line_count - 1 do
-            local line = vim.api.nvim_buf_get_lines(buf, i, i + 1, false)[1] or ""
-            vim.api.nvim_buf_set_extmark(buf, ns_id, i, 0, {
-              end_col = #line,
-              hl_group = "@lsp.type.string",
-            })
-          end
-        end,
-      },
 
       -- There are some other fields you may want to explore which are blink.cmp
       -- specific, such as `score_offset` (blink.cmp.CompletionItem)
@@ -118,15 +92,39 @@ function source:get_completions(ctx, callback)
   return function() end
 end
 
--- function source:resolve(item, callback)
---   item = vim.deepcopy(item)
---   local context = require("opencode.config").opts.contexts[item.label]
---
---   -- Newspaces after and before the triple backticks in case the context value starts or ends with backticks.
---   -- Adds unnecessary empty lines though...
---   -- item.documentation.value = item.documentation.value .. ":\n" .. "```\n" .. (context.value() or "nil") .. "\n```"
---
---   callback(item)
--- end
+function source:resolve(item, callback)
+  item = vim.deepcopy(item)
+  local rendered = source.context:render(item.label)
+
+  -- Newspaces after and before the triple backticks in case the context value starts or ends with backticks.
+  -- Adds unnecessary empty lines though...
+  item.documentation = {
+    kind = "plaintext",
+    value = source.context.plaintext(rendered.output),
+    ---@param opts blink.cmp.CompletionDocumentationDrawOpts
+    draw = function(opts)
+      local buf = opts.window.buf
+      if not buf then
+        return
+      end
+
+      opts.default_implementation({
+        kind = "plaintext",
+        value = opts.item.documentation.value,
+      })
+
+      local extmarks = require("opencode.util").snacks_texts_to_extmarks(rendered.output)
+      local ns_id = vim.api.nvim_create_namespace("opencode_enum_highlight")
+      for _, extmark in ipairs(extmarks) do
+        vim.api.nvim_buf_set_extmark(buf, ns_id, (extmark.row or 1) - 1, extmark.col, {
+          end_col = extmark.end_col,
+          hl_group = extmark.hl_group,
+        })
+      end
+    end,
+  }
+
+  callback(item)
+end
 
 return source

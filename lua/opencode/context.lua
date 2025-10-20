@@ -1,3 +1,5 @@
+---@module 'snacks.picker'
+
 ---The context a prompt is being made in.
 ---Particularly useful when inputting or selecting a prompt
 ---because those change the active mode, window, etc.
@@ -66,20 +68,69 @@ function Context.new()
   return self
 end
 
----Inject `opts.contexts` into `prompt`.
+---Render `opts.contexts` in `prompt`.
 ---@param prompt string
-function Context:inject(prompt)
+---@return { input: snacks.picker.Text[], output: snacks.picker.Text[] }
+function Context:render(prompt)
   local contexts = require("opencode.config").opts.contexts or {}
   local placeholders = vim.tbl_keys(contexts)
   table.sort(placeholders, function(a, b)
-    return #a > #b
+    return #a > #b -- longest first, in case some overlap
   end)
-  for _, placeholder in ipairs(placeholders) do
-    prompt = prompt:gsub(placeholder, function()
-      return contexts[placeholder](self) or placeholder
-    end)
+
+  local input, output = {}, {}
+  local i = 1
+  while i <= #prompt do
+    -- Find the next placeholder and its position
+    local next_pos, next_placeholder = #prompt + 1, nil
+    for _, placeholder in ipairs(placeholders) do
+      local pos = prompt:find(placeholder, i, true)
+      if pos and pos < next_pos then
+        next_pos = pos
+        next_placeholder = placeholder
+      end
+    end
+
+    -- Add plain text before the next placeholder
+    local text = prompt:sub(i, next_pos - 1)
+    if #text > 0 then
+      table.insert(input, { text })
+      table.insert(output, { text })
+    end
+
+    -- If a placeholder is found, add it and its value
+    if next_placeholder then
+      table.insert(input, { next_placeholder, "OpencodeContextPlaceholder" })
+      local value = contexts[next_placeholder](self)
+      if value then
+        table.insert(output, { value, "OpencodeContextValue" })
+      else
+        table.insert(output, { next_placeholder, "OpencodeContextPlaceholder" })
+      end
+      i = next_pos + #next_placeholder
+    else
+      -- No more placeholders, break
+      break
+    end
   end
-  return prompt
+
+  return {
+    input = input,
+    output = output,
+  }
+end
+
+---Convert rendered context to plaintext.
+---@param rendered snacks.picker.Text[]
+---@return string
+function Context.plaintext(rendered)
+  return table.concat(vim.tbl_map(
+    ---@param part snacks.picker.Text
+    function(part)
+      return part[1]
+    end,
+    rendered
+  ))
 end
 
 ---Format a location for `opencode`.
