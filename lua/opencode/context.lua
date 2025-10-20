@@ -40,7 +40,7 @@ local function selection(buf)
     return nil
   end
 
-  vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<esc>", true, false, true), "x", true)
+  require("opencode.util").exit_visual_mode()
 
   local from = vim.api.nvim_buf_get_mark(buf, "<")
   local to = vim.api.nvim_buf_get_mark(buf, ">")
@@ -82,9 +82,10 @@ function Context:inject(prompt)
   return prompt
 end
 
----Format a location for `opencode`, e.g.:
----`@opencode.lua L21:C10-L65:11
-function Context.format_location(args)
+---Format a location for `opencode`.
+---e.g. `@opencode.lua L21:C10-L65:C11`
+---@param args { buf?: integer, path?: string, start_line?: integer, start_col?: integer, end_line?: integer, end_col?: integer }
+function Context.format(args)
   assert(args.buf or args.path, "Must provide either `buf` or `path`")
   if args.buf and not is_buf_valid(args.buf) then
     return nil
@@ -126,7 +127,7 @@ end
 
 ---The current buffer.
 function Context:buffer()
-  return Context.format_location({
+  return Context.format({
     buf = self.buf,
   })
 end
@@ -135,7 +136,7 @@ end
 function Context:buffers()
   local file_list = {}
   for _, buf in ipairs(vim.api.nvim_list_bufs()) do
-    local path = Context.format_location({ buf = buf })
+    local path = Context.format({ buf = buf })
     if path then
       table.insert(file_list, path)
     end
@@ -147,7 +148,7 @@ function Context:buffers()
 end
 
 function Context:cursor_position()
-  return Context.format_location({
+  return Context.format({
     buf = self.buf,
     start_line = self.row,
     start_col = self.col,
@@ -158,7 +159,7 @@ function Context:visual_selection()
   if not self.range then
     return nil
   end
-  return Context.format_location({
+  return Context.format({
     buf = self.buf,
     start_line = self.range.from[1],
     start_col = (self.range.kind ~= "line") and self.range.from[2] or nil,
@@ -176,7 +177,7 @@ function Context:visible_text()
     local end_line = vim.fn.line("w$", win)
     table.insert(
       visible,
-      Context.format_location({
+      Context.format({
         buf = buf,
         start_line = start_line,
         end_line = end_line,
@@ -201,7 +202,7 @@ function Context:diagnostics()
       diagnostic_strings,
       string.format(
         "%s (%s): %s",
-        Context.format_location({
+        Context.format({
           buf = self.buf,
           start_line = diagnostic.lnum + 1,
           start_col = diagnostic.col + 1,
@@ -232,7 +233,7 @@ function Context:quickfix()
     if has_buf then
       table.insert(
         lines,
-        Context.format_location({
+        Context.format({
           buf = entry.bufnr,
           start_line = entry.lnum,
           start_col = entry.col,
@@ -269,7 +270,7 @@ function Context:grapple_tags()
   end
   local paths = {}
   for _, tag in ipairs(tags) do
-    table.insert(paths, Context.format_location({ path = tag.path }))
+    table.insert(paths, Context.format({ path = tag.path }))
   end
   return table.concat(paths, " ")
 end

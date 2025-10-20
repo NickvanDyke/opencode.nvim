@@ -2,7 +2,7 @@ local M = {}
 
 ---@param callback fun(port: number)
 local function get_port(callback)
-  require("opencode.server").get_port(function(ok, result)
+  require("opencode.cli.server").get_port(function(ok, result)
     if ok then
       callback(result)
     else
@@ -42,23 +42,23 @@ function M.prompt(prompt, opts, callback)
       vim.notify("Error in `vim.g.opencode_opts.on_send`: " .. on_send_err, vim.log.levels.WARN, { title = "opencode" })
     end
 
-    require("opencode.async").chain_async({
+    require("opencode.util").chain({
       function(next)
         if opts.clear then
-          require("opencode.client").tui_clear_prompt(port, next)
+          require("opencode.cli.client").tui_clear_prompt(port, next)
         else
           next()
         end
       end,
       function(next)
         prompt = opts.context:inject(prompt)
-        require("opencode.client").tui_append_prompt(prompt, port, next)
+        require("opencode.cli.client").tui_append_prompt(prompt, port, next)
       end,
       function(next)
         if opts.submit then
           -- WARNING: If user never prompts opencode via the plugin, we'll never receive SSEs.
           -- Could register in `/plugin` and even periodically check, but is it worth the complexity and performance hit?
-          require("opencode.client").listen_to_sse(port, function(response)
+          require("opencode.cli.client").listen_to_sse(port, function(response)
             vim.api.nvim_exec_autocmds("User", {
               pattern = "OpencodeEvent",
               data = {
@@ -68,7 +68,7 @@ function M.prompt(prompt, opts, callback)
             })
           end)
 
-          require("opencode.client").tui_submit_prompt(port, next)
+          require("opencode.cli.client").tui_submit_prompt(port, next)
         else
           next()
         end
@@ -103,7 +103,7 @@ end
 ---@param command opencode.Command|string|nil The command to send to `opencode`. If `nil`, opens `vim.ui.select` to choose a command.
 ---@param callback fun(response: table)|nil
 function M.command(command, callback)
-  require("opencode.async").chain_async({
+  require("opencode.util").chain({
     function(next)
       if not command then
         vim.ui.select({
@@ -151,7 +151,7 @@ function M.command(command, callback)
         end
 
         ---@cast command opencode.Command|string
-        require("opencode.client").tui_execute_command(command, port, callback)
+        require("opencode.cli.client").tui_execute_command(command, port, callback)
       end)
     end,
   })

@@ -37,7 +37,7 @@ vim.api.nvim_create_autocmd("User", {
         if choice then
           local session_id = event.properties.sessionID
           local permission_id = event.properties.id
-          require("opencode.client").permit(port, session_id, permission_id, choice:lower())
+          require("opencode.cli.client").permit(port, session_id, permission_id, choice:lower())
         end
       end)
     elseif event.type == "permission.replied" and is_permission_request_open then
