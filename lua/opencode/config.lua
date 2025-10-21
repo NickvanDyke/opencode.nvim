@@ -164,4 +164,11 @@ for _, field in ipairs({ "prompts", "contexts" }) do
   end
 end
 
+local base_cmd = M.opts.terminal.cmd
+local has_port = base_cmd:find("--port")
+
+if not has_port and M.opts.port ~= nil then
+  M.opts.terminal.cmd = base_cmd .. " --port " .. tostring(M.opts.port)
+end
+
 return M
