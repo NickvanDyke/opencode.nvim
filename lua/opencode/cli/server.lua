@@ -142,12 +142,15 @@ local function poll_for_port(fn, callback)
 end
 
 ---Test if an opencode process is responding on the given port.
----Uses `curl` for better availability than `lsof`.
 ---@param port number
 ---@return number
 local function test_port(port)
-  vim.cmd("silent !curl -s http://localhost:" .. port)
-  return vim.v.shell_error == 0 and port or error("Couldn't find an `opencode` process on port: " .. port, 0)
+  local ok, chan = pcall(vim.fn.sockconnect, "tcp", ("%s:%d"):format("localhost", port), { rpc = false, timeout = 200 })
+  if ok and chan > 0 then
+    pcall(vim.fn.chanclose, chan)
+    return port
+  end
+  error(("Couldn't find a process listening on port: %d"):format(port), 0)
 end
 
 ---Attempt to get the `opencode` server's port. Tries, in order:
