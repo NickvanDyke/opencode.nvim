@@ -114,6 +114,7 @@ function Context:render(prompt)
     end
   end
 
+  -- TODO: Make `output` a 2D array of lines, for more obvious multi-line rendering?
   return {
     input = input,
     output = output,
@@ -131,6 +132,39 @@ function Context.plaintext(rendered)
     end,
     rendered
   ))
+end
+
+---Convert rendered context to extmarks.
+---Handles multiline parts.
+---@param rendered snacks.picker.Text[]
+---@return snacks.picker.Extmark[]
+function Context.extmarks(rendered)
+  local row = 1
+  local col = 1
+  local extmarks = {}
+  for _, part in ipairs(rendered) do
+    local part_text = part[1]
+    local part_hl = part[2] or nil
+    local segments = vim.split(part_text, "\n", { plain = true })
+    for i, segment in ipairs(segments) do
+      if i > 1 then
+        row = row + 1
+        col = 1
+      end
+      ---@type snacks.picker.Extmark
+      if part_hl then
+        local extmark = {
+          row = row,
+          col = col - 1,
+          end_col = col + #segment - 1,
+          hl_group = part_hl,
+        }
+        table.insert(extmarks, extmark)
+      end
+      col = col + #segment
+    end
+  end
+  return extmarks
 end
 
 ---Format a location for `opencode`.

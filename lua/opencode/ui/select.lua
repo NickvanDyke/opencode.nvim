@@ -19,10 +19,10 @@ function M.select(context, on_choice)
     local item = {
       name = name,
       text = prompt.prompt,
-      highlights = rendered.input,
+      highlights = rendered.input, -- `snacks.picker`'s `select` seems to ignore this, so we incorporate it ourselves in `format_item`
       preview = {
         text = context.plaintext(rendered.output),
-        extmarks = require("opencode.util").snacks_texts_to_extmarks(rendered.output),
+        extmarks = context.extmarks(rendered.output),
       },
     }
     table.insert(items, item)

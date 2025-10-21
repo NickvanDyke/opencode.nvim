@@ -113,7 +113,7 @@ function source:resolve(item, callback)
         value = opts.item.documentation.value,
       })
 
-      local extmarks = require("opencode.util").snacks_texts_to_extmarks(rendered.output)
+      local extmarks = source.context.extmarks(rendered.output)
       local ns_id = vim.api.nvim_create_namespace("opencode_enum_highlight")
       for _, extmark in ipairs(extmarks) do
         vim.api.nvim_buf_set_extmark(buf, ns_id, (extmark.row or 1) - 1, extmark.col, {

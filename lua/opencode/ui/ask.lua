@@ -10,7 +10,11 @@ function M.input(default, context, on_confirm)
   local input_opts = {
     default = default,
     highlight = function(text)
-      return require("opencode.util").snacks_texts_to_input_highlights(context:render(text).input)
+      local rendered = context:render(text)
+      -- Transform to `:help input()-highlight` format
+      return vim.tbl_map(function(extmark)
+        return { extmark.col, extmark.end_col, extmark.hl_group }
+      end, context.extmarks(rendered.input))
     end,
     completion = "customlist,v:lua.opencode_completion",
     -- snacks-only options
