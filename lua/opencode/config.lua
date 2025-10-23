@@ -92,7 +92,7 @@ local defaults = {
   input = {
     prompt = "Ask opencode: ",
     -- `snacks.input`-only options
-    icon = "󱚣",
+    icon = "󱚣 ",
     win = {
       title_pos = "left",
       relative = "cursor",
@@ -102,11 +102,10 @@ local defaults = {
   },
   select = {
     prompt = "Prompt opencode: ",
-    -- `snacks.picker`-only options
-    picker = {
+    snacks = {
       preview = "preview",
       layout = {
-        -- Override default hiding of preview in `vim.ui.select`
+        -- preview is hidden by default in `vim.ui.select`
         hidden = {},
       },
     },
