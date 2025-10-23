@@ -165,7 +165,7 @@ for _, field in ipairs({ "prompts", "contexts" }) do
 end
 
 -- Auto-add `--port <port>` to embedded terminal command if set and not already present.
-if M.opts.port ~= nil and not M.opts.terminal.cmd:find("--port") then
+if M.opts.port and not M.opts.terminal.cmd:find("--port") then
   M.opts.terminal.cmd = M.opts.terminal.cmd .. " --port " .. tostring(M.opts.port)
 end
 
