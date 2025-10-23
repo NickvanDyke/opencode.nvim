@@ -40,9 +40,12 @@ vim.g.opencode_opts = vim.g.opencode_opts
 ---Supports [snacks.picker](https://github.com/folke/snacks.nvim/blob/main/docs/picker.md).
 ---@field select? snacks.picker.ui_select.Opts
 ---
+---Options for `opencode` permission requests.
+---@field permissions? opencode.permissions.Opts
+---
 ---Embedded terminal options for `toggle()`.
 ---Supports [snacks.terminal](https://github.com/folke/snacks.nvim/blob/main/docs/terminal.md).
----@field terminal? opencode.Opts.terminal
+---@field terminal? opencode.terminal.Opts
 ---
 ---Called when no `opencode` process is found so you can start it.
 ---After calling this function, `opencode.nvim` will poll for a couple seconds to see if an `opencode` process appears.
@@ -108,7 +111,14 @@ local defaults = {
       },
     },
   },
-  ---@class opencode.Opts.terminal : snacks.terminal.Opts
+  ---@class opencode.permissions.Opts
+  ---@field enabled boolean Whether to show permission requests.
+  ---@field idle_delay_ms number Amount of user idle time before showing permission requests.
+  permissions = {
+    enabled = true,
+    idle_delay_ms = 1000,
+  },
+  ---@class opencode.terminal.Opts : snacks.terminal.Opts
   ---@field cmd string The command to run in the embedded terminal. See [here](https://opencode.ai/docs/cli) for options.
   terminal = {
     cmd = "opencode",
