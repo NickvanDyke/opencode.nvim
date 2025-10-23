@@ -126,14 +126,10 @@ local function poll_for_port(fn, callback)
     100,
     vim.schedule_wrap(function()
       local ok, find_port_result = pcall(fn)
-      if ok then
+      if ok or retries >= 20 then
         timer:stop()
         timer:close()
-        callback(true, find_port_result)
-      elseif retries >= 20 then
-        timer:stop()
-        timer:close()
-        callback(false, find_port_result)
+        callback(ok, find_port_result)
       else
         retries = retries + 1
       end
@@ -141,16 +137,18 @@ local function poll_for_port(fn, callback)
   )
 end
 
----Test if an opencode process is responding on the given port.
+---Test if a process is responding on `port`.
 ---@param port number
----@return number
+---@return number port
 local function test_port(port)
-  local ok, chan = pcall(vim.fn.sockconnect, "tcp", ("%s:%d"):format("localhost", port), { rpc = false, timeout = 200 })
-  if ok and chan > 0 then
+  -- TODO: `curl` "/app" endpoint to verify it's actually an opencode server.
+  local chan = vim.fn.sockconnect("tcp", ("localhost:%d"):format(port), { rpc = false, timeout = 200 })
+  if chan == 0 then
+    error(("Couldn't find a process listening on port: %d"):format(port), 0)
+  else
     pcall(vim.fn.chanclose, chan)
     return port
   end
-  error(("Couldn't find a process listening on port: %d"):format(port), 0)
 end
 
 ---Attempt to get the `opencode` server's port. Tries, in order:
