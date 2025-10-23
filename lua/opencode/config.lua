@@ -15,7 +15,7 @@ vim.g.opencode_opts = vim.g.opencode_opts
 ---
 ---The port `opencode` is running on.
 ---If `nil`, searches for an `opencode` process inside Neovim's CWD (requires `lsof` to be installed on your system).
----Recommend launching `opencode` with `--port <port>` when setting this.
+---Launch `opencode` with `--port <port>` when this is set (the embedded terminal will automatically do so).
 ---@field port? number
 ---
 ---Reload buffers edited by `opencode` in real-time.
@@ -162,6 +162,11 @@ for _, field in ipairs({ "prompts", "contexts" }) do
       end
     end
   end
+end
+
+-- Auto-add `--port <port>` to embedded terminal command if set and not already present.
+if M.opts.port and not M.opts.terminal.cmd:find("--port") then
+  M.opts.terminal.cmd = M.opts.terminal.cmd .. " --port " .. tostring(M.opts.port)
 end
 
 return M
