@@ -155,7 +155,7 @@ Send a [command](https://opencode.ai/docs/keybinds):
 
 Toggle `opencode`. By default, uses an embedded terminal via [`snacks.nvim`](https://github.com/folke/snacks.nvim) for quickstart.
 
-`opencode.nvim` connects to *any* `opencode` inside Neovim's CWD, so you can always manually manage your own `opencode` via a terminal app, plugin, multiplexer, etc. Optionally override `vim.g.opencode_opts.provider` with your method for better integration and convenience.
+`opencode.nvim` connects to *any* `opencode` inside Neovim's CWD, so you can always manually manage `opencode` via your own method (terminal plugin, multiplexer, app, etc.). Optionally override `vim.g.opencode_opts.provider` with your method for better integration and convenience.
 
 ## 👀 Events
 
