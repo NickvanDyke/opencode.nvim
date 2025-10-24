@@ -46,11 +46,11 @@ vim.g.opencode_opts = vim.g.opencode_opts
 ---Provide methods for `opencode.nvim` to toggle, start, and show `opencode` at appropriate times.
 ---Only for convenience — you can ignore this field and manually manage your own `opencode`.
 ---By default, uses an embedded terminal via [snacks.terminal](https://github.com/folke/snacks.nvim/blob/main/docs/terminal.md) if available.
----@field provider? opencode.provider.Opts
+---@field provider? opencode.Provider|opencode.Provider.snacks|nil
 ---
 ---Terminal options, if using the default `snacks` provider.
 ---DEPRECATED: Please use `opts.provider = { name = "snacks", opts = { ... } }` instead.
----@field terminal? snacks.terminal.Opts
+---@field terminal? { cmd: string } : snacks.terminal.Opts
 
 local function is_snacks_terminal_available()
   local ok, snacks = pcall(require, "snacks")
@@ -120,8 +120,8 @@ local defaults = {
   provider = is_snacks_terminal_available()
       and {
         name = "snacks",
+        cmd = "opencode",
         opts = {
-          cmd = "opencode",
           -- Close the terminal when `opencode` exits
           auto_close = true,
           win = {
@@ -156,6 +156,7 @@ M.opts = vim.tbl_deep_extend("force", vim.deepcopy(defaults), vim.g.opencode_opt
 -- Example:
 --   prompts = { ask = false } -- removes the default 'ask' prompt
 --   contexts = { ['@buffer'] = false } -- removes the default '@buffer' context
+-- TODO: Add to type definition
 local user_opts = vim.g.opencode_opts or {}
 for _, field in ipairs({ "prompts", "contexts" }) do
   if user_opts[field] and M.opts[field] then
@@ -167,9 +168,12 @@ for _, field in ipairs({ "prompts", "contexts" }) do
   end
 end
 
+-- Migrate deprecated `opts.terminal` to `opts.provider`.
+-- TODO: Remove later.
 if M.opts.terminal then
   M.opts.provider = {
     name = "snacks",
+    cmd = M.opts.terminal.cmd,
     opts = M.opts.terminal,
   }
   vim.notify(
@@ -177,13 +181,6 @@ if M.opts.terminal then
     vim.log.levels.WARN,
     { title = "opencode" }
   )
-end
-
--- TODO: Where to expose `cmd`? Pass that and maybe `opts` to provider functions?
-
--- Auto-add `--port <port>` to embedded terminal command if set and not already present.
-if M.opts.port and not M.opts.terminal.cmd:find("--port") then
-  M.opts.terminal.cmd = M.opts.terminal.cmd .. " --port " .. tostring(M.opts.port)
 end
 
 return M

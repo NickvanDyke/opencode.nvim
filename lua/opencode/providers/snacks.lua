@@ -1,19 +1,22 @@
-local function opts()
-  return require("opencode.config").provider.opts or {}
-end
+---@alias opencode.Provider.snacks
+---| { name: "snacks", opts: snacks.terminal.Opts }
 
 ---@type opencode.Provider
 return {
-  toggle = function()
-    require("snacks.terminal").toggle(opts().cmd, opts())
+  cmd = "opencode",
+  ---@param opts snacks.terminal.Opts
+  toggle = function(cmd, opts)
+    require("snacks.terminal").toggle(cmd, opts)
   end,
-  start = function()
+  ---@param opts snacks.terminal.Opts
+  start = function(cmd, opts)
     -- We use `get`, not `open`, so that `toggle` will reference the same terminal
-    require("snacks.terminal").get(opts().cmd, opts())
+    require("snacks.terminal").get(cmd, opts)
   end,
-  show = function()
+  ---@param opts snacks.terminal.Opts
+  show = function(cmd, opts)
     -- Note it only shows if the terminal already exists
-    local win = require("snacks.terminal").get(opts().cmd, vim.tbl_deep_extend("force", opts(), { create = false }))
+    local win = require("snacks.terminal").get(cmd, vim.tbl_deep_extend("force", opts, { create = false }))
     if win then
       win:show()
     end

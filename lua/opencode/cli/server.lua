@@ -174,9 +174,7 @@ function M.get_port(callback)
       end
     end,
     function(next)
-      if require("opencode.config").opts.provider then
-        require("opencode.config").opts.provider.start()
-      end
+      require("opencode.providers").start()
       -- Always proceed - even if `opencode` wasn't started, failing to find it will give a more helpful error message.
       next()
     end,
