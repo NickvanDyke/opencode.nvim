@@ -1,22 +1,22 @@
 ---@class opencode.Provider
 ---
 ---Called by `require("opencode").toggle()`.
----@field toggle fun(opts: opencode.Provider.Opts)
+---@field toggle fun(opts: opencode.providers.Opts)
 ---
 ---Called when no `opencode` process is found,
 ---after which `opencode.nvim` polls for a couple seconds to see if one appears.
----@field start fun(opts: opencode.Provider.Opts)
+---@field start fun(opts: opencode.providers.Opts)
 ---
 ---Called when a prompt or command is sent to `opencode`.
----@field show fun(opts: opencode.Provider.Opts)
+---@field show fun(opts: opencode.providers.Opts)
 
----@class opencode.Provider.Opts
+---@class opencode.providers.Opts
 ---
 ---The command to start `opencode`.
 ---`opencode.nvim` will append `--port <port>` if `vim.g.opencode_opts.port` is set.
 ---@field cmd string
 
----@class opencode.Provider.custom : opencode.Provider, opencode.Provider.Opts
+---@class opencode.providers.Custom : opencode.Provider, opencode.providers.Opts
 
 local opts = require("opencode.config").opts.provider
 -- Load provider module if a name is specified.
