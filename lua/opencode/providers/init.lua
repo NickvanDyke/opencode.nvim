@@ -16,6 +16,8 @@
 ---`opencode.nvim` will append `--port <port>` if `vim.g.opencode_opts.port` is set.
 ---@field cmd string
 
+---@class opencode.Provider.custom: opencode.Provider, { opts: opencode.Provider.Opts }
+
 local opt = require("opencode.config").opts.provider
 local opts = opt and opt.opts or {}
 -- Load provider module if a name is specified.
