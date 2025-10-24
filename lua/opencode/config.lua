@@ -47,9 +47,15 @@ vim.g.opencode_opts = vim.g.opencode_opts
 ---Supports [snacks.terminal](https://github.com/folke/snacks.nvim/blob/main/docs/terminal.md).
 ---@field terminal? opencode.terminal.Opts
 ---
----Provider for `opencode.nvim` to call to toggle, start, and show `opencode`.
----By default, uses an embedded terminal via [snacks.terminal](https://github.com/folke/snacks.nvim/blob/main/docs/terminal.md).
+---Provider for `opencode.nvim` to call to toggle, start, and show `opencode` at appropriate times.
+---This field is only for convenience — you can always manually manage your own `opencode`.
+---By default, uses an embedded terminal via [snacks.terminal](https://github.com/folke/snacks.nvim/blob/main/docs/terminal.md) if available.
 ---@field provider? opencode.Provider
+
+local function is_snacks_terminal_available()
+  local ok = pcall(require, "snacks.terminal")
+  return ok
+end
 
 ---@type opencode.Opts
 local defaults = {
@@ -111,7 +117,7 @@ local defaults = {
     enabled = true,
     idle_delay_ms = 1000,
   },
-  provider = require("opencode.providers.snacks"),
+  provider = is_snacks_terminal_available() and require("opencode.providers.snacks") or nil,
   ---@class opencode.terminal.Opts : snacks.terminal.Opts
   ---@field cmd string The command to run in the embedded terminal. See [here](https://opencode.ai/docs/cli) for options.
   terminal = {

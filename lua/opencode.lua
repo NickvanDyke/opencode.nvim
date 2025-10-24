@@ -37,7 +37,9 @@ function M.prompt(prompt, opts, callback)
   }
 
   get_port(function(port)
-    require("opencode.config").opts.provider.show()
+    if require("opencode.config").opts.provider then
+      require("opencode.config").opts.provider.show()
+    end
 
     require("opencode.util").chain({
       function(next)
@@ -139,7 +141,9 @@ function M.command(command, callback)
         -- No need to register SSE here - commands don't trigger any.
         -- (except maybe the `input_*` commands? but no reason for user to use those).
 
-        require("opencode.config").opts.provider.show()
+        if require("opencode.config").opts.provider then
+          require("opencode.config").opts.provider.show()
+        end
 
         ---@cast command opencode.Command|string
         require("opencode.cli.client").tui_execute_command(command, port, callback)
@@ -171,7 +175,7 @@ function M.ask(default, opts)
 end
 
 ---Select a prompt from `opts.prompts` to send to `opencode`.
----Includes preview when using `snacks.nvim`.
+---Includes preview when using `snacks.picker`.
 function M.select()
   local context = require("opencode.context").new()
 
@@ -189,7 +193,18 @@ end
 
 ---Toggle `opencode` via `opts.provider`.
 function M.toggle()
-  require("opencode.config").opts.provider.toggle()
+  if require("opencode.config").opts.provider then
+    require("opencode.config").opts.provider.toggle()
+  else
+    -- Notify the user here because they intentionally called `toggle()`,
+    -- unlike `provider.start()` and `provider.show()` which we call implicitly.
+    -- We expect the user may not have configured a provider if they manually manage `opencode`.
+    vim.notify(
+      "No provider configured for `opencode.nvim` — configure `vim.g.opencode_opts.provider`, or install `snacks.nvim` to use the default embedded terminal",
+      vim.log.levels.ERROR,
+      { title = "opencode" }
+    )
+  end
 end
 
 return M
