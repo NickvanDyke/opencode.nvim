@@ -51,6 +51,12 @@ vim.g.opencode_opts = vim.g.opencode_opts
 ---Terminal options, if using the default `snacks` provider.
 ---DEPRECATED: Please use `opts.provider = { name = "snacks", opts = { ... } }` instead.
 ---@field terminal? { cmd: string } : snacks.terminal.Opts
+---
+---DEPRECATED: Please use `opts.provider` instead.
+---@field on_opencode_not_found? fun()
+---
+---DEPRECATED: Please use `opts.provider` instead.
+---@field on_send? fun()
 
 local function is_snacks_terminal_available()
   local ok, snacks = pcall(require, "snacks")
@@ -143,6 +149,8 @@ local defaults = {
       }
     or nil,
   terminal = nil,
+  on_opencode_not_found = nil,
+  on_send = nil,
 }
 
 ---Plugin options, lazily merged from `defaults` and `vim.g.opencode_opts`.
@@ -165,15 +173,24 @@ for _, field in ipairs({ "prompts", "contexts" }) do
   end
 end
 
--- Migrate deprecated `opts.terminal` to `opts.provider`.
--- TODO: Remove later.
-if M.opts.terminal and M.opts.provider and M.opts.provider.name == "snacks" then
-  M.opts.provider = {
-    name = "snacks",
-    opts = vim.tbl_deep_extend("force", M.opts.provider.opts, M.opts.terminal),
-  }
+-- TODO: Remove later
+if M.opts.terminal then
   vim.notify(
-    '`opts.terminal` is deprecated; please use `opts.provider = { name = "snacks", opts = { ... } }` instead.',
+    '`opts.terminal` has been moved; please use `opts.provider = { name = "snacks", opts = { ... } }` instead.',
+    vim.log.levels.WARN,
+    { title = "opencode" }
+  )
+end
+if M.opts.on_opencode_not_found then
+  vim.notify(
+    "`opts.on_opencode_not_found` has been moved; please use `opts.provider` instead.",
+    vim.log.levels.WARN,
+    { title = "opencode" }
+  )
+end
+if M.opts.on_send then
+  vim.notify(
+    "`opts.on_send` has been moved; please use `opts.provider` instead.",
     vim.log.levels.WARN,
     { title = "opencode" }
   )
