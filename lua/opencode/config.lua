@@ -110,9 +110,6 @@ local defaults = {
       },
     },
   },
-  ---@class opencode.permissions.Opts
-  ---@field enabled boolean Whether to show permission requests.
-  ---@field idle_delay_ms number Amount of user idle time before showing permission requests.
   permissions = {
     enabled = true,
     idle_delay_ms = 1000,
