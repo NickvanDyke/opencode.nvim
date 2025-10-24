@@ -145,9 +145,6 @@ local defaults = {
         },
       }
     or nil,
-  terminal = nil,
-  on_opencode_not_found = nil,
-  on_send = nil,
 }
 
 ---Plugin options, lazily merged from `defaults` and `vim.g.opencode_opts`.
