@@ -170,11 +170,11 @@ end
 
 -- Migrate deprecated `opts.terminal` to `opts.provider`.
 -- TODO: Remove later.
-if M.opts.terminal then
+if M.opts.terminal and M.opts.provider and M.opts.provider.name == "snacks" then
   M.opts.provider = {
     name = "snacks",
-    cmd = M.opts.terminal.cmd,
-    opts = M.opts.terminal,
+    cmd = M.opts.provider.cmd or M.opts.terminal.cmd,
+    opts = vim.tbl_deep_extend("force", M.opts.provider.opts, M.opts.terminal),
   }
   vim.notify(
     '`opts.terminal` is deprecated; please use `opts.provider = { name = "snacks", opts = { ... } }` instead.',
