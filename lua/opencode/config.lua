@@ -43,14 +43,14 @@ vim.g.opencode_opts = vim.g.opencode_opts
 ---Options for `opencode` permission requests.
 ---@field permissions? opencode.permissions.Opts
 ---
----Embedded terminal options for `toggle()`.
----Supports [snacks.terminal](https://github.com/folke/snacks.nvim/blob/main/docs/terminal.md).
----@field terminal? opencode.terminal.Opts
----
----Provider for `opencode.nvim` to call to toggle, start, and show `opencode` at appropriate times.
----This field is only for convenience — you can always manually manage your own `opencode`.
+---Provide methods for `opencode.nvim` to toggle, start, and show `opencode` at appropriate times.
+---Only for convenience — you can ignore this field and manually manage your own `opencode`.
 ---By default, uses an embedded terminal via [snacks.terminal](https://github.com/folke/snacks.nvim/blob/main/docs/terminal.md) if available.
----@field provider? opencode.Provider
+---@field provider? opencode.provider.Opts
+---
+---Terminal options, if using the default `snacks` provider.
+---DEPRECATED: Please use `opts.provider = { name = "snacks", opts = { ... } }` instead.
+---@field terminal? snacks.terminal.Opts
 
 local function is_snacks_terminal_available()
   local ok = pcall(require, "snacks.terminal")
@@ -117,33 +117,35 @@ local defaults = {
     enabled = true,
     idle_delay_ms = 1000,
   },
-  provider = is_snacks_terminal_available() and require("opencode.providers.snacks") or nil,
-  ---@class opencode.terminal.Opts : snacks.terminal.Opts
-  ---@field cmd string The command to run in the embedded terminal. See [here](https://opencode.ai/docs/cli) for options.
-  terminal = {
-    -- TODO: Nest somehow so it's obviously only relevant to the snacks terminal provider?
-    cmd = "opencode",
-    -- Close the terminal when `opencode` exits
-    auto_close = true,
-    win = {
-      position = "right",
-      -- Stay in the editor after opening the terminal
-      enter = false,
-      wo = {
-        -- Title is unnecessary - `opencode` TUI has its own footer
-        winbar = "",
-      },
-      bo = {
-        -- Make it easier to target for customization, and prevent possibly unintended `"snacks_terminal"` targeting.
-        -- e.g. the recommended edgy.nvim integration puts all `"snacks_terminal"` windows at the bottom.
-        filetype = "opencode_terminal",
-      },
-    },
-    env = {
-      -- Other themes have visual bugs in embedded terminals: https://github.com/sst/opencode/issues/445
-      OPENCODE_THEME = "system",
-    },
-  },
+  provider = is_snacks_terminal_available()
+      and {
+        name = "snacks",
+        opts = {
+          cmd = "opencode",
+          -- Close the terminal when `opencode` exits
+          auto_close = true,
+          win = {
+            position = "right",
+            -- Stay in the editor after opening the terminal
+            enter = false,
+            wo = {
+              -- Title is unnecessary - `opencode` TUI has its own footer
+              winbar = "",
+            },
+            bo = {
+              -- Make it easier to target for customization, and prevent possibly unintended `"snacks_terminal"` targeting.
+              -- e.g. the recommended edgy.nvim integration puts all `"snacks_terminal"` windows at the bottom.
+              filetype = "opencode_terminal",
+            },
+          },
+          env = {
+            -- Other themes have visual bugs in embedded terminals: https://github.com/sst/opencode/issues/445
+            OPENCODE_THEME = "system",
+          },
+        },
+      }
+    or nil,
+  terminal = nil,
 }
 
 ---Plugin options, lazily merged from `defaults` and `vim.g.opencode_opts`.
@@ -164,6 +166,20 @@ for _, field in ipairs({ "prompts", "contexts" }) do
     end
   end
 end
+
+if M.opts.terminal then
+  M.opts.provider = {
+    name = "snacks",
+    opts = M.opts.terminal,
+  }
+  vim.notify(
+    '`opts.terminal` is deprecated; please use `opts.provider = { name = "snacks", opts = { ... } }` instead.',
+    vim.log.levels.WARN,
+    { title = "opencode" }
+  )
+end
+
+-- TODO: Where to expose `cmd`? Pass that and maybe `opts` to provider functions?
 
 -- Auto-add `--port <port>` to embedded terminal command if set and not already present.
 if M.opts.port and not M.opts.terminal.cmd:find("--port") then

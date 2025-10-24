@@ -1,5 +1,5 @@
 local function opts()
-  return require("opencode.config").opts.terminal
+  return require("opencode.config").provider.opts or {}
 end
 
 ---@type opencode.Provider
@@ -12,6 +12,7 @@ return {
     require("snacks.terminal").get(opts().cmd, opts())
   end,
   show = function()
+    -- Note it only shows if the terminal already exists
     local win = require("snacks.terminal").get(opts().cmd, vim.tbl_deep_extend("force", opts(), { create = false }))
     if win then
       win:show()

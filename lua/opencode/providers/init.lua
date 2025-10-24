@@ -1,6 +1,6 @@
 ---@class opencode.Provider
 ---
----Called via `require("opencode").toggle()`.
+---Called by `require("opencode").toggle()`.
 ---@field toggle fun()
 ---
 ---Called when no `opencode` process is found so you can start it,
@@ -9,3 +9,7 @@
 ---
 ---Called when a prompt or command is sent to `opencode`.
 ---@field show fun()
+
+---@alias opencode.provider.Opts
+---| opencode.Provider
+---| { name: "snacks", opts: { cmd: string }|snacks.terminal.Opts }
