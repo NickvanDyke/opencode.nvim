@@ -46,7 +46,7 @@ vim.g.opencode_opts = vim.g.opencode_opts
 ---Provide methods for `opencode.nvim` to toggle, start, and show `opencode` at appropriate times.
 ---Only for convenience — you can ignore this field and manually manage your own `opencode`.
 ---By default, uses an embedded terminal via [snacks.terminal](https://github.com/folke/snacks.nvim/blob/main/docs/terminal.md) if available.
----@field provider? opencode.Provider|opencode.Provider.snacks|nil
+---@field provider? opencode.Provider|opencode.Provider.Opts|opencode.Provider.snacks|nil
 ---
 ---Terminal options, if using the default `snacks` provider.
 ---DEPRECATED: Please use `opts.provider = { name = "snacks", opts = { ... } }` instead.
@@ -117,8 +117,8 @@ local defaults = {
   provider = is_snacks_terminal_available()
       and {
         name = "snacks",
-        cmd = "opencode",
         opts = {
+          cmd = "opencode",
           -- Close the terminal when `opencode` exits
           auto_close = true,
           win = {
@@ -170,7 +170,6 @@ end
 if M.opts.terminal and M.opts.provider and M.opts.provider.name == "snacks" then
   M.opts.provider = {
     name = "snacks",
-    cmd = M.opts.provider.cmd or M.opts.terminal.cmd,
     opts = vim.tbl_deep_extend("force", M.opts.provider.opts, M.opts.terminal),
   }
   vim.notify(
