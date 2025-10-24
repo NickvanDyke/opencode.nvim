@@ -1,8 +1,9 @@
 ---@alias opencode.Provider.snacks
----| { name: "snacks", opts: snacks.terminal.Opts }
+---| { name: "snacks", cmd: string, opts: snacks.terminal.Opts }
 
 ---@type opencode.Provider
 return {
+  -- TODO: This duplication with the provider opts feels smelly...
   cmd = "opencode",
   ---@param opts snacks.terminal.Opts
   toggle = function(cmd, opts)
