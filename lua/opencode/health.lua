@@ -1,7 +1,7 @@
 local M = {}
 
 local external_instructions =
-  "Or launch `opencode` with your own method and optionally override `vim.g.opencode_opts.on_opencode_not_found` and `vim.g.opencode_opts.on_send` for convenience, then use `opencode.nvim` normally."
+  "Or launch `opencode` with your own method and optionally override `vim.g.opencode_opts.provider` for convenience, then use `opencode.nvim` normally."
 
 function M.check()
   vim.health.start("opencode.nvim")

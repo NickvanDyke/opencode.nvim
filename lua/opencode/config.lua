@@ -47,15 +47,9 @@ vim.g.opencode_opts = vim.g.opencode_opts
 ---Supports [snacks.terminal](https://github.com/folke/snacks.nvim/blob/main/docs/terminal.md).
 ---@field terminal? opencode.terminal.Opts
 ---
----Called when no `opencode` process is found so you can start it.
----After calling this function, `opencode.nvim` will poll for a couple seconds to see if an `opencode` process appears.
----By default, opens an embedded terminal using [snacks.terminal](https://github.com/folke/snacks.nvim/blob/main/docs/terminal.md) (if available).
----But you could also e.g. call your own terminal plugin, launch an external `opencode`, or no-op.
----@field on_opencode_not_found? fun()
----
----Called when a prompt or command is sent to `opencode`.
----By default, shows the embedded terminal if it exists.
----@field on_send? fun()
+---Provider for `opencode.nvim` to call to toggle, start, and show `opencode`.
+---By default, uses an embedded terminal via [snacks.terminal](https://github.com/folke/snacks.nvim/blob/main/docs/terminal.md).
+---@field provider? opencode.Provider
 
 ---@type opencode.Opts
 local defaults = {
@@ -117,9 +111,11 @@ local defaults = {
     enabled = true,
     idle_delay_ms = 1000,
   },
+  provider = require("opencode.providers.snacks"),
   ---@class opencode.terminal.Opts : snacks.terminal.Opts
   ---@field cmd string The command to run in the embedded terminal. See [here](https://opencode.ai/docs/cli) for options.
   terminal = {
+    -- TODO: Nest somehow so it's obviously only relevant to the snacks terminal provider?
     cmd = "opencode",
     -- Close the terminal when `opencode` exits
     auto_close = true,
@@ -142,16 +138,6 @@ local defaults = {
       OPENCODE_THEME = "system",
     },
   },
-  on_opencode_not_found = function()
-    -- Ignore error so users can safely exclude `snacks.nvim` dependency without overriding this function.
-    -- Could incidentally hide an unexpected error in `snacks.terminal`, but seems unlikely.
-    pcall(require("opencode.terminal").open)
-  end,
-  on_send = function()
-    -- "if exists" because user may alternate between embedded and external `opencode`.
-    -- `opts.on_opencode_not_found` comments also apply here.
-    pcall(require("opencode.terminal").show_if_exists)
-  end,
 }
 
 ---Plugin options, lazily merged from `defaults` and `vim.g.opencode_opts`.

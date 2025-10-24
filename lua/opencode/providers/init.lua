@@ -1,0 +1,11 @@
+---@class opencode.Provider
+---
+---Called via `require("opencode").toggle()`.
+---@field toggle fun()
+---
+---Called when no `opencode` process is found so you can start it,
+---after which `opencode.nvim` will poll for a couple seconds to see if one appears.
+---@field start fun()
+---
+---Called when a prompt or command is sent to `opencode`.
+---@field show fun()
