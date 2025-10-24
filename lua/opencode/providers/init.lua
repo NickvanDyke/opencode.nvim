@@ -3,7 +3,7 @@
 ---Called by `require("opencode").toggle()`.
 ---@field toggle fun(opts: opencode.Provider.Opts)
 ---
----Called when no `opencode` process is found so you can start it,
+---Called when no `opencode` process is found,
 ---after which `opencode.nvim` polls for a couple seconds to see if one appears.
 ---@field start fun(opts: opencode.Provider.Opts)
 ---
