@@ -147,6 +147,7 @@ Send a [command](https://opencode.ai/docs/keybinds):
 | `messages_copy`           | Copy the last message in the session                     |
 | `messages_undo`           | Undo the last message in the session                     |
 | `messages_redo`           | Redo the last message in the session                     |
+| `input_clear`             | Clear the TUI input                                      |
 | `agent_cycle`             | Cycle the selected agent                                 |
 
 > Supports *all* commands — these are just the most useful ones.
