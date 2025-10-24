@@ -53,8 +53,8 @@ vim.g.opencode_opts = vim.g.opencode_opts
 ---@field terminal? snacks.terminal.Opts
 
 local function is_snacks_terminal_available()
-  local ok = pcall(require, "snacks.terminal")
-  return ok
+  local ok, snacks = pcall(require, "snacks")
+  return ok and snacks.config.get("terminal", {}).enabled ~= false
 end
 
 ---@type opencode.Opts
