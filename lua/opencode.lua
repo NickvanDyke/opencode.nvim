@@ -94,6 +94,7 @@ end
 ---| 'messages_copy'
 ---| 'messages_undo'
 ---| 'messages_redo'
+---| 'input_clear'
 ---| 'agent_cycle'
 
 ---Send a [command](https://opencode.ai/docs/keybinds) to `opencode`.
@@ -118,6 +119,7 @@ function M.command(command, callback)
           { name = "Copy last message", command = "messages_copy" },
           { name = "Undo last message", command = "messages_undo" },
           { name = "Redo last message", command = "messages_redo" },
+          { name = "Clear input", command = "input_clear" },
           { name = "Cycle agent", command = "agent_cycle" },
         }, {
           prompt = "Command opencode: ",
