@@ -1,7 +1,4 @@
----@alias opencode.Provider.snacks
----| { name: "snacks", opts: opencode.Provider.snacks.Opts }
-
----@class opencode.Provider.snacks.Opts : opencode.Provider.Opts, snacks.terminal.Opts
+---@class opencode.Provider.snacks.Opts : { name: "snacks" }, opencode.Provider.Opts, snacks.terminal.Opts
 
 ---@type opencode.Provider
 return {

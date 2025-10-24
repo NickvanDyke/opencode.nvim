@@ -16,22 +16,22 @@
 ---`opencode.nvim` will append `--port <port>` if `vim.g.opencode_opts.port` is set.
 ---@field cmd string
 
----@class opencode.Provider.custom : opencode.Provider, { opts: opencode.Provider.Opts }
+---@class opencode.Provider.custom : opencode.Provider, opencode.Provider.Opts
 
-local opt = require("opencode.config").opts.provider
-local opts = opt and opt.opts or {}
+local opts = require("opencode.config").opts.provider
 -- Load provider module if a name is specified.
-local provider = opt and opt.name and require("opencode.providers." .. opt.name) or opt
+local provider = opts and opts.name and require("opencode.providers." .. opts.name) or opts
 
 -- Auto-add `--port <port>` to command if set and not already present.
-if opts.cmd and not opts.cmd:find("--port") then
-  opts.cmd = opts.cmd .. " --port " .. tostring(require("opencode.config").opts.port)
+local port = require("opencode.config").opts.port
+if port and opts and not opts.cmd:find("--port") then
+  opts.cmd = opts.cmd .. " --port " .. tostring(port)
 end
 
 ---Wraps `opts.provider`.
 return {
   toggle = function()
-    if provider then
+    if provider and opts then
       provider.toggle(opts)
     else
       -- Notify the user here because they intentionally called `toggle()`,
@@ -45,12 +45,12 @@ return {
     end
   end,
   start = function()
-    if provider then
+    if provider and opts then
       provider.start(opts)
     end
   end,
   show = function()
-    if provider then
+    if provider and opts then
       provider.show(opts)
     end
   end,

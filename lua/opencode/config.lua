@@ -46,7 +46,7 @@ vim.g.opencode_opts = vim.g.opencode_opts
 ---Provide methods for `opencode.nvim` to toggle, start, and show `opencode` at appropriate times.
 ---Only for convenience — you can ignore this field and manually manage your own `opencode`.
 ---By default, uses an embedded terminal via [snacks.terminal](https://github.com/folke/snacks.nvim/blob/main/docs/terminal.md) if available.
----@field provider? opencode.Provider.custom|opencode.Provider.snacks|nil
+---@field provider? opencode.Provider.custom|opencode.Provider.snacks.Opts|nil
 ---
 ---Terminal options, if using the default `snacks` provider.
 ---DEPRECATED: Please use `opts.provider = { name = "snacks", opts = { ... } }` instead.
@@ -123,28 +123,26 @@ local defaults = {
   provider = is_snacks_terminal_available()
       and {
         name = "snacks",
-        opts = {
-          cmd = "opencode",
-          -- Close the terminal when `opencode` exits
-          auto_close = true,
-          win = {
-            position = "right",
-            -- Stay in the editor after opening the terminal
-            enter = false,
-            wo = {
-              -- Title is unnecessary - `opencode` TUI has its own footer
-              winbar = "",
-            },
-            bo = {
-              -- Make it easier to target for customization, and prevent possibly unintended `"snacks_terminal"` targeting.
-              -- e.g. the recommended edgy.nvim integration puts all `"snacks_terminal"` windows at the bottom.
-              filetype = "opencode_terminal",
-            },
+        cmd = "opencode",
+        -- Close the terminal when `opencode` exits
+        auto_close = true,
+        win = {
+          position = "right",
+          -- Stay in the editor after opening the terminal
+          enter = false,
+          wo = {
+            -- Title is unnecessary - `opencode` TUI has its own footer
+            winbar = "",
           },
-          env = {
-            -- Other themes have visual bugs in embedded terminals: https://github.com/sst/opencode/issues/445
-            OPENCODE_THEME = "system",
+          bo = {
+            -- Make it easier to target for customization, and prevent possibly unintended `"snacks_terminal"` targeting.
+            -- e.g. the recommended edgy.nvim integration puts all `"snacks_terminal"` windows at the bottom.
+            filetype = "opencode_terminal",
           },
+        },
+        env = {
+          -- Other themes have visual bugs in embedded terminals: https://github.com/sst/opencode/issues/445
+          OPENCODE_THEME = "system",
         },
       }
     or nil,
