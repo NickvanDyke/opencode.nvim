@@ -25,7 +25,7 @@ https://github.com/user-attachments/assets/4dd19151-89e4-4272-abac-6710dbc6edc1
   "NickvanDyke/opencode.nvim",
   dependencies = {
     -- Recommended for `ask()` and `select()`.
-    -- Required for `toggle()`.
+    -- Required for default `toggle()` implementation.
     { "folke/snacks.nvim", opts = { input = {}, picker = {} } },
   },
   config = function()
@@ -156,7 +156,23 @@ Send a [command](https://opencode.ai/docs/keybinds):
 
 Toggle `opencode`. By default, uses an embedded terminal via [`snacks.nvim`](https://github.com/folke/snacks.nvim) for quickstart.
 
-`opencode.nvim` connects to *any* `opencode` inside Neovim's CWD, so you can always manually manage `opencode` via your own method (terminal plugin, multiplexer, app, etc.). Optionally override `vim.g.opencode_opts.provider` with your method for better integration and convenience.
+`opencode.nvim` connects to *any* `opencode` inside Neovim's CWD, so you can always manually manage `opencode` via your own method (terminal plugin, multiplexer, app, etc.). Optionally override `vim.g.opencode_opts.provider` to integrate with said method for convenience:
+
+```lua
+vim.g.opencode_opts = {
+  provider = {
+    toggle = function(opts)
+      -- ...
+    end,
+    start = function(opts)
+      -- ...
+    end,
+    show = function(opts)
+      -- ...
+    end
+  }
+}
+```
 
 ## 👀 Events
 
