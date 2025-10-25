@@ -15,7 +15,7 @@ vim.g.opencode_opts = vim.g.opencode_opts
 ---
 ---The port `opencode` is running on.
 ---If `nil`, searches for an `opencode` process inside Neovim's CWD (requires `lsof` to be installed on your system).
----Launch `opencode` with `--port <port>` when this is set (the embedded terminal will automatically do so).
+---When set, launch `opencode` with `--port <port>` — `opencode.nvim` will automatically modify `provider.cmd`.
 ---@field port? number
 ---
 ---Reload buffers edited by `opencode` in real-time.
@@ -49,7 +49,7 @@ vim.g.opencode_opts = vim.g.opencode_opts
 ---@field provider? opencode.providers.User|opencode.providers.snacks.Opts|nil
 ---
 ---DEPRECATED: Please use `opts.provider = { name = "snacks", ... }` instead.
----@field terminal? { cmd: string } : snacks.terminal.Opts
+---@field terminal? { cmd: string }|snacks.terminal.Opts
 ---
 ---DEPRECATED: Please use `opts.provider` instead.
 ---@field on_opencode_not_found? fun()
@@ -57,9 +57,12 @@ vim.g.opencode_opts = vim.g.opencode_opts
 ---DEPRECATED: Please use `opts.provider` instead.
 ---@field on_send? fun()
 
-local function is_snacks_terminal_available()
+---@return "snacks"|nil
+local function default_provider()
   local ok, snacks = pcall(require, "snacks")
-  return ok and snacks.config.get("terminal", {}).enabled ~= false
+  if ok and snacks.config.get("terminal", {}).enabled ~= false then
+    return "snacks"
+  end
 end
 
 ---@type opencode.Opts
@@ -119,7 +122,7 @@ local defaults = {
     enabled = true,
     idle_delay_ms = 1000,
   },
-  provider = is_snacks_terminal_available()
+  provider = default_provider() == "snacks"
       and {
         name = "snacks",
         cmd = "opencode",
@@ -169,22 +172,23 @@ end
 
 -- TODO: Remove later
 if M.opts.terminal then
+  M.opts.provider = { name = "snacks", opts = M.opts.terminal }
   vim.notify(
-    '`opts.terminal` has been moved; please use `opts.provider = { name = "snacks", opts = { ... } }` instead.',
+    '`opts.terminal` has been replaced; please use `opts.provider = { name = "snacks", ... }` instead.',
     vim.log.levels.WARN,
     { title = "opencode" }
   )
 end
 if M.opts.on_opencode_not_found then
   vim.notify(
-    "`opts.on_opencode_not_found` has been moved; please use `opts.provider` instead.",
+    "`opts.on_opencode_not_found` has been replaced; please use `opts.provider` instead.",
     vim.log.levels.WARN,
     { title = "opencode" }
   )
 end
 if M.opts.on_send then
   vim.notify(
-    "`opts.on_send` has been moved; please use `opts.provider` instead.",
+    "`opts.on_send` has been replaced; please use `opts.provider` instead.",
     vim.log.levels.WARN,
     { title = "opencode" }
   )
