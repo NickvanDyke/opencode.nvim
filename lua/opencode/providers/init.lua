@@ -4,10 +4,11 @@
 ---@field toggle fun(opts: opencode.providers.Opts)
 ---
 ---Called when no `opencode` process is found,
----after which `opencode.nvim` polls for a couple seconds to see if one appears.
+---after which `opencode.nvim` polls for a couple seconds waiting for one to appear.
 ---@field start fun(opts: opencode.providers.Opts)
 ---
 ---Called when a prompt or command is sent to `opencode`.
+---Consider no-oping if the provider hasn't already started so you can alternate with external `opencode`s.
 ---@field show fun(opts: opencode.providers.Opts)
 
 ---@class opencode.providers.Opts
