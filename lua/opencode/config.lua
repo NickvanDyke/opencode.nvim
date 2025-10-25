@@ -43,8 +43,9 @@ vim.g.opencode_opts = vim.g.opencode_opts
 ---Options for `opencode` permission requests.
 ---@field permissions? opencode.permissions.Opts
 ---
----Provide methods for `opencode.nvim` to toggle, start, and show `opencode` at appropriate times.
----Only for convenience — you can ignore this field and manually manage your own `opencode`.
+---Provide a method for `opencode.nvim` to toggle, start, and show `opencode` at appropriate times.
+---Either configure a built-in provider by name with options, or implement your own provider.
+---Only for convenience/integration — you can ignore this field and manually manage your own `opencode`.
 ---By default, uses an embedded terminal via [snacks.terminal](https://github.com/folke/snacks.nvim/blob/main/docs/terminal.md) if available.
 ---@field provider? opencode.providers.User|opencode.providers.snacks.Opts|nil
 ---

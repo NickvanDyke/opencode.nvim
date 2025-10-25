@@ -1,3 +1,4 @@
+---Provides methods for `opencode.nvim` to toggle, start, and show `opencode` at appropriate times.
 ---@class opencode.Provider
 ---
 ---Called by `require("opencode").toggle()`.
@@ -17,6 +18,7 @@
 ---`opencode.nvim` will append `--port <port>` if `vim.g.opencode_opts.port` is set.
 ---@field cmd string
 
+---A user-defined provider, combining the provider interface and its configuration options.
 ---@class opencode.providers.User : opencode.Provider, opencode.providers.Opts
 
 local opts = require("opencode.config").opts.provider
