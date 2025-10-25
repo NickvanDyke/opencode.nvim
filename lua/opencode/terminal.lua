@@ -13,9 +13,13 @@ function M.toggle()
 end
 
 ---Open an embedded `opencode` terminal.
-function M.open()
+---@param cmd? string Command to run in the terminal. Defaults to `opts.terminal.cmd`.
+function M.open(cmd)
   -- We use `get`, not `open`, so that `toggle` will reference the same terminal
-  safe_snacks_terminal().get(require("opencode.config").opts.terminal.cmd, require("opencode.config").opts.terminal)
+  safe_snacks_terminal().get(
+    cmd or require("opencode.config").opts.terminal.cmd,
+    require("opencode.config").opts.terminal
+  )
 end
 
 ---Show the embedded `opencode` terminal, if it already exists.
