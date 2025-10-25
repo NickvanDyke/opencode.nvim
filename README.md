@@ -180,7 +180,7 @@ Or customize a built-in provider:
 
 ```lua
 vim.g.opencode_opts = {
-  ---@module 'snacks'
+  ---@module 'snacks.terminal'
   ---@type opencode.providers.snacks.Opts
   provider = {
     name = "snacks",
