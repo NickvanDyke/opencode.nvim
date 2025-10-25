@@ -173,7 +173,7 @@ end
 
 -- TODO: Remove later
 if M.opts.terminal then
-  M.opts.provider = { name = "snacks", opts = M.opts.terminal }
+  M.opts.provider = vim.tbl_deep_extend("force", M.opts.provider, M.opts.terminal)
   vim.notify(
     '`opts.terminal` has been replaced; please use `opts.provider = { name = "snacks", ... }` instead.',
     vim.log.levels.WARN,
