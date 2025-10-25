@@ -1,3 +1,4 @@
+---Configure [`snacks.nvim`](https://github.com/folke/snacks.nvim) to provide an embedded terminal.
 ---@class opencode.providers.snacks.Opts : { name: "snacks" }, opencode.providers.Opts, snacks.terminal.Opts
 
 ---@type opencode.Provider

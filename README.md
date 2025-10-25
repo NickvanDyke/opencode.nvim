@@ -160,6 +160,7 @@ Toggle `opencode`. By default, uses an embedded terminal via [`snacks.nvim`](htt
 
 ```lua
 vim.g.opencode_opts = {
+  ---@type opencode.providers.User
   provider = {
     cmd = "opencode",
     toggle = function(opts)
@@ -171,6 +172,21 @@ vim.g.opencode_opts = {
     show = function(opts)
       -- ...
     end
+  }
+}
+```
+
+Or customize a built-in provider:
+
+```lua
+vim.g.opencode_opts = {
+  ---@module 'snacks'
+  ---@type opencode.providers.snacks.Opts
+  provider = {
+    name = "snacks",
+    win = {
+      position = "left"
+    }
   }
 }
 ```
