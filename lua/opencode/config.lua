@@ -142,10 +142,15 @@ local defaults = {
       OPENCODE_THEME = "system",
     },
   },
-  on_opencode_not_found = function()
+  ---@param port? number Free port number that `opencode` can use.
+  on_opencode_not_found = function(port)
     -- Ignore error so users can safely exclude `snacks.nvim` dependency without overriding this function.
     -- Could incidentally hide an unexpected error in `snacks.terminal`, but seems unlikely.
-    pcall(require("opencode.terminal").open)
+    local cmd = M.opts.terminal.cmd
+    if not cmd:find("--port") then
+      cmd = cmd .. " --port " .. tostring(port)
+    end
+    pcall(require("opencode.terminal").open, cmd)
   end,
   on_send = function()
     -- "if exists" because user may alternate between embedded and external `opencode`.
