@@ -142,8 +142,8 @@ end
 ---@return number port
 local function test_port(port)
   -- TODO: `curl` "/app" endpoint to verify it's actually an opencode server.
-  local chan = vim.fn.sockconnect("tcp", ("localhost:%d"):format(port), { rpc = false, timeout = 200 })
-  if chan == 0 then
+  local ok, chan = pcall(vim.fn.sockconnect, "tcp", ("localhost:%d"):format(port), { rpc = false, timeout = 200 })
+  if not ok or chan == 0 then
     error(("Couldn't find a process listening on port: %d"):format(port), 0)
   else
     pcall(vim.fn.chanclose, chan)
