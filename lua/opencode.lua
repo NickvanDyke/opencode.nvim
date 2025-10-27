@@ -161,10 +161,10 @@ end
 ---@param default? string Text to prefill the input with.
 ---@param opts? opencode.prompt.Opts Options for `prompt()`.
 function M.ask(default, opts)
-  opts = vim.tbl_deep_extend("force", opts or {}, {
-    context = opts and opts.context or require("opencode.context").new(),
-  })
+  opts = opts or {}
+  opts.context = opts.context or require("opencode.context").new()
 
+  vim.print(opts.context)
   require("opencode.ui.ask").input(default, opts.context, function(value)
     if value and value ~= "" then
       M.prompt(value, opts)
@@ -179,11 +179,11 @@ function M.select()
 
   require("opencode.ui.select").select(context, function(prompt)
     if prompt then
-      local opts = vim.tbl_deep_extend("force", prompt, { context = context })
+      prompt.context = context
       if prompt.ask then
-        require("opencode").ask(prompt.prompt, opts)
+        require("opencode").ask(prompt.prompt, prompt)
       else
-        require("opencode").prompt(prompt.prompt, opts)
+        require("opencode").prompt(prompt.prompt, prompt)
       end
     end
   end)
