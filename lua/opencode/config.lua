@@ -115,7 +115,7 @@ local defaults = {
     cmd = "opencode",
     enabled = (function()
       local snacks_ok, snacks = pcall(require, "snacks")
-      if snacks_ok and snacks.config.get("terminal", {}).enabled ~= false then
+      if snacks_ok and snacks.config.get("terminal", {}).enabled then
         return "snacks"
       end
 

@@ -58,7 +58,7 @@ function M.check()
 
   local snacks_ok, snacks = pcall(require, "snacks")
   if snacks_ok then
-    if snacks.input and snacks.config.get("input", {}) ~= false then
+    if snacks.input and snacks.config.get("input", {}).enabled then
       vim.health.ok("`snacks.input` is enabled: `ask()` will be enhanced.")
       local blink_ok = pcall(require, "blink.cmp")
       if blink_ok then
@@ -69,12 +69,12 @@ function M.check()
     else
       vim.health.warn("`snacks.input` is disabled: `ask()` will not be enhanced.")
     end
-    if snacks.picker and snacks.config.get("picker", {}).enabled ~= false then
+    if snacks.picker and snacks.config.get("picker", {}).enabled then
       vim.health.ok("`snacks.picker` is enabled: `select()` will be enhanced.")
     else
       vim.health.warn("`snacks.picker` is disabled: `select()` will not be enhanced.")
     end
-    if snacks.picker and snacks.config.get("terminal", {}).enabled ~= false then
+    if snacks.picker and snacks.config.get("terminal", {}).enabled then
       vim.health.ok("`snacks.terminal` is enabled: will default to `snacks` provider.")
     else
       vim.health.warn("`snacks.terminal` is disabled: the `snacks` provider will not be available.", {
