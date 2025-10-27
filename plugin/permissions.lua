@@ -1,3 +1,7 @@
+---@class opencode.permissions.Opts
+---@field enabled boolean Whether to show permission requests.
+---@field idle_delay_ms number Amount of user idle time before showing permission requests.
+
 ---Waits for user to be idle (no keypresses) for `timeout` milliseconds, then calls `callback`.
 ---@param callback function Function to call when user is idle.
 ---@param timeout number Time in milliseconds to wait for idle.

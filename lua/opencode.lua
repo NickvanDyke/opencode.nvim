@@ -37,10 +37,7 @@ function M.prompt(prompt, opts, callback)
   }
 
   get_port(function(port)
-    local on_send_ok, on_send_err = pcall(require("opencode.config").opts.on_send)
-    if not on_send_ok then
-      vim.notify("Error in `vim.g.opencode_opts.on_send`: " .. on_send_err, vim.log.levels.WARN, { title = "opencode" })
-    end
+    require("opencode.provider").show()
 
     require("opencode.util").chain({
       function(next)
@@ -144,14 +141,7 @@ function M.command(command, callback)
         -- No need to register SSE here - commands don't trigger any.
         -- (except maybe the `input_*` commands? but no reason for user to use those).
 
-        local on_send_ok, on_send_err = pcall(require("opencode.config").opts.on_send)
-        if not on_send_ok then
-          vim.notify(
-            "Error in `vim.g.opencode_opts.on_send`: " .. on_send_err,
-            vim.log.levels.WARN,
-            { title = "opencode" }
-          )
-        end
+        require("opencode.provider").show()
 
         ---@cast command opencode.Command|string
         require("opencode.cli.client").tui_execute_command(command, port, callback)
@@ -183,7 +173,7 @@ function M.ask(default, opts)
 end
 
 ---Select a prompt from `opts.prompts` to send to `opencode`.
----Includes preview when using `snacks.nvim`.
+---Includes preview when using `snacks.picker`.
 function M.select()
   local context = require("opencode.context").new()
 
@@ -199,14 +189,9 @@ function M.select()
   end)
 end
 
----Toggle an embedded `opencode`.
----Requires `snacks.terminal`.
+---Toggle `opencode` via `opts.provider`.
 function M.toggle()
-  local ok, err = pcall(require("opencode.terminal").toggle)
-  if not ok then
-    ---@cast err string
-    vim.notify(err, vim.log.levels.ERROR, { title = "opencode" })
-  end
+  require("opencode.provider").toggle()
 end
 
 return M

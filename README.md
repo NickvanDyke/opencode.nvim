@@ -8,7 +8,7 @@ https://github.com/user-attachments/assets/4dd19151-89e4-4272-abac-6710dbc6edc1
 
 - Auto-connect to *any* `opencode` inside Neovim's CWD, or toggle an embedded instance.
 - Input prompts with completions, highlights, and normal-mode support.
-- Select from a prompt library and define your own.
+- Select prompts from a library and define your own.
 - Inject relevant editor context (buffer, cursor, selection, diagnostics, ...).
 - Control `opencode` with commands.
 - Respond to `opencode` permission requests.
@@ -25,12 +25,13 @@ https://github.com/user-attachments/assets/4dd19151-89e4-4272-abac-6710dbc6edc1
   "NickvanDyke/opencode.nvim",
   dependencies = {
     -- Recommended for `ask()` and `select()`.
-    -- Required for `toggle()`.
-    { "folke/snacks.nvim", opts = { input = {}, picker = {} } },
+    -- Required for default `toggle()` implementation.
+    { "folke/snacks.nvim", opts = { input = {}, picker = {}, terminal = {} } },
   },
   config = function()
+    ---@type opencode.Opts
     vim.g.opencode_opts = {
-      -- Your configuration, if any — see `lua/opencode/config.lua`, or "goto definition" on `opencode_opts`.
+      -- Your configuration, if any — see `lua/opencode/config.lua`, or "goto definition".
     }
 
     -- Required for `vim.g.opencode_opts.auto_reload`.
@@ -69,6 +70,45 @@ programs.nixvim = {
 ## ⚙️ Configuration
 
 `opencode.nvim` provides a rich and reliable default experience — see all available options and their defaults [here](./lua/opencode/config.lua).
+
+### Provider
+
+`opencode.nvim` auto-connects to *any* `opencode` running inside Neovim's CWD — you can manually launch `opencode` however you like (terminal plugin, multiplexer, app, ...), but consider configuring `opencode.nvim` to manage it on your behalf:
+
+```lua
+vim.g.opencode_opts = {
+  ---@type opencode.Provider
+  provider = {
+    toggle = function(self)
+      -- ...
+    end,
+    start = function(self)
+      -- ...
+    end,
+    show = function(self)
+      -- ...
+    end
+  }
+}
+```
+
+
+By default, `opencode.nvim` will use [`snacks.terminal`](https://github.com/folke/snacks.nvim/blob/main/docs/terminal.md) (if available) to launch and manage an embedded `opencode` when one isn't already running:
+
+```lua
+vim.g.opencode_opts = {
+  provider = {
+    enabled = "snacks",
+    ---@type opencode.provider.Snacks
+    snacks = {
+      -- Customize `snacks.terminal` to your liking.
+    }
+  }
+}
+```
+
+> [!TIP]
+> I only use `snacks.terminal`, but welcome PRs adding your custom method as a built-in provider 🙂
 
 ## 🚀 Usage
 
@@ -154,11 +194,7 @@ Send a [command](https://opencode.ai/docs/keybinds):
 
 ### 💻 Toggle — `require("opencode").toggle()`
 
-Toggle an embedded `opencode` terminal (requires [`snacks.nvim`](https://github.com/folke/snacks.nvim)).
-
-`opencode.nvim` connects to *any* `opencode` inside Neovim's CWD, but provides this for quickstart.
-
-To use your own method (terminal app or plugin, multiplexer, etc.), launch `opencode` with it and optionally override `vim.g.opencode_opts.on_opencode_not_found` and `vim.g.opencode_opts.on_send` for convenience, then use `opencode.nvim` normally.
+Toggle `opencode` via `vim.g.opencode_opts.provider`.
 
 ## 👀 Events
 

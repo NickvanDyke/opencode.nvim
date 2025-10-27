@@ -15,7 +15,7 @@ vim.g.opencode_opts = vim.g.opencode_opts
 ---
 ---The port `opencode` is running on.
 ---If `nil`, searches for an `opencode` process inside Neovim's CWD (requires `lsof` to be installed on your system).
----Launch `opencode` with `--port <port>` when this is set (the embedded terminal will automatically do so).
+---If set, `opencode.nvim` will append `--port <port>` to `provider.cmd` if not already present.
 ---@field port? number
 ---
 ---Reload buffers edited by `opencode` in real-time.
@@ -43,18 +43,16 @@ vim.g.opencode_opts = vim.g.opencode_opts
 ---Options for `opencode` permission requests.
 ---@field permissions? opencode.permissions.Opts
 ---
----Embedded terminal options for `toggle()`.
----Supports [snacks.terminal](https://github.com/folke/snacks.nvim/blob/main/docs/terminal.md).
----@field terminal? opencode.terminal.Opts
+---Only for convenience/integration — you can ignore this field and manually manage your own `opencode`.
+---@field provider? opencode.Provider|opencode.provider.Opts
 ---
----Called when no `opencode` process is found so you can start it.
----After calling this function, `opencode.nvim` will poll for a couple seconds to see if an `opencode` process appears.
----By default, opens an embedded terminal using [snacks.terminal](https://github.com/folke/snacks.nvim/blob/main/docs/terminal.md) (if available).
----But you could also e.g. call your own terminal plugin, launch an external `opencode`, or no-op.
+---DEPRECATED: Please use `opts.provider = { name = "snacks", ... }` instead.
+---@field terminal? { cmd: string }|snacks.terminal.Opts
+---
+---DEPRECATED: Please use `opts.provider.start` instead.
 ---@field on_opencode_not_found? fun()
 ---
----Called when a prompt or command is sent to `opencode`.
----By default, shows the embedded terminal if it exists.
+---DEPRECATED: Please use `opts.provider.show` instead.
 ---@field on_send? fun()
 
 ---@type opencode.Opts
@@ -105,63 +103,95 @@ local defaults = {
     snacks = {
       preview = "preview",
       layout = {
-        -- preview is hidden by default in `vim.ui.select`
-        hidden = {},
+        hidden = {}, -- preview is hidden by default in `vim.ui.select`
       },
     },
   },
-  ---@class opencode.permissions.Opts
-  ---@field enabled boolean Whether to show permission requests.
-  ---@field idle_delay_ms number Amount of user idle time before showing permission requests.
   permissions = {
     enabled = true,
     idle_delay_ms = 1000,
   },
-  ---@class opencode.terminal.Opts : snacks.terminal.Opts
-  ---@field cmd string The command to run in the embedded terminal. See [here](https://opencode.ai/docs/cli) for options.
-  terminal = {
+  provider = {
     cmd = "opencode",
-    -- Close the terminal when `opencode` exits
-    auto_close = true,
-    win = {
-      position = "right",
-      -- Stay in the editor after opening the terminal
-      enter = false,
-      wo = {
-        -- Title is unnecessary - `opencode` TUI has its own footer
-        winbar = "",
+    enabled = (function()
+      local snacks_ok, snacks = pcall(require, "snacks")
+      if snacks_ok and snacks.config.get("terminal", {}).enabled ~= false then
+        return "snacks"
+      end
+
+      return false
+    end)(),
+    snacks = {
+      auto_close = true, -- Close the terminal when `opencode` exits
+      win = {
+        position = "right",
+        enter = false, -- Stay in the editor after opening the terminal
+        wo = {
+          winbar = "", -- Title is unnecessary - `opencode` TUI has its own footer
+        },
+        bo = {
+          -- Make it easier to target for customization, and prevent possibly unintended `"snacks_terminal"` targeting.
+          -- e.g. the recommended edgy.nvim integration puts all `"snacks_terminal"` windows at the bottom.
+          filetype = "opencode_terminal",
+        },
       },
-      bo = {
-        -- Make it easier to target for customization, and prevent possibly unintended `"snacks_terminal"` targeting.
-        -- e.g. the recommended edgy.nvim integration puts all `"snacks_terminal"` windows at the bottom.
-        filetype = "opencode_terminal",
+      env = {
+        OPENCODE_THEME = "system", -- HACK: Other themes have visual bugs in embedded terminals: https://github.com/sst/opencode/issues/445
       },
-    },
-    env = {
-      -- Other themes have visual bugs in embedded terminals: https://github.com/sst/opencode/issues/445
-      OPENCODE_THEME = "system",
+      ---@param self opencode.provider.Snacks
+      toggle = function(self)
+        require("snacks.terminal").toggle(self.cmd, self)
+      end,
+      ---@param self opencode.provider.Snacks
+      start = function(self)
+        require("snacks.terminal").open(self.cmd, self)
+      end,
+      ---@param self opencode.provider.Snacks
+      show = function(self)
+        local win = require("snacks.terminal").get(self.cmd, self)
+        if win then
+          win:show()
+        end
+      end,
     },
   },
-  on_opencode_not_found = function()
-    -- Ignore error so users can safely exclude `snacks.nvim` dependency without overriding this function.
-    -- Could incidentally hide an unexpected error in `snacks.terminal`, but seems unlikely.
-    pcall(require("opencode.terminal").open)
-  end,
-  on_send = function()
-    -- "if exists" because user may alternate between embedded and external `opencode`.
-    -- `opts.on_opencode_not_found` comments also apply here.
-    pcall(require("opencode.terminal").show_if_exists)
-  end,
 }
 
 ---Plugin options, lazily merged from `defaults` and `vim.g.opencode_opts`.
 ---@type opencode.Opts
 M.opts = vim.tbl_deep_extend("force", vim.deepcopy(defaults), vim.g.opencode_opts or {})
 
+-- TODO: Remove later
+if M.opts.terminal then
+  M.opts.provider.snacks = vim.tbl_deep_extend("force", M.opts.provider.snacks, M.opts.terminal)
+  vim.notify(
+    '`opts.terminal` has been deprecated; please use `opts.provider = { name = "snacks", snacks = { ... } }` instead.',
+    vim.log.levels.WARN,
+    { title = "opencode" }
+  )
+end
+if M.opts.on_opencode_not_found then
+  M.opts.provider.start = M.opts.on_opencode_not_found
+  vim.notify(
+    "`opts.on_opencode_not_found` has been deprecated; please use `opts.provider.start` instead.",
+    vim.log.levels.WARN,
+    { title = "opencode" }
+  )
+end
+if M.opts.on_send then
+  M.opts.provider.show = M.opts.on_send
+  vim.notify(
+    "`opts.on_send` has been deprecated; please use `opts.provider.show` instead.",
+    vim.log.levels.WARN,
+    { title = "opencode" }
+  )
+end
+
 -- Allow removing default `prompts` and `contexts` by setting them to `false` in your user config.
 -- Example:
 --   prompts = { ask = false } -- removes the default 'ask' prompt
 --   contexts = { ['@buffer'] = false } -- removes the default '@buffer' context
+-- TODO: Add to type definition
 local user_opts = vim.g.opencode_opts or {}
 for _, field in ipairs({ "prompts", "contexts" }) do
   if user_opts[field] and M.opts[field] then
@@ -171,11 +201,6 @@ for _, field in ipairs({ "prompts", "contexts" }) do
       end
     end
   end
-end
-
--- Auto-add `--port <port>` to embedded terminal command if set and not already present.
-if M.opts.port and not M.opts.terminal.cmd:find("--port") then
-  M.opts.terminal.cmd = M.opts.terminal.cmd .. " --port " .. tostring(M.opts.port)
 end
 
 return M
