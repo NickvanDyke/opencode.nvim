@@ -99,55 +99,18 @@ end
 
 ---Send a [command](https://opencode.ai/docs/keybinds) to `opencode`.
 ---
----@param command opencode.Command|string|nil The command to send to `opencode`. If `nil`, opens `vim.ui.select` to choose a command.
+---@param command opencode.Command|string The command to send to `opencode`.
 ---@param callback fun(response: table)|nil
 function M.command(command, callback)
-  require("opencode.util").chain({
-    function(next)
-      if not command then
-        vim.ui.select({
-          { name = "New session", command = "session_new" },
-          { name = "Share session", command = "session_share" },
-          { name = "Interrupt", command = "session_interrupt" },
-          { name = "Compact messages", command = "session_compact" },
-          { name = "Messages page up", command = "messages_page_up" },
-          { name = "Messages page down", command = "messages_page_down" },
-          { name = "Messages half page up", command = "messages_half_page_up" },
-          { name = "Messages half page down", command = "messages_half_page_down" },
-          { name = "Messages first", command = "messages_first" },
-          { name = "Messages last", command = "messages_last" },
-          { name = "Copy last message", command = "messages_copy" },
-          { name = "Undo last message", command = "messages_undo" },
-          { name = "Redo last message", command = "messages_redo" },
-          { name = "Clear input", command = "input_clear" },
-          { name = "Cycle agent", command = "agent_cycle" },
-        }, {
-          prompt = "Command opencode: ",
-          format_item = function(item)
-            return item.name
-          end,
-        }, function(choice)
-          if choice then
-            command = choice.command
-            next()
-          end
-        end)
-      else
-        next()
-      end
-    end,
-    function()
-      get_port(function(port)
-        -- No need to register SSE here - commands don't trigger any.
-        -- (except maybe the `input_*` commands? but no reason for user to use those).
+  get_port(function(port)
+    -- No need to register SSE here - commands don't trigger any.
+    -- (except maybe the `input_*` commands? but no reason for user to use those).
 
-        require("opencode.provider").show()
+    require("opencode.provider").show()
 
-        ---@cast command opencode.Command|string
-        require("opencode.cli.client").tui_execute_command(command, port, callback)
-      end)
-    end,
-  })
+    ---@cast command opencode.Command|string
+    require("opencode.cli.client").tui_execute_command(command, port, callback)
+  end)
 end
 
 ---Input a prompt to send to `opencode`.
@@ -171,18 +134,39 @@ function M.ask(default, opts)
   end)
 end
 
----Select a prompt from `opts.prompts` to send to `opencode`.
----Includes preview when using `snacks.picker`.
-function M.select()
+---Select a prompt, command, or provider function.
+---Includes previews when using `snacks.picker`.
+---@param opts? opencode.select.Opts Control what's shown in the select menu.
+function M.select(opts)
   local context = require("opencode.context").new()
+  opts = opts or {
+    prompts = true,
+    commands = true,
+    provider = true,
+  }
 
-  require("opencode.ui.select").select(context, function(prompt)
-    if prompt then
+  require("opencode.ui.select").select(opts, context, function(choice)
+    if not choice then
+      return
+    elseif choice.__type == "prompt" then
+      ---@type opencode.Prompt
+      local prompt = require("opencode.config").opts.prompts[choice.name]
       prompt.context = context
       if prompt.ask then
         require("opencode").ask(prompt.prompt, prompt)
       else
         require("opencode").prompt(prompt.prompt, prompt)
+      end
+    elseif choice.__type == "command" then
+      require("opencode").command(choice.name)
+    elseif choice.__type == "provider" then
+      local provider = require("opencode.provider")
+      if choice.name == "toggle" then
+        provider.toggle()
+      elseif choice.name == "start" then
+        provider.start()
+      elseif choice.name == "show" then
+        provider.show()
       end
     end
   end)

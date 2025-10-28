@@ -60,7 +60,7 @@ function M.toggle()
     started = true
   else
     vim.notify(
-      "No `provider.toggle` available — configure `vim.g.opencode_opts.provider`, or install `snacks.nvim` to use the default",
+      "No `provider.toggle` available — configure `vim.g.opencode_opts.provider`, or install `snacks.nvim` to use the default provider",
       vim.log.levels.ERROR,
       { title = "opencode" }
     )
@@ -73,7 +73,7 @@ function M.start()
     started = true
   else
     vim.notify(
-      "No `provider.start` available — configure `vim.g.opencode_opts.provider`, or install `snacks.nvim` to use the default",
+      "No `provider.start` available — start `opencode` yourself, or configure `vim.g.opencode_opts.provider`, or install `snacks.nvim` to use the default provider",
       vim.log.levels.ERROR,
       { title = "opencode" }
     )

@@ -32,6 +32,9 @@ vim.g.opencode_opts = vim.g.opencode_opts
 ---Prompts to select from.
 ---@field prompts? table<string, opencode.Prompt>
 ---
+---Commands to select from.
+---@field commands? table<string, opencode.Command|string>
+---
 ---Input options for `ask()`.
 ---Supports [snacks.input](https://github.com/folke/snacks.nvim/blob/main/docs/input.md).
 ---@field input? snacks.input.Opts
@@ -43,6 +46,7 @@ vim.g.opencode_opts = vim.g.opencode_opts
 ---Options for `opencode` permission requests.
 ---@field permissions? opencode.permissions.Opts
 ---
+---Provide methods for `opencode.nvim` to toggle, start, and show `opencode`.
 ---Only for convenience/integration — you can ignore this field and manually manage your own `opencode`.
 ---@field provider? opencode.Provider|opencode.provider.Opts
 ---
@@ -54,6 +58,10 @@ vim.g.opencode_opts = vim.g.opencode_opts
 ---
 ---DEPRECATED: Please use `opts.provider.show` instead.
 ---@field on_send? fun()
+
+---@class opencode.Prompt : opencode.prompt.Opts
+---@field prompt string The prompt to send to `opencode`, with placeholders for context like `@cursor`, `@buffer`, etc.
+---@field ask? boolean Call `ask(prompt)` instead of `prompt(prompt)`. Useful for prompts that expect additional user input.
 
 ---@type opencode.Opts
 local defaults = {
@@ -74,7 +82,6 @@ local defaults = {
     ["@grapple"] = function(context) return context:grapple_tags() end,
   },
   prompts = {
-    -- With an "Ask" item, the select menu can serve as the only entrypoint to all plugin-exclusive functionality, without numerous keymaps.
     ask = { prompt = "", ask = true, submit = true },
     explain = { prompt = "Explain @this and its context", submit = true },
     optimize = { prompt = "Optimize @this for performance and readability", submit = true },
@@ -86,6 +93,16 @@ local defaults = {
     diff = { prompt = "Review the following git diff for correctness and readability: @diff", submit = true },
     buffer = { prompt = "@buffer" },
     this = { prompt = "@this" },
+  },
+  commands = {
+    session_new = "Start a new session",
+    session_share = "Share the current session",
+    session_interrupt = "Interrupt the current session",
+    session_compact = "Compact the current session (reduce context size)",
+    messages_copy = "Copy the last message in the session",
+    messages_undo = "Undo the last message in the session",
+    messages_redo = "Redo the last message in the session",
+    agent_cycle = "Cycle the selected agent",
   },
   input = {
     prompt = "Ask opencode: ",
@@ -99,10 +116,11 @@ local defaults = {
     },
   },
   select = {
-    prompt = "Prompt opencode: ",
+    prompt = "opencode: ",
     snacks = {
       preview = "preview",
       layout = {
+        preset = "vscode",
         hidden = {}, -- preview is hidden by default in `vim.ui.select`
       },
     },
@@ -187,13 +205,14 @@ if M.opts.on_send then
   )
 end
 
--- Allow removing default `prompts` and `contexts` by setting them to `false` in your user config.
+-- Allow removing default `contexts`, `prompts`, and `commands` by setting them to `false` in your user config.
 -- Example:
---   prompts = { ask = false } -- removes the default 'ask' prompt
---   contexts = { ['@buffer'] = false } -- removes the default '@buffer' context
+--   contexts = { ['@buffer'] = false }
+--   prompts = { ask = false }
+--   commands = { session_new = false }
 -- TODO: Add to type definition
 local user_opts = vim.g.opencode_opts or {}
-for _, field in ipairs({ "prompts", "contexts" }) do
+for _, field in ipairs({ "contexts", "prompts", "commands" }) do
   if user_opts[field] and M.opts[field] then
     for k, v in pairs(user_opts[field]) do
       if not v then
