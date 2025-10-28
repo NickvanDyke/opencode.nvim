@@ -114,7 +114,7 @@ vim.g.opencode_opts = {
 
 ### 🗣️ Prompt — `require("opencode").prompt()` | `:[range]OpencodePrompt`
 
-Send a prompt.
+Send a prompt to `opencode`.
 
 Replaces placeholders with the corresponding context:
 
@@ -131,9 +131,25 @@ Replaces placeholders with the corresponding context:
 | `@diff` | Git diff |
 | `@grapple` | [grapple.nvim](https://github.com/cbochs/grapple.nvim) tags |
 
+Or pass a prompt name from `opts.prompts` to review, explain, and improve your code:
+
+| Name                               | Prompt                                                    |
+|------------------------------------|-----------------------------------------------------------|
+| `ask`         | *...*                                                             |
+| `explain`     | Explain `@this` and its context                                   |
+| `optimize`    | Optimize `@this` for performance and readability                  |
+| `document`    | Add comments documenting `@this`                                  |
+| `test`        | Add tests for `@this`                                             |
+| `review`      | Review `@this` for correctness and readability                    |
+| `diagnostics` | Explain `@diagnostics`                                            |
+| `fix`         | Fix `@diagnostics`                                                |
+| `diff`        | Review the following git diff for correctness and readability: `@diff`         |
+| `buffer`  | `@buffer`                                                             |
+| `this`    | `@this`                                                               |
+
 ### ✍️ Ask — `require("opencode").ask()`
 
-Input a prompt.
+Input a prompt to send to `opencode`.
 
 - Highlights placeholders.
 - Completes placeholders.
@@ -143,7 +159,7 @@ Input a prompt.
 
 ### 🧑‍🏫 Command — `require("opencode").command()`
 
-Send a [command](https://opencode.ai/docs/keybinds) to control `opencode`:
+Send a [command](https://opencode.ai/docs/keybinds) to `opencode`:
 
 | Command                   | Description                                              |
 |---------------------------|----------------------------------------------------------|
@@ -173,48 +189,9 @@ Toggle `opencode` via `opts.provider.toggle`. Usually not explicitly needed — 
 
 A single entrypoint to all `opencode.nvim` functionality 😄
 
-#### Prompt
-
-Select from `opts.prompts` to review, explain, and improve your code:
-
-| Name                               | Prompt                                                    |
-|------------------------------------|-----------------------------------------------------------|
-| `ask`         | *...*                                                             |
-| `explain`     | Explain `@this` and its context                                   |
-| `optimize`    | Optimize `@this` for performance and readability                  |
-| `document`    | Add comments documenting `@this`                                  |
-| `test`        | Add tests for `@this`                                             |
-| `review`      | Review `@this` for correctness and readability                    |
-| `diagnostics` | Explain `@diagnostics`                                            |
-| `fix`         | Fix `@diagnostics`                                                |
-| `diff`        | Review the following git diff for correctness and readability: `@diff`         |
-| `buffer`  | `@buffer`                                                             |
-| `this`    | `@this`                                                               |
-
-#### Command
-
-Select from `opts.commands` to control `opencode`:
-
-| Command                   | Description                                              |
-|---------------------------|----------------------------------------------------------|
-| `session_new`             | Start a new session                                      |
-| `session_share`           | Share the current session                                |
-| `session_interrupt`       | Interrupt the current session                            |
-| `session_compact`         | Compact the current session (reduce context size)        |
-| `messages_copy`           | Copy the last message in the session                     |
-| `messages_undo`           | Undo the last message in the session                     |
-| `messages_redo`           | Redo the last message in the session                     |
-| `agent_cycle`             | Cycle the selected agent                                 |
-
-#### Provider
-
-Manage `opts.provider`:
-
-| Name | Function |
-|------|----------|
-| `toggle` | Toggle `opencode` |
-| `start` | Start `opencode` |
-| `show` | Show `opencode` |
+- Prompt library (`opts.prompts`)
+- Command library (`opts.commands`)
+- Manage provider (`opts.provider`)
 
 ## 👀 Events
 

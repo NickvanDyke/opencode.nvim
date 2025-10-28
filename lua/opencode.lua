@@ -18,18 +18,20 @@ end
 
 ---Prompt `opencode`.
 ---
----1. Clears the TUI input if `opts.clear`.
----2. Appends `prompt` to the TUI input.
----  - Injects `opts.contexts` into `prompt`.
----3. Submits the TUI input if `opts.submit`.
----  - Listens for Server-Sent-Events to forward as `OpencodeEvent` autocmd.
----  - Calls `opts.on_send`.
----4. Calls `callback` if provided.
+---1. Resolves `prompt` if it's a prompt name from `opts.prompts`.
+---2. Clears the TUI input if `opts.clear`.
+---3. Injects `opts.contexts` into `prompt`.
+---4. Appends `prompt` to the TUI input.
+---5. Submits the TUI input if `opts.submit`.
+---6. Listens for Server-Sent-Events to forward as `OpencodeEvent` autocmd.
+---7. Calls `callback` if provided.
 ---
----@param prompt string The prompt to send to `opencode`, with optional `opts.contexts` placeholders.
+---@param prompt string The prompt to send to `opencode`, or a prompt name from `opts.prompts`.
 ---@param opts? opencode.prompt.Opts
 ---@param callback? fun()
 function M.prompt(prompt, opts, callback)
+  local referenced_prompt = require("opencode.config").opts.prompts[prompt]
+  prompt = referenced_prompt and referenced_prompt.prompt or prompt
   opts = {
     clear = opts and opts.clear or false,
     submit = opts and opts.submit or false,
