@@ -6,6 +6,15 @@ local external_instructions =
 function M.check()
   vim.health.start("opencode.nvim")
 
+  local plugin_dir = vim.fn.fnamemodify(debug.getinfo(1, "S").source:sub(2), ":h")
+  local git_hash = vim.fn.system("cd " .. vim.fn.shellescape(plugin_dir) .. " && git rev-parse HEAD")
+  if vim.v.shell_error == 0 then
+    git_hash = vim.trim(git_hash)
+    vim.health.ok("`opencode.nvim` git commit hash: " .. git_hash)
+  else
+    vim.health.warn("Could not determine `opencode.nvim` git commit hash")
+  end
+
   if vim.fn.executable("opencode") == 1 then
     local found_version = vim.fn.system("opencode --version")
     found_version = vim.trim(vim.split(found_version, "\n")[1])
