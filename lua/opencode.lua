@@ -164,7 +164,6 @@ function M.ask(default, opts)
   opts = opts or {}
   opts.context = opts.context or require("opencode.context").new()
 
-  vim.print(opts.context)
   require("opencode.ui.ask").input(default, opts.context, function(value)
     if value and value ~= "" then
       M.prompt(value, opts)

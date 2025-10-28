@@ -12,7 +12,9 @@
 ---`opencode.nvim` will poll for a couple seconds waiting for one to appear.
 ---@field start? fun(self: opencode.Provider)
 ---
----Called when a prompt or command is sent to `opencode`, *and* this provider's `start` has previously been called (so as to not interfere when `opencode` was started externally).
+---Called when a prompt or command is sent to `opencode`,
+---*and* this provider's `toggle` or `start` has previously been called
+---(so as to not interfere when `opencode` was started externally).
 ---@field show? fun(self: opencode.Provider)
 
 ---Configure and enable built-in providers.
@@ -55,6 +57,7 @@ local started = false
 function M.toggle()
   if provider and provider.toggle then
     provider:toggle()
+    started = true
   else
     vim.notify(
       "No `provider.toggle` available — configure `vim.g.opencode_opts.provider`, or install `snacks.nvim` to use the default",
