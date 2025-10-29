@@ -281,25 +281,33 @@ function Context:diagnostics()
   if #diagnostics == 0 then
     return nil
   end
+  
+  local file_ref = Context.format({ buf = self.buf })
+  
   local diagnostic_strings = {}
   for _, diagnostic in ipairs(diagnostics) do
+    local location = string.format(
+      "L%d:C%d-L%d:C%d",
+      diagnostic.lnum + 1,
+      diagnostic.col + 1,
+      diagnostic.end_lnum + 1,
+      diagnostic.end_col + 1
+    )
+    
     table.insert(
       diagnostic_strings,
       string.format(
         "%s (%s): %s",
-        Context.format({
-          buf = self.buf,
-          start_line = diagnostic.lnum + 1,
-          start_col = diagnostic.col + 1,
-          end_line = diagnostic.end_lnum + 1,
-          end_col = diagnostic.end_col + 1,
-        }),
+        location,
         diagnostic.source or "unknown source",
         diagnostic.message:gsub("%s+", " "):gsub("^%s", ""):gsub("%s$", "")
       )
     )
   end
-  return #diagnostics
+  
+  return file_ref
+    .. " "
+    .. #diagnostics
     .. " diagnostic"
     .. (#diagnostics > 1 and "s" or "")
     .. ": "
