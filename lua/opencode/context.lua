@@ -281,9 +281,9 @@ function Context:diagnostics()
   if #diagnostics == 0 then
     return nil
   end
-  
+
   local file_ref = Context.format({ buf = self.buf })
-  
+
   local diagnostic_strings = {}
   for _, diagnostic in ipairs(diagnostics) do
     local location = string.format(
@@ -293,7 +293,7 @@ function Context:diagnostics()
       diagnostic.end_lnum + 1,
       diagnostic.end_col + 1
     )
-    
+
     table.insert(
       diagnostic_strings,
       string.format(
@@ -304,7 +304,7 @@ function Context:diagnostics()
       )
     )
   end
-  
+
   return file_ref
     .. " "
     .. #diagnostics
