@@ -171,12 +171,12 @@ end
 ---e.g. `@opencode.lua L21:C10-L65:C11`
 ---@param args { buf?: integer, path?: string, start_line?: integer, start_col?: integer, end_line?: integer, end_col?: integer }
 function Context.format(args)
-  assert(args.buf or args.path, "Must provide either `buf` or `path`")
-  if args.buf and not is_buf_valid(args.buf) then
-    return nil
+  local result = ""
+  if (args.buf and is_buf_valid(args.buf)) or args.path then
+    local rel_path = vim.fn.fnamemodify(args.path or vim.api.nvim_buf_get_name(args.buf), ":.")
+    -- Must be preceeded by @ and followed by space for `opencode` to parse as a file reference
+    result = "@" .. rel_path .. " "
   end
-  local rel_path = vim.fn.fnamemodify(args.path or vim.api.nvim_buf_get_name(args.buf), ":.")
-  local result = "@" .. rel_path
   if args.start_line and args.end_line and args.start_line > args.end_line then
     args.start_line, args.end_line = args.end_line, args.start_line
     if args.start_col and args.end_col then
@@ -184,7 +184,7 @@ function Context.format(args)
     end
   end
   if args.start_line then
-    result = result .. string.format(" L%d", args.start_line)
+    result = result .. string.format("L%d", args.start_line)
     if args.start_col then
       result = result .. string.format(":C%d", args.start_col)
     end
@@ -286,13 +286,12 @@ function Context:diagnostics()
 
   local diagnostic_strings = {}
   for _, diagnostic in ipairs(diagnostics) do
-    local location = string.format(
-      "L%d:C%d-L%d:C%d",
-      diagnostic.lnum + 1,
-      diagnostic.col + 1,
-      diagnostic.end_lnum + 1,
-      diagnostic.end_col + 1
-    )
+    local location = Context.format({
+      start_line = diagnostic.lnum + 1,
+      start_col = diagnostic.col + 1,
+      end_line = diagnostic.end_lnum + 1,
+      end_col = diagnostic.end_col + 1,
+    })
 
     table.insert(
       diagnostic_strings,
