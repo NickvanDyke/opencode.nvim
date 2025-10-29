@@ -305,13 +305,7 @@ function Context:diagnostics()
     )
   end
 
-  return file_ref
-    .. " "
-    .. #diagnostics
-    .. " diagnostic"
-    .. (#diagnostics > 1 and "s" or "")
-    .. ": "
-    .. table.concat(diagnostic_strings, "; ")
+  return #diagnostics .. " diagnostics in " .. file_ref .. ": " .. table.concat(diagnostic_strings, "; ")
 end
 
 ---Formatted quickfix list entries.
