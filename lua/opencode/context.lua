@@ -296,7 +296,7 @@ function Context:diagnostics()
     table.insert(
       diagnostic_strings,
       string.format(
-        "%s (%s): %s",
+        "- %s (%s): %s",
         location,
         diagnostic.source or "unknown source",
         diagnostic.message:gsub("%s+", " "):gsub("^%s", ""):gsub("%s$", "")
@@ -304,7 +304,7 @@ function Context:diagnostics()
     )
   end
 
-  return #diagnostics .. " diagnostics in " .. file_ref .. ": " .. table.concat(diagnostic_strings, "; ")
+  return #diagnostics .. " diagnostics in " .. file_ref .. "\n" .. table.concat(diagnostic_strings, "\n")
 end
 
 ---Formatted quickfix list entries.
