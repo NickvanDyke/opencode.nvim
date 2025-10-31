@@ -33,7 +33,8 @@ function M.prompt(prompt, opts, callback)
       return
     end
 
-    require("opencode.provider").show()
+    -- Swallow errors - more of a preference than a requirement here
+    pcall(require("opencode.provider").show)
 
     require("opencode.util").chain({
       function(next)

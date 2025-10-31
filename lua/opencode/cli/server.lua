@@ -174,7 +174,10 @@ function M.get_port(callback)
       end
     end,
     function(next)
-      require("opencode.provider").start()
+      local ok, result = pcall(require("opencode.provider").start)
+      if not ok then
+        vim.notify("Failed to start `opencode`: " .. result, vim.log.levels.ERROR)
+      end
       -- Always proceed - even if `opencode` wasn't started, failing to find it will give a more helpful error message.
       next()
     end,

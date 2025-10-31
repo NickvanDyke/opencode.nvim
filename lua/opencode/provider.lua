@@ -60,11 +60,7 @@ function M.toggle()
     provider:toggle()
     started = true
   else
-    vim.notify(
-      "No `provider.toggle` available — configure `vim.g.opencode_opts.provider`, or install `snacks.nvim` to use the default provider",
-      vim.log.levels.ERROR,
-      { title = "opencode" }
-    )
+    error("No `provider.toggle` available — run `:checkhealth opencode` for details", 0)
   end
 end
 
@@ -74,21 +70,19 @@ function M.start()
     provider:start()
     started = true
   else
-    vim.notify(
-      "No `provider.start` available — start `opencode` yourself, or configure `vim.g.opencode_opts.provider`, or install `snacks.nvim` to use the default provider",
-      vim.log.levels.ERROR,
-      { title = "opencode" }
-    )
+    error("No `provider.start` available — run `:checkhealth opencode` for details", 0)
   end
 end
 
 ---Show `opencode` via `opts.provider`.
---- Only called if `provider.toggle` or `provider.start` was previously called.
+---Only called if `provider.toggle` or `provider.start` was previously called.
 function M.show()
-  if provider and provider.show and started then
-    provider:show()
-  else
-    -- no-op - this is more of a preference than a requirement.
+  if started then
+    if provider and provider.show then
+      provider:show()
+    else
+      error("No `provider.show` available — run `:checkhealth opencode` for details", 0)
+    end
   end
 end
 

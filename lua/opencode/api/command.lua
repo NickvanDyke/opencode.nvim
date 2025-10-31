@@ -31,7 +31,8 @@ function M.command(command, callback)
     -- No need to register SSE here - commands don't trigger any.
     -- (except maybe the `input_*` commands? but no reason for user to use those).
 
-    require("opencode.provider").show()
+    -- Swallow errors - more of a preference than a requirement here
+    pcall(require("opencode.provider").show)
 
     require("opencode.cli.client").tui_execute_command(command, port, callback)
   end)

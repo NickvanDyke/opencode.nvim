@@ -1,8 +1,5 @@
 local M = {}
 
-local external_instructions =
-  "Or launch `opencode` with your own method and optionally override `vim.g.opencode_opts.provider` for convenience, then use `opencode.nvim` normally."
-
 function M.check()
   vim.health.start("opencode.nvim")
 
@@ -86,16 +83,18 @@ function M.check()
     if snacks.picker and snacks.config.get("terminal", {}).enabled then
       vim.health.ok("`snacks.terminal` is enabled: will default to `snacks` provider.")
     else
-      vim.health.warn("`snacks.terminal` is disabled: the `snacks` provider will not be available.", {
+      vim.health.warn("`snacks.terminal` is disabled: the default `snacks` provider will not be available.", {
         "Enable `snacks.terminal`",
-        external_instructions,
+        "Or launch and manage `opencode` yourself",
+        "Or configure `vim.g.opencode_opts.provider`",
       })
     end
   else
     vim.health.warn("`snacks.nvim` is not available: `ask()` and `select()` will not be enhanced.")
-    vim.health.warn("`snacks.nvim` is not available: the `snacks` provider will not be available.", {
+    vim.health.warn("`snacks.nvim` is not available: the default `snacks` provider will not be available.", {
       "Install `snacks.nvim`",
-      external_instructions,
+      "Or launch and manage `opencode` yourself",
+      "Or configure `vim.g.opencode_opts.provider`",
     })
   end
 end
