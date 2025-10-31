@@ -7,10 +7,16 @@ local M = {}
 ---@field commands? boolean
 ---@field provider? boolean
 
----@param opts opencode.select.Opts
----@param context opencode.Context
----@param on_choice fun(choice: { __type: "prompt"|"command"|"provider", name: string })
-function M.select(opts, context, on_choice)
+---Select a prompt, command, or provider function.
+---Includes previews when using `snacks.picker`.
+---@param opts? opencode.select.Opts
+function M.select(opts)
+  opts = opts or {
+    prompts = true,
+    commands = true,
+    provider = true,
+  }
+  local context = require("opencode.context").new()
   local prompts = require("opencode.config").opts.prompts or {}
   local commands = require("opencode.config").opts.commands or {}
 
@@ -137,7 +143,34 @@ function M.select(opts, context, on_choice)
     end,
   }
 
-  vim.ui.select(items, vim.tbl_deep_extend("keep", require("opencode.config").opts.select, select_opts), on_choice)
+  vim.ui.select(
+    items,
+    vim.tbl_deep_extend("force", select_opts, require("opencode.config").opts.select),
+    function(choice)
+      if not choice then
+        return
+      elseif choice.__type == "prompt" then
+        ---@type opencode.Prompt
+        local prompt = require("opencode.config").opts.prompts[choice.name]
+        prompt.context = context
+        if prompt.ask then
+          require("opencode").ask(prompt.prompt, prompt)
+        else
+          require("opencode").prompt(prompt.prompt, prompt)
+        end
+      elseif choice.__type == "command" then
+        require("opencode").command(choice.name)
+      elseif choice.__type == "provider" then
+        if choice.name == "toggle" then
+          require("opencode").toggle()
+        elseif choice.name == "start" then
+          require("opencode").start()
+        elseif choice.name == "show" then
+          require("opencode").show()
+        end
+      end
+    end
+  )
 end
 
 return M

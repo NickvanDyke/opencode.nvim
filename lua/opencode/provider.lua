@@ -54,6 +54,7 @@ end
 
 local started = false
 
+---Toggle `opencode` via `opts.provider`.
 function M.toggle()
   if provider and provider.toggle then
     provider:toggle()
@@ -67,6 +68,7 @@ function M.toggle()
   end
 end
 
+---Start `opencode` via `opts.provider`.
 function M.start()
   if provider and provider.start then
     provider:start()
@@ -80,6 +82,8 @@ function M.start()
   end
 end
 
+---Show `opencode` via `opts.provider`.
+--- Only called if `provider.toggle` or `provider.start` was previously called.
 function M.show()
   if provider and provider.show and started then
     provider:show()

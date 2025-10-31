@@ -2,19 +2,29 @@
 
 local M = {}
 
+---Input a prompt to send to `opencode`.
+---Press the up arrow to browse recent prompts.
+---
+--- - Highlights `opts.contexts` placeholders.
+--- - Completes `opts.contexts` placeholders.
+---   - Press `<Tab>` to trigger built-in completion.
+---   - When using `blink.cmp` and `snacks.input`, registers `opts.auto_register_cmp_sources`.
+---
 ---@param default? string Text to pre-fill the input with.
----@param context opencode.Context
----@param on_confirm fun(value: string|nil, callback?: fun())
-function M.input(default, context, on_confirm)
+---@param opts? opencode.prompt.Opts Options for `prompt()`.
+function M.ask(default, opts)
+  opts = opts or {}
+  opts.context = opts.context or require("opencode.context").new()
+
   ---@type snacks.input.Opts
   local input_opts = {
     default = default,
     highlight = function(text)
-      local rendered = context:render(text)
+      local rendered = opts.context:render(text)
       -- Transform to `:help input()-highlight` format
       return vim.tbl_map(function(extmark)
         return { extmark.col, extmark.end_col, extmark.hl_group }
-      end, context.extmarks(rendered.input))
+      end, opts.context.extmarks(rendered.input))
     end,
     completion = "customlist,v:lua.opencode_completion",
     -- snacks-only options
@@ -43,9 +53,13 @@ function M.input(default, context, on_confirm)
     },
   }
 
-  require("opencode.cmp.blink").context = context
+  require("opencode.cmp.blink").context = opts.context
 
-  vim.ui.input(vim.tbl_deep_extend("keep", require("opencode.config").opts.input, input_opts), on_confirm)
+  vim.ui.input(vim.tbl_deep_extend("force", input_opts, require("opencode.config").opts.input), function(value)
+    if value and value ~= "" then
+      require("opencode").prompt(value, opts)
+    end
+  end)
 end
 
 -- FIX: Overridden by blink.cmp cmdline completion if both are enabled, and that won't have our items.
