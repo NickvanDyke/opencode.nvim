@@ -74,8 +74,8 @@ function M.start()
   end
 end
 
----Show `opencode` via `opts.provider`.
----Only called if `provider.toggle` or `provider.start` was previously called.
+---Show `opencode` via `opts.provider`,
+---if `provider.toggle` or `provider.start` was previously called.
 function M.show()
   if started then
     if provider and provider.show then

@@ -11,4 +11,6 @@ M.toggle = require("opencode.provider").toggle
 M.start = require("opencode.provider").start
 M.show = require("opencode.provider").show
 
+M.statusline = require("opencode.status").statusline
+
 return M

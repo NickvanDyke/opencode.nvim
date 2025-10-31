@@ -11,8 +11,9 @@ https://github.com/user-attachments/assets/4dd19151-89e4-4272-abac-6710dbc6edc1
 - Select prompts from a library and define your own.
 - Inject relevant editor context (buffer, cursor, selection, diagnostics, ...).
 - Control `opencode` with commands.
-- Respond to `opencode` permission requests.
 - Auto-reload buffers edited by `opencode` in real-time.
+- Respond to `opencode` permission requests.
+- Statusline component.
 - Forward `opencode`'s Server-Sent-Events as Neovim autocmds for automation.
 - Sensible defaults with well-documented, flexible configuration and API to fit your workflow.
 
@@ -79,7 +80,7 @@ vim.g.opencode_opts = {
   ---@type opencode.Provider
   provider = {
     toggle = function(self)
-      -- Called by `require("opencode").toggle()`
+      -- Called by `require("opencode").toggle()`.
     end,
     start = function(self)
       -- Called when sending a prompt or command to `opencode` but no process was found.
@@ -117,7 +118,9 @@ vim.g.opencode_opts = {
 
 Send a prompt to `opencode`.
 
-Replaces placeholders with the corresponding context:
+#### Contexts
+
+Replaces placeholders in the prompt with the corresponding context:
 
 | Placeholder | Context |
 | - | - |
@@ -132,7 +135,9 @@ Replaces placeholders with the corresponding context:
 | `@diff` | Git diff |
 | `@grapple` | [grapple.nvim](https://github.com/cbochs/grapple.nvim) tags |
 
-Or pass a prompt name from `opts.prompts` to review, explain, and improve your code:
+#### Prompts
+
+Reference a prompt by name to review, explain, and improve your code:
 
 | Name                               | Prompt                                                    |
 |------------------------------------|-----------------------------------------------------------|
@@ -182,10 +187,6 @@ Send a [command](https://opencode.ai/docs/keybinds) to `opencode`:
 
 > Supports *all* commands — these are just the most useful ones.
 
-### 💻 Toggle — `require("opencode").toggle()`
-
-Toggle `opencode` via `opts.provider.toggle`. Usually not explicitly needed — `opencode.nvim` automatically starts and shows `opencode` via `opts.provider.start` and `opts.provider.show` when you send a prompt or command.
-
 ### 📝 Select — `require("opencode").select()`
 
 A single entrypoint to all `opencode.nvim` functionality 😄
@@ -211,6 +212,31 @@ vim.api.nvim_create_autocmd("User", {
     end
   end,
 })
+```
+
+### Edits
+
+When `opencode` edits a file, `opencode.nvim` automatically reloads the corresponding buffer.
+
+### Permissions
+
+When `opencode` requests a permission, `opencode.nvim` waits for idle to ask you to approve or deny it.
+
+### Statusline
+
+[lualine](https://github.com/nvim-lualine/lualine.nvim):
+
+```lua
+require("lualine").setup({
+  sections = {
+    lualine_z = {
+      {
+        require("opencode").statusline,
+      },
+    }
+  }
+})
+
 ```
 
 ## 🙏 Acknowledgments

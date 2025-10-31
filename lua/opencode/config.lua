@@ -107,7 +107,7 @@ local defaults = {
   input = {
     prompt = "Ask opencode: ",
     -- `snacks.input`-only options
-    icon = "󱚣 ",
+    icon = "󰚩 ",
     win = {
       title_pos = "left",
       relative = "cursor",
