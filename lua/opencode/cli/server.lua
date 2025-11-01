@@ -167,27 +167,19 @@ function M.get_port(callback)
     return find_server_inside_nvim_cwd().port
   end
 
-  require("opencode.util").chain({
-    function(next)
-      local ok, result = pcall(find_port_fn)
-      if ok then
-        callback(true, result)
-      else
-        next()
-      end
-    end,
-    function(next)
-      local ok, result = pcall(require("opencode.provider").start)
-      if not ok then
-        vim.notify("Failed to start `opencode`: " .. result, vim.log.levels.ERROR)
-      end
-      -- Always proceed - even if `opencode` wasn't started, failing to find it will give a more helpful error message.
-      next()
-    end,
-    function(_)
-      poll_for_port(find_port_fn, callback)
-    end,
-  })
+  local initial_ok, initial_result = pcall(find_port_fn)
+  if initial_ok then
+    callback(true, initial_result)
+    return
+  end
+
+  local start_ok, start_result = pcall(require("opencode.provider").start)
+  if not start_ok then
+    vim.notify("Failed to start `opencode`: " .. start_result, vim.log.levels.ERROR)
+  end
+  -- Always proceed - even if `opencode` wasn't started, failing to find it will give a more helpful error message.
+
+  poll_for_port(find_port_fn, callback)
 end
 
 return M
