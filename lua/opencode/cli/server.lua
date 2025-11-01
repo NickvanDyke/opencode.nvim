@@ -121,12 +121,15 @@ end
 local function poll_for_port(fn, callback)
   local retries = 0
   local timer = vim.uv.new_timer()
+  -- TODO: Suddenly with opentui release,
+  -- on startup it seems the port can be available but too quickly calling it will no-op?
+  -- Increasing delay for now to mitigate. But more reliable fix may be needed.
   timer:start(
-    100,
-    100,
+    500,
+    500,
     vim.schedule_wrap(function()
       local ok, find_port_result = pcall(fn)
-      if ok or retries >= 20 then
+      if ok or retries >= 5 then
         timer:stop()
         timer:close()
         callback(ok, find_port_result)
