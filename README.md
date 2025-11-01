@@ -42,9 +42,9 @@ https://github.com/user-attachments/assets/4dd19151-89e4-4272-abac-6710dbc6edc1
     vim.keymap.set({ "n", "x" }, "<C-a>", function() require("opencode").ask("@this: ", { submit = true }) end, { desc = "Ask opencode" })
     vim.keymap.set({ "n", "x" }, "<C-x>", function() require("opencode").select() end, { desc = "Execute opencode action…" })
     vim.keymap.set({ "n", "x" }, "ga",    function() require("opencode").prompt("@this") end, { desc = "Add to opencode" })
-    vim.keymap.set("n", "<C-.>",   function() require("opencode").toggle() end, { desc = "Toggle opencode" })
-    vim.keymap.set("n", "<S-C-u>", function() require("opencode").command("messages_half_page_up") end, { desc = "opencode half page up" })
-    vim.keymap.set("n", "<S-C-d>", function() require("opencode").command("messages_half_page_down") end, { desc = "opencode half page down" })
+    vim.keymap.set({ "n", "t" }, "<C-.>",   function() require("opencode").toggle() end, { desc = "Toggle opencode" })
+    vim.keymap.set("n", "<S-C-u>", function() require("opencode").command("session.half.page.up") end, { desc = "opencode half page up" })
+    vim.keymap.set("n", "<S-C-d>", function() require("opencode").command("session.half.page.down") end, { desc = "opencode half page down" })
     -- You may want these if you stick with the opinionated "<C-a>" and "<C-x>" above — otherwise consider "<leader>o".
     vim.keymap.set('n', '+', '<C-a>', { desc = 'Increment', noremap = true })
     vim.keymap.set('n', '-', '<C-x>', { desc = 'Decrement', noremap = true })
@@ -165,27 +165,26 @@ Input a prompt to send to `opencode`.
 
 ### 🧑‍🏫 Command — `require("opencode").command()`
 
-Send a [command](https://opencode.ai/docs/keybinds) to `opencode`:
+Send a command to `opencode`:
 
-| Command                   | Description                                              |
-|---------------------------|----------------------------------------------------------|
-| `session_new`             | Start a new session                                      |
-| `session_share`           | Share the current session                                |
-| `session_interrupt`       | Interrupt the current session                            |
-| `session_compact`         | Compact the current session (reduce context size)        |
-| `messages_page_up`        | Scroll messages up by one page                           |
-| `messages_page_down`      | Scroll messages down by one page                         |
-| `messages_half_page_up`   | Scroll messages up by half a page                        |
-| `messages_half_page_down` | Scroll messages down by half a page                      |
-| `messages_first`          | Jump to the first message in the session                 |
-| `messages_last`           | Jump to the last message in the session                  |
-| `messages_copy`           | Copy the last message in the session                     |
-| `messages_undo`           | Undo the last message in the session                     |
-| `messages_redo`           | Redo the last message in the session                     |
-| `input_clear`             | Clear the TUI input                                      |
-| `agent_cycle`             | Cycle the selected agent                                 |
-
-> Supports *all* commands — these are just the most useful ones.
+| Command                 | Description                                              |
+|-------------------------|----------------------------------------------------------|
+| `session.list`          | List sessions                                            |
+| `session.new`             | Start a new session                                      |
+| `session.share`           | Share the current session                                |
+| `session.interrupt`       | Interrupt the current session                            |
+| `session.compact`         | Compact the current session (reduce context size)        |
+| `session.page.up`        | Scroll messages up by one page                           |
+| `session.page.down`      | Scroll messages down by one page                         |
+| `session.half.page.up`   | Scroll messages up by half a page                        |
+| `session.half.page.down` | Scroll messages down by half a page                      |
+| `session.first`          | Jump to the first message in the session                 |
+| `session.last`           | Jump to the last message in the session                  |
+| `session.undo` | Undo the last action in the current session |
+| `session.redo` | Redo the last undone action in the current session |
+| `prompt.submit`             | Submit the TUI input                                      |
+| `prompt.clear`             | Clear the TUI input                                      |
+| `agent.cycle`             | Cycle the selected agent                                 |
 
 ### 📝 Select — `require("opencode").select()`
 

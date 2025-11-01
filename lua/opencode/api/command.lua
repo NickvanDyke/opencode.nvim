@@ -1,25 +1,27 @@
 local M = {}
 
+---See available commands [here](https://github.com/sst/opencode/blob/dev/packages/opencode/src/cli/cmd/tui/event.ts).
 ---@alias opencode.Command
----| 'session_new'
----| 'session_share'
----| 'session_interrupt'
----| 'session_compact'
----| 'messages_page_up'
----| 'messages_page_down'
----| 'messages_half_page_up'
----| 'messages_half_page_down'
----| 'messages_first'
----| 'messages_last'
----| 'messages_copy'
----| 'messages_undo'
----| 'messages_redo'
----| 'input_clear'
----| 'agent_cycle'
+---| 'session.list'
+---| 'session.new'
+---| 'session.share'
+---| 'session.interrupt'
+---| 'session.compact'
+---| 'session.page.up'
+---| 'session.page.down'
+---| 'session.half.page.up'
+---| 'session.half.page.down'
+---| 'session.first'
+---| 'session.last'
+---| 'session.undo'
+---| 'session.redo'
+---| 'prompt.submit'
+---| 'prompt.clear'
+---| 'agent.cycle'
 
----Send a [command](https://opencode.ai/docs/keybinds) to `opencode`.
+---Send a command to `opencode`.
 ---
----@param command opencode.Command|string The command to send to `opencode`.
+---@param command opencode.Command|string The command to send. Can be built-in or reference your custom commands.
 ---@param callback fun(response: table)|nil
 function M.command(command, callback)
   require("opencode.cli.server").get_port(function(ok, port)

@@ -17,7 +17,7 @@ function M.check()
     found_version = vim.trim(vim.split(found_version, "\n")[1])
     vim.health.ok("`opencode` executable found in `$PATH` with version `" .. found_version .. "`.")
 
-    local latest_tested_version = "0.15.8"
+    local latest_tested_version = "v1.0.7"
     if vim.version.parse(latest_tested_version)[2] ~= vim.version.parse(found_version)[2] then
       vim.health.warn(
         "`opencode` found version `"

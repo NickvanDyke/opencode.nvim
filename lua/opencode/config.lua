@@ -95,14 +95,13 @@ local defaults = {
     this = { prompt = "@this" },
   },
   commands = {
-    session_new = "Start a new session",
-    session_share = "Share the current session",
-    session_interrupt = "Interrupt the current session",
-    session_compact = "Compact the current session (reduce context size)",
-    messages_copy = "Copy the last message in the session",
-    messages_undo = "Undo the last message in the session",
-    messages_redo = "Redo the last message in the session",
-    agent_cycle = "Cycle the selected agent",
+    ["session.new"] = "Start a new session",
+    ["session.share"] = "Share the current session",
+    ["session.interrupt"] = "Interrupt the current session",
+    ["session.compact"] = "Compact the current session (reduce context size)",
+    ["session.undo"] = "Undo the last action in the current session",
+    ["session.redo"] = "Redo the last undone action in the current session",
+    ["agent.cycle"] = "Cycle the selected agent",
   },
   input = {
     prompt = "Ask opencode: ",
@@ -152,9 +151,6 @@ local defaults = {
           -- e.g. the recommended edgy.nvim integration puts all `"snacks_terminal"` windows at the bottom.
           filetype = "opencode_terminal",
         },
-      },
-      env = {
-        OPENCODE_THEME = "system", -- HACK: Other themes have visual bugs in embedded terminals: https://github.com/sst/opencode/issues/445
       },
       ---@param self opencode.provider.Snacks
       toggle = function(self)
