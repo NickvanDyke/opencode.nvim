@@ -162,7 +162,7 @@ local defaults = {
       end,
       ---@param self opencode.provider.Snacks
       show = function(self)
-        local win = require("snacks.terminal").get(self.cmd, self)
+        local win = require("snacks.terminal").get(self.cmd, vim.tbl_deep_extend("force", self, { create = false }))
         if win then
           win:show()
         end
