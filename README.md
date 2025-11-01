@@ -6,14 +6,14 @@ https://github.com/user-attachments/assets/4dd19151-89e4-4272-abac-6710dbc6edc1
 
 ## ✨ Features
 
-- Auto-connect to *any* `opencode` running inside Neovim's CWD, or toggle an embedded instance.
+- Auto-connect to *any* `opencode` running inside Neovim's CWD, or manage an embedded instance.
 - Input prompts with completions, highlights, and normal-mode support.
 - Select prompts from a library and define your own.
 - Inject relevant editor context (buffer, cursor, selection, diagnostics, ...).
 - Control `opencode` with commands.
 - Auto-reload buffers edited by `opencode` in real-time.
 - Respond to `opencode` permission requests.
-- Statusline component.
+- Monitor state via statusline component.
 - Forward `opencode`'s Server-Sent-Events as Neovim autocmds for automation.
 - Sensible defaults with well-documented, flexible configuration and API to fit your workflow.
 
@@ -73,7 +73,21 @@ programs.nixvim = {
 
 ### Provider
 
-`opencode.nvim` auto-connects to *any* `opencode` running inside Neovim's CWD — you can manually launch `opencode` however you like (terminal plugin, multiplexer, app, ...), but consider configuring `opencode.nvim` to manage it on your behalf:
+By default, `opencode.nvim` will use [`snacks.terminal`](https://github.com/folke/snacks.nvim/blob/main/docs/terminal.md) (if available) to run `opencode` when it isn't already running:
+
+```lua
+vim.g.opencode_opts = {
+  provider = {
+    enabled = "snacks",
+    ---@type opencode.provider.Snacks
+    snacks = {
+      -- Customize `snacks.terminal` to your liking.
+    }
+  }
+}
+```
+
+You can manually run `opencode` inside Neovim's CWD however you like (terminal plugin, multiplexer, app, ...) and `opencode.nvim` will find it! But consider configuring `opencode.nvim` to manage it on your behalf:
 
 ```lua
 vim.g.opencode_opts = {
@@ -95,24 +109,28 @@ vim.g.opencode_opts = {
 }
 ```
 
-By default, `opencode.nvim` will use [`snacks.terminal`](https://github.com/folke/snacks.nvim/blob/main/docs/terminal.md) (if available) when `opencode` isn't already running:
-
-```lua
-vim.g.opencode_opts = {
-  provider = {
-    enabled = "snacks",
-    ---@type opencode.provider.Snacks
-    snacks = {
-      -- Customize `snacks.terminal` to your liking.
-    }
-  }
-}
-```
-
 > [!TIP]
 > I only use `snacks.terminal`, but welcome PRs adding your custom method as a built-in provider 🙂
 
 ## 🚀 Usage
+
+### ✍️ Ask — `require("opencode").ask()`
+
+Input a prompt to send to `opencode`.
+
+<img width="800" alt="image" src="https://github.com/user-attachments/assets/8591c610-4824-4480-9e6d-0c94e9c18f3a" />
+
+- Press `<Up>` to browse recent asks.
+- Highlights placeholders.
+- Completes placeholders.
+  - Press `<Tab>` to trigger built-in completion.
+  - When using `blink.cmp` and `snacks.input`, registers `opts.auto_register_cmp_sources`.
+
+### 📝 Select — `require("opencode").select()`
+
+Select from all `opencode.nvim` functionality.
+
+<img width="800" alt="image" src="https://github.com/user-attachments/assets/afd85acd-e4b3-47d2-b92f-f58d25972edb" />
 
 ### 🗣️ Prompt — `require("opencode").prompt()` | `:[range]OpencodePrompt`
 
@@ -153,16 +171,6 @@ Reference a prompt by name to review, explain, and improve your code:
 | `buffer`  | `@buffer`                                                             |
 | `this`    | `@this`                                                               |
 
-### ✍️ Ask — `require("opencode").ask()`
-
-Input a prompt to send to `opencode`.
-
-- Highlights placeholders.
-- Completes placeholders.
-  - Press `<Tab>` to trigger built-in completion.
-  - When using `blink.cmp` and `snacks.input`, registers `opts.auto_register_cmp_sources`.
-- Press `<Up>` to browse recent inputs.
-
 ### 🧑‍🏫 Command — `require("opencode").command()`
 
 Send a command to `opencode`:
@@ -185,14 +193,6 @@ Send a command to `opencode`:
 | `prompt.submit`             | Submit the TUI input                                      |
 | `prompt.clear`             | Clear the TUI input                                      |
 | `agent.cycle`             | Cycle the selected agent                                 |
-
-### 📝 Select — `require("opencode").select()`
-
-A single entrypoint to all `opencode.nvim` functionality 😄
-
-- Prompt library (`opts.prompts`)
-- Command library (`opts.commands`)
-- Manage provider (`opts.provider`)
 
 ## 👀 Events
 
@@ -221,6 +221,8 @@ When `opencode` edits a file, `opencode.nvim` automatically reloads the correspo
 
 When `opencode` requests a permission, `opencode.nvim` waits for idle to ask you to approve or deny it.
 
+<img width="800" alt="image" src="https://github.com/user-attachments/assets/643681ca-75db-4621-8a4a-e744c03c4b4f" />
+
 ### Statusline
 
 [lualine](https://github.com/nvim-lualine/lualine.nvim):
@@ -235,7 +237,6 @@ require("lualine").setup({
     }
   }
 })
-
 ```
 
 ## 🙏 Acknowledgments
