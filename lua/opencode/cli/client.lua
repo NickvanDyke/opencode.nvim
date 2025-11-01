@@ -122,22 +122,10 @@ end
 ---@param port number
 ---@param callback fun(response: table)|nil
 function M.tui_append_prompt(text, port, callback)
-  M.call(port, "/tui/append-prompt", "POST", { text = text }, callback)
+  M.call(port, "/tui/publish", "POST", { type = "tui.prompt.append", properties = { text = text } }, callback)
 end
 
----@param port number
----@param callback fun(response: table)|nil
-function M.tui_submit_prompt(port, callback)
-  M.call(port, "/tui/submit-prompt", "POST", vim.empty_dict(), callback)
-end
-
----@param port number
----@param callback fun(response: table)|nil
-function M.tui_clear_prompt(port, callback)
-  M.call(port, "/tui/clear-prompt", "POST", vim.empty_dict(), callback)
-end
-
----@param command string
+---@param command string|opencode.Command
 ---@param port number
 ---@param callback fun(response: table)|nil
 function M.tui_execute_command(command, port, callback)

@@ -39,7 +39,7 @@ function M.prompt(prompt, opts, callback)
     require("opencode.util").chain({
       function(next)
         if opts.clear then
-          require("opencode.cli.client").tui_clear_prompt(port, next)
+          require("opencode.cli.client").tui_execute_command("prompt.clear", port, next)
         else
           next()
         end
@@ -63,7 +63,7 @@ function M.prompt(prompt, opts, callback)
             })
           end)
 
-          require("opencode.cli.client").tui_submit_prompt(port, next)
+          require("opencode.cli.client").tui_execute_command("prompt.submit", port, next)
         else
           next()
         end
