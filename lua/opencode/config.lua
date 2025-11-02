@@ -168,6 +168,29 @@ local defaults = {
         end
       end,
     },
+    tmux = {
+      split_window_options = "-h", -- Open in a horizontal split
+      ---@param self opencode.provider.Tmux
+      toggle = function(self)
+        -- Check if an `opencode` pane already exists; if so, kill it; if not, split and run
+        local tmux_cmd = string.format(
+          "tmux list-panes -F '#{pane_id} #{pane_current_command}' | grep -q '%s' && tmux list-panes -F '#{pane_id} #{pane_current_command}' | grep '%s' | awk '{print $1}' | xargs -I {} tmux kill-pane -t {} || tmux split-window %s '%s'",
+          "opencode",
+          "opencode",
+          self.split_window_options,
+          self.cmd
+        )
+        os.execute(tmux_cmd)
+      end,
+      ---@param self opencode.provider.Tmux
+      start = function(self)
+        -- Check if an `opencode` pane already exists; if not, split and run
+        local tmux_cmd = string.format("tmux split-window %s '%s'", self.split_window_options, self.cmd)
+        os.execute(tmux_cmd)
+      end,
+      ---@param self opencode.provider.Tmux
+      show = function() end, -- no need, tmux panes are always visible
+    },
   },
 }
 

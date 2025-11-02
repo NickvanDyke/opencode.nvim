@@ -22,12 +22,16 @@
 ---
 ---The built-in provider to use, or `false` for none.
 ---Defaults to [`snacks.terminal`](https://github.com/folke/snacks.nvim/blob/main/docs/terminal.md) if available.
----@field enabled? "snacks"|false
+---@field enabled? "snacks"|"tmux"|false
 ---
 ---@field snacks? opencode.provider.Snacks
+---@field tmux? opencode.provider.Tmux
 
 ---Provide an embedded `opencode` via [`snacks.terminal`](https://github.com/folke/snacks.nvim/blob/main/docs/terminal.md).
 ---@class opencode.provider.Snacks : opencode.Provider, snacks.terminal.Opts
+
+---Provide an opencode instance in a tmux pane
+---@class opencode.provider.Tmux : opencode.Provider
 
 local M = {}
 
