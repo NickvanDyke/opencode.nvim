@@ -196,7 +196,7 @@ local defaults = {
           self.split_window_options,
           self.cmd
         )
-        os.execute(tmux_cmd)
+        vim.fn.system(tmux_cmd)
       end,
       ---@param self opencode.provider.Tmux
       start = function(self)
@@ -205,10 +205,10 @@ local defaults = {
         end
         -- Check if an `opencode` pane already exists; if not, split and run
         local tmux_cmd = string.format("tmux split-window %s '%s'", self.split_window_options, self.cmd)
-        os.execute(tmux_cmd)
+        vim.fn.system(tmux_cmd)
       end,
       ---@param self opencode.provider.Tmux
-      show = function() end, -- no need, tmux panes are always visible
+      show = function() end, -- users manage tmux panes themselves
     },
   },
 }
