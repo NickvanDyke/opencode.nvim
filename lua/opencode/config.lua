@@ -169,7 +169,7 @@ local defaults = {
       end,
     },
     tmux = {
-      split_window_options = "-h", -- Open in a horizontal split
+      split_window_options = "-h", -- Open in a horizontal split by default
       ---@param self opencode.provider.Tmux
       check_tmux = function(self)
         -- Check if tmux is running in current terminal

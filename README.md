@@ -78,10 +78,13 @@ By default, `opencode.nvim` will use [`snacks.terminal`](https://github.com/folk
 ```lua
 vim.g.opencode_opts = {
   provider = {
-    enabled = "snacks",
+    enabled = "snacks", -- or "tmux", or your custom provider (see below)
     ---@type opencode.provider.Snacks
     snacks = {
       -- Customize `snacks.terminal` to your liking.
+    }
+    tmux = {
+      split_window_options = "-h", -- options to pass to `tmux split-window`
     }
   }
 }
