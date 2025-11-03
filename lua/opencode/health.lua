@@ -17,15 +17,27 @@ function M.check()
     found_version = vim.trim(vim.split(found_version, "\n")[1])
     vim.health.ok("`opencode` executable found in `$PATH` with version `" .. found_version .. "`.")
 
-    local latest_tested_version = "v1.0.7"
-    if vim.version.parse(latest_tested_version)[2] ~= vim.version.parse(found_version)[2] then
-      vim.health.warn(
-        "`opencode` found version `"
-          .. found_version
-          .. "` has a `minor` mismatch with latest tested version `"
-          .. latest_tested_version
-          .. "`."
-      )
+    local found_version_parsed = vim.version.parse(found_version)
+    local latest_tested_version = "1.0.7"
+    local latest_tested_version_parsed = vim.version.parse(latest_tested_version)
+    if found_version_parsed and latest_tested_version_parsed then
+      if latest_tested_version_parsed[1] ~= found_version_parsed[1] then
+        vim.health.warn(
+          "`opencode` found version `"
+            .. found_version
+            .. "` has a `major` version mismatch with latest tested version `"
+            .. latest_tested_version
+            .. "`: may cause compatibility issues."
+        )
+      elseif latest_tested_version_parsed[2] ~= found_version_parsed[2] then
+        vim.health.warn(
+          "`opencode` found version `"
+            .. found_version
+            .. "` has an older `minor` version than latest tested version `"
+            .. latest_tested_version
+            .. "`: may cause compatibility issues."
+        )
+      end
     end
   else
     vim.health.error("`opencode` executable not found in `$PATH`.", {
