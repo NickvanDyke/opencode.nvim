@@ -35,7 +35,7 @@ local function find_servers()
   -- `-w` flag suppresses warnings about inaccessible filesystems (e.g. Docker FUSE).
   local output = exec("lsof -w -iTCP -sTCP:LISTEN -P -n | grep opencode")
   if output == "" then
-    error("Couldn't find any `opencode` processes", 0)
+    error("No `opencode` processes", 0)
   end
 
   local servers = {}
@@ -110,7 +110,7 @@ local function find_server_inside_nvim_cwd()
   end
 
   if not found_server then
-    error("Couldn't find an `opencode` process running inside Neovim's CWD", 0)
+    error("No `opencode` process inside Neovim's CWD", 0)
   end
 
   return found_server
@@ -147,7 +147,7 @@ local function test_port(port)
   -- TODO: `curl` "/app" endpoint to verify it's actually an opencode server.
   local ok, chan = pcall(vim.fn.sockconnect, "tcp", ("localhost:%d"):format(port), { rpc = false, timeout = 200 })
   if not ok or chan == 0 then
-    error(("Couldn't find an `opencode` process listening on port: %d"):format(port), 0)
+    error(("No `opencode` process listening on port: %d"):format(port), 0)
   else
     pcall(vim.fn.chanclose, chan)
     return port
@@ -175,10 +175,12 @@ function M.get_port()
       return
     end
 
+    vim.notify(initial_result .. " — starting `opencode`…", vim.log.levels.INFO, { title = "opencode" })
+
     local start_ok, start_result = pcall(require("opencode.provider").start)
     if not start_ok then
-      vim.notify("Failed to start `opencode`: " .. start_result, vim.log.levels.ERROR)
-      -- Don't return - even if `opencode` wasn't started, proceeding to fail to find it will give a more helpful error message.
+      reject("Error starting `opencode`: " .. start_result)
+      return
     end
 
     poll_for_port(find_port_fn, function(ok, result)

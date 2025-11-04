@@ -4,6 +4,8 @@ local source = {}
 
 ---@type opencode.Context
 source.context = nil
+---@type opencode.client.Agent[]|nil
+source.agents = nil
 
 local is_setup = false
 
@@ -56,13 +58,30 @@ function source:get_completions(ctx, callback)
     --- @type lsp.CompletionItem
     local item = {
       label = placeholder,
-      kind = require("blink.cmp.types").CompletionItemKind.Enum,
+      kind = require("blink.cmp.types").CompletionItemKind.Variable,
       filterText = placeholder,
       insertText = placeholder,
       insertTextFormat = vim.lsp.protocol.InsertTextFormat.PlainText,
 
       -- There are some other fields you may want to explore which are blink.cmp
       -- specific, such as `score_offset` (blink.cmp.CompletionItem)
+    }
+    table.insert(items, item)
+  end
+
+  for _, agent in ipairs(source.agents or {}) do
+    agent.name = "@" .. agent.name
+    ---@type lsp.CompletionItem
+    local item = {
+      label = agent.name,
+      kind = require("blink.cmp.types").CompletionItemKind.Property,
+      filterText = agent.name,
+      insertText = agent.name,
+      insertTextFormat = vim.lsp.protocol.InsertTextFormat.PlainText,
+      documentation = {
+        kind = "plaintext",
+        value = agent.description or "Agent",
+      },
     }
     table.insert(items, item)
   end
@@ -96,33 +115,33 @@ function source:resolve(item, callback)
   item = vim.deepcopy(item)
   local rendered = source.context:render(item.label)
 
-  -- Newspaces after and before the triple backticks in case the context value starts or ends with backticks.
-  -- Adds unnecessary empty lines though...
-  item.documentation = {
-    kind = "plaintext",
-    value = source.context.plaintext(rendered.output),
-    ---@param opts blink.cmp.CompletionDocumentationDrawOpts
-    draw = function(opts)
-      local buf = opts.window.buf
-      if not buf then
-        return
-      end
+  if not item.documentation then
+    item.documentation = {
+      kind = "plaintext",
+      value = source.context.plaintext(rendered.output),
+      ---@param opts blink.cmp.CompletionDocumentationDrawOpts
+      draw = function(opts)
+        local buf = opts.window.buf
+        if not buf then
+          return
+        end
 
-      opts.default_implementation({
-        kind = "plaintext",
-        value = opts.item.documentation.value,
-      })
-
-      local extmarks = source.context.extmarks(rendered.output)
-      local ns_id = vim.api.nvim_create_namespace("opencode_enum_highlight")
-      for _, extmark in ipairs(extmarks) do
-        vim.api.nvim_buf_set_extmark(buf, ns_id, (extmark.row or 1) - 1, extmark.col, {
-          end_col = extmark.end_col,
-          hl_group = extmark.hl_group,
+        opts.default_implementation({
+          kind = "plaintext",
+          value = opts.item.documentation.value,
         })
-      end
-    end,
-  }
+
+        local extmarks = source.context.extmarks(rendered.output)
+        local ns_id = vim.api.nvim_create_namespace("opencode_enum_highlight")
+        for _, extmark in ipairs(extmarks) do
+          vim.api.nvim_buf_set_extmark(buf, ns_id, (extmark.row or 1) - 1, extmark.col, {
+            end_col = extmark.end_col,
+            hl_group = extmark.hl_group,
+          })
+        end
+      end,
+    }
+  end
 
   callback(item)
 end

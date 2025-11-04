@@ -23,7 +23,7 @@ vim.g.opencode_opts = vim.g.opencode_opts
 ---@field auto_reload? boolean
 ---
 ---Completion sources to automatically register in the `ask` input with [blink.cmp](https://github.com/Saghen/blink.cmp) and [snacks.input](https://github.com/folke/snacks.nvim/blob/main/docs/input.md).
----The `"opencode"` source offers completions and previews for contexts.
+---The `"opencode"` source offers completions and previews for contexts and agents.
 ---@field auto_register_cmp_sources? string[]
 ---
 ---Contexts to inject into prompts, keyed by their placeholder.

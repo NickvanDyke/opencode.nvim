@@ -5,8 +5,9 @@ local M = {}
 ---Input a prompt to send to `opencode`.
 ---Press the up arrow to browse recent prompts.
 ---
+--- - Fetches available subagents from `opencode`.
 --- - Highlights `opts.contexts` placeholders.
---- - Completes `opts.contexts` placeholders.
+--- - Completes `opts.contexts` placeholders and `opencode` subagents.
 ---   - Press `<Tab>` to trigger built-in completion.
 ---   - When using `blink.cmp` and `snacks.input`, registers `opts.auto_register_cmp_sources`.
 ---
@@ -52,14 +53,35 @@ function M.ask(default, opts)
       end,
     },
   }
+  input_opts = vim.tbl_deep_extend("force", input_opts, require("opencode.config").opts.input)
 
-  require("opencode.cmp.blink").context = opts.context
+  require("opencode.cli.server")
+    .get_port()
+    :next(function(port)
+      return require("opencode.promise").new(function(resolve)
+        require("opencode.cli.client").get_agents(port, function(agents)
+          local subagents = vim.tbl_filter(function(agent)
+            return agent.mode == "subagent"
+          end, agents)
 
-  vim.ui.input(vim.tbl_deep_extend("force", input_opts, require("opencode.config").opts.input), function(value)
-    if value and value ~= "" then
-      require("opencode").prompt(value, opts)
-    end
-  end)
+          resolve(subagents)
+        end)
+      end)
+    end)
+    :catch(function(err)
+      vim.notify("Couldn't fetch `opencode` subagents: " .. err, vim.log.levels.ERROR, { title = "opencode" })
+      return true
+    end)
+    :next(function(subagents)
+      require("opencode.cmp.blink").context = opts.context
+      require("opencode.cmp.blink").agents = subagents
+
+      vim.ui.input(input_opts, function(value)
+        if value and value ~= "" then
+          require("opencode").prompt(value, opts)
+        end
+      end)
+    end)
 end
 
 -- FIX: Overridden by blink.cmp cmdline completion if both are enabled, and that won't have our items.
@@ -77,13 +99,21 @@ _G.opencode_completion = function(ArgLead, CmdLine, CursorPos)
   local start_idx, end_idx = CmdLine:find("([^%s]+)$")
   local latest_word = start_idx and CmdLine:sub(start_idx, end_idx) or nil
 
-  local items = {}
+  local completions = {}
   for placeholder, _ in pairs(require("opencode.config").opts.contexts) do
+    table.insert(completions, placeholder)
+  end
+  for _, agent in ipairs(require("opencode.cmp.blink").agents or {}) do
+    table.insert(completions, "@" .. agent.name)
+  end
+
+  local items = {}
+  for _, completion in pairs(completions) do
     if not latest_word then
-      local new_cmd = CmdLine .. placeholder
+      local new_cmd = CmdLine .. completion
       table.insert(items, new_cmd)
-    elseif placeholder:find(latest_word, 1, true) == 1 then
-      local new_cmd = CmdLine:sub(1, start_idx - 1) .. placeholder .. CmdLine:sub(end_idx + 1)
+    elseif completion:find(latest_word, 1, true) == 1 then
+      local new_cmd = CmdLine:sub(1, start_idx - 1) .. completion .. CmdLine:sub(end_idx + 1)
       table.insert(items, new_cmd)
     end
   end

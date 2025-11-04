@@ -76,8 +76,10 @@ end
 
 ---Render `opts.contexts` in `prompt`.
 ---@param prompt string
+---@param opts? { agents?: opencode.client.Agent[] }
 ---@return { input: snacks.picker.Text[], output: snacks.picker.Text[] }
-function Context:render(prompt)
+function Context:render(prompt, opts)
+  -- TODO: Highlight opts.agents
   local contexts = require("opencode.config").opts.contexts or {}
   local placeholders = vim.tbl_keys(contexts)
   table.sort(placeholders, function(a, b)
@@ -120,7 +122,6 @@ function Context:render(prompt)
     end
   end
 
-  -- TODO: Make `output` a 2D array of lines, for more obvious multi-line rendering?
   return {
     input = input,
     output = output,

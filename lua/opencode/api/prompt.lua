@@ -25,8 +25,6 @@ function M.prompt(prompt, opts)
     context = opts and opts.context or require("opencode.context").new(),
   }
 
-  local Promise = require("opencode.promise")
-
   require("opencode.cli.server")
     .get_port()
     :next(function(port)
@@ -36,7 +34,7 @@ function M.prompt(prompt, opts)
     end)
     :next(function(port)
       if opts.clear then
-        return Promise.new(function(resolve)
+        return require("opencode.promise").new(function(resolve)
           require("opencode.cli.client").tui_execute_command("prompt.clear", port, function()
             resolve(port)
           end)
@@ -47,7 +45,7 @@ function M.prompt(prompt, opts)
     :next(function(port)
       local rendered = opts.context:render(prompt)
       local plaintext = opts.context.plaintext(rendered.output)
-      return Promise.new(function(resolve)
+      return require("opencode.promise").new(function(resolve)
         require("opencode.cli.client").tui_append_prompt(plaintext, port, function()
           resolve(port)
         end)

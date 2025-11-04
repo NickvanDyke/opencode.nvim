@@ -125,7 +125,7 @@ function M.tui_append_prompt(text, port, callback)
   M.call(port, "/tui/publish", "POST", { type = "tui.prompt.append", properties = { text = text } }, callback)
 end
 
----@param command string|opencode.Command
+---@param command opencode.Command|string
 ---@param port number
 ---@param callback fun(response: table)|nil
 function M.tui_execute_command(command, port, callback)
@@ -156,18 +156,6 @@ function M.send_message(prompt, session_id, port, provider_id, model_id, callbac
 end
 
 ---@param port number
----@param callback fun(sessions: table)
-function M.get_sessions(port, callback)
-  M.call(port, "/session", "GET", nil, callback)
-end
-
----@param port number
----@param callback fun(session: table)
-function M.create_session(port, callback)
-  M.call(port, "/session", "POST", vim.empty_dict(), callback)
-end
-
----@param port number
 ---@param session number
 ---@param permission number
 ---@param response "once"|"always"|"reject"
@@ -176,6 +164,31 @@ function M.permit(port, session, permission, response, callback)
   M.call(port, "/session/" .. session .. "/permissions/" .. permission, "POST", {
     response = response,
   }, callback)
+end
+
+---@class opencode.client.Agent
+---@field name string
+---@field description string
+---@field mode "primary"|"subagent"
+
+---@param port number
+---@param callback fun(agents: opencode.client.Agent[])
+function M.get_agents(port, callback)
+  M.call(port, "/agent", "GET", nil, callback)
+end
+
+---@class opencode.client.Command
+---@field name string
+---@field description string
+---@field template string
+---@field agent string
+
+---Get custom commands from `opencode`.
+---
+---@param port number
+---@param callback fun(commands: opencode.client.Command[])
+function M.get_commands(port, callback)
+  M.call(port, "/command", "GET", nil, callback)
 end
 
 ---Calls the `/event` SSE endpoint and invokes `callback` for each event received.

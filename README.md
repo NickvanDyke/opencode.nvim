@@ -121,8 +121,9 @@ Input a prompt to send to `opencode`.
 <img width="800" alt="image" src="https://github.com/user-attachments/assets/8591c610-4824-4480-9e6d-0c94e9c18f3a" />
 
 - Press `<Up>` to browse recent asks.
+- Fetches available subagents from `opencode`.
 - Highlights placeholders.
-- Completes placeholders.
+- Completes placeholders and subagents.
   - Press `<Tab>` to trigger built-in completion.
   - When using `blink.cmp` and `snacks.input`, registers `opts.auto_register_cmp_sources`.
 
