@@ -218,4 +218,30 @@ for _, field in ipairs({ "contexts", "prompts", "commands" }) do
   end
 end
 
+---The `opencode` provider resolved from `opts.provider`.
+---@type opencode.Provider|nil
+M.provider = (function()
+  local provider
+  local provider_or_opts = M.opts.provider
+  if provider_or_opts and (provider_or_opts.toggle or provider_or_opts.start or provider_or_opts.show) then
+    -- An implementation was passed.
+    -- Be careful: `provider.enabled` may still exist from merging with defaults.
+    ---@cast provider_or_opts opencode.Provider
+    provider = provider_or_opts
+  elseif provider_or_opts and provider_or_opts.enabled then
+    -- Resolve the built-in provider.
+    -- Retains the base `cmd` if not overridden to deduplicate necessary config.
+    provider = provider_or_opts[provider_or_opts.enabled]
+    provider.cmd = provider.cmd or provider_or_opts.cmd
+  end
+
+  -- Auto-add `--port <port>` to `provider.cmd` if set and not already present.
+  local port = M.opts.port
+  if port and provider and provider.cmd and not provider.cmd:find("--port") then
+    provider.cmd = provider.cmd .. " --port " .. tostring(port)
+  end
+
+  return provider
+end)()
+
 return M
