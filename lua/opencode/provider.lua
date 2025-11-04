@@ -30,7 +30,7 @@
 ---Provide an embedded `opencode` via [`snacks.terminal`](https://github.com/folke/snacks.nvim/blob/main/docs/terminal.md).
 ---@class opencode.provider.Snacks : opencode.Provider, snacks.terminal.Opts
 
----Provide an opencode instance in a tmux pane
+---Provide an opencode instance in a tmux pane (works only in Unix systems).
 ---@class opencode.provider.Tmux : opencode.Provider
 ---
 ---@field options? string Tmux options to use when creating the pane. Defaults to `-h`, which creates a horizontal split.
