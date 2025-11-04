@@ -114,35 +114,11 @@ local M = {}
 -- Export Tmux class for external use
 M.Tmux = Tmux
 
----@type opencode.Provider|nil
-local provider
-local provider_or_opts = require("opencode.config").opts.provider
-if provider_or_opts and (provider_or_opts.toggle or provider_or_opts.start or provider_or_opts.show) then
-  -- An implementation was passed.
-  -- Be careful: `provider.enabled` may still exist from merging with defaults.
-  ---@cast provider_or_opts opencode.Provider
-  provider = provider_or_opts
-elseif provider_or_opts and provider_or_opts.enabled then
-  -- Resolve the built-in provider.
-  -- Retains the base `cmd` if not overridden to deduplicate necessary config.
-  if provider_or_opts.enabled == "tmux" then
-    provider = Tmux.new(provider_or_opts.tmux)
-  else
-    provider = provider_or_opts[provider_or_opts.enabled]
-  end
-  provider.cmd = provider.cmd or provider_or_opts.cmd
-end
-
--- Auto-add `--port <port>` to `provider.cmd` if set and not already present.
-local port = require("opencode.config").opts.port
-if port and provider and provider.cmd and not provider.cmd:find("--port") then
-  provider.cmd = provider.cmd .. " --port " .. tostring(port)
-end
-
 local started = false
 
 ---Toggle `opencode` via `opts.provider`.
 function M.toggle()
+  local provider = require("opencode.config").provider
   if provider and provider.toggle then
     provider:toggle()
     started = true
@@ -153,6 +129,7 @@ end
 
 ---Start `opencode` via `opts.provider`.
 function M.start()
+  local provider = require("opencode.config").provider
   if provider and provider.start then
     provider:start()
     started = true
@@ -164,6 +141,7 @@ end
 ---Show `opencode` via `opts.provider`,
 ---if `provider.toggle` or `provider.start` was previously called.
 function M.show()
+  local provider = require("opencode.config").provider
   if started then
     if provider and provider.show then
       provider:show()

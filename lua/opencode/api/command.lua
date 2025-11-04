@@ -22,22 +22,22 @@ local M = {}
 ---Send a command to `opencode`.
 ---
 ---@param command opencode.Command|string The command to send. Can be built-in or reference your custom commands.
----@param callback fun(response: table)|nil
-function M.command(command, callback)
-  require("opencode.cli.server").get_port(function(ok, port)
-    if not ok then
-      vim.notify(port, vim.log.levels.ERROR, { title = "opencode" })
-      return
-    end
-
-    -- No need to register SSE here - commands don't trigger any.
-    -- (except maybe the `input_*` commands? but no reason for user to use those).
-
-    -- Swallow errors - more of a preference than a requirement here
-    pcall(require("opencode.provider").show)
-
-    require("opencode.cli.client").tui_execute_command(command, port, callback)
-  end)
+function M.command(command)
+  require("opencode.cli.server")
+    .get_port()
+    :next(function(port)
+      -- Swallow errors - more of a preference than a requirement here
+      pcall(require("opencode.provider").show)
+      return port
+    end)
+    :next(function(port)
+      -- No need to register SSE here - commands don't trigger any.
+      -- (except maybe the `input_*` commands? but no reason for user to use those).
+      require("opencode.cli.client").tui_execute_command(command, port)
+    end)
+    :catch(function(err)
+      vim.notify(err, vim.log.levels.ERROR, { title = "opencode" })
+    end)
 end
 
 return M

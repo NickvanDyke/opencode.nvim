@@ -147,7 +147,7 @@ local function test_port(port)
   -- TODO: `curl` "/app" endpoint to verify it's actually an opencode server.
   local ok, chan = pcall(vim.fn.sockconnect, "tcp", ("localhost:%d"):format(port), { rpc = false, timeout = 200 })
   if not ok or chan == 0 then
-    error(("Couldn't find a process listening on port: %d"):format(port), 0)
+    error(("Couldn't find an `opencode` process listening on port: %d"):format(port), 0)
   else
     pcall(vim.fn.chanclose, chan)
     return port
@@ -158,28 +158,37 @@ end
 ---1. A process responding on `opts.port`.
 ---2. Any `opencode` process running inside Neovim's CWD. Prioritizes embedded.
 ---3. Calling `opts.provider.start` and polling for the port.
----@param callback fun(ok: boolean, result: any) Called with eventually found port or error if not found after some time.
-function M.get_port(callback)
-  local configured_port = require("opencode.config").opts.port
-  local find_port_fn = configured_port and function()
-    return test_port(configured_port)
-  end or function()
-    return find_server_inside_nvim_cwd().port
-  end
+function M.get_port()
+  local Promise = require("opencode.promise")
 
-  local initial_ok, initial_result = pcall(find_port_fn)
-  if initial_ok then
-    callback(true, initial_result)
-    return
-  end
+  return Promise.new(function(resolve, reject)
+    local configured_port = require("opencode.config").opts.port
+    local find_port_fn = configured_port and function()
+      return test_port(configured_port)
+    end or function()
+      return find_server_inside_nvim_cwd().port
+    end
 
-  local start_ok, start_result = pcall(require("opencode.provider").start)
-  if not start_ok then
-    vim.notify("Failed to start `opencode`: " .. start_result, vim.log.levels.ERROR)
-  end
-  -- Always proceed - even if `opencode` wasn't started, failing to find it will give a more helpful error message.
+    local initial_ok, initial_result = pcall(find_port_fn)
+    if initial_ok then
+      resolve(initial_result)
+      return
+    end
 
-  poll_for_port(find_port_fn, callback)
+    local start_ok, start_result = pcall(require("opencode.provider").start)
+    if not start_ok then
+      vim.notify("Failed to start `opencode`: " .. start_result, vim.log.levels.ERROR)
+      -- Don't return - even if `opencode` wasn't started, proceeding to fail to find it will give a more helpful error message.
+    end
+
+    poll_for_port(find_port_fn, function(ok, result)
+      if ok then
+        resolve(result)
+      else
+        reject(result)
+      end
+    end)
+  end)
 end
 
 return M
