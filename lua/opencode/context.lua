@@ -35,6 +35,12 @@ local function last_used_valid_win()
   return last_used_win
 end
 
+local function exit_visual_mode()
+  if vim.fn.mode():match("[vV\22]") then
+    vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<esc>", true, false, true), "x", true)
+  end
+end
+
 local function selection(buf)
   local mode = vim.fn.mode()
   local kind = (mode == "V" and "line") or (mode == "v" and "char") or (mode == "\22" and "block")
@@ -42,7 +48,7 @@ local function selection(buf)
     return nil
   end
 
-  require("opencode.util").exit_visual_mode()
+  exit_visual_mode()
 
   local from = vim.api.nvim_buf_get_mark(buf, "<")
   local to = vim.api.nvim_buf_get_mark(buf, ">")
