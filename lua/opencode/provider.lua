@@ -34,6 +34,8 @@
 ---@class opencode.provider.Tmux : opencode.Provider
 ---
 ---@field options? string Tmux options to use when creating the pane. Defaults to `-h`, which creates a horizontal split.
+---
+---@field check_tmux? fun() Function that checks if tmux is running. Defaults to checking if the `TMUX` environment variable is set.
 
 local M = {}
 

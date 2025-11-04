@@ -174,20 +174,12 @@ local defaults = {
       check_tmux = function(self)
         -- Check if tmux is running in current terminal
         if not vim.env.TMUX then
-          vim.notify(
-            "opencode.nvim: Tmux provider selected but not running inside a tmux session.",
-            vim.log.levels.ERROR,
-            { title = "opencode.nvim" }
-          )
-          return false
+          error("Tmux provider selected but not running inside a tmux session.", 0)
         end
-        return true
       end,
       ---@param self opencode.provider.Tmux
       toggle = function(self)
-        if not self:check_tmux() then
-          return
-        end
+        self:check_tmux()
         -- Check if an `opencode` pane already exists; if so, kill it; if not, split and run
         local tmux_cmd = string.format(
           "tmux list-panes -F '#{pane_id} #{pane_current_command}' | grep -q '%s' && tmux list-panes -F '#{pane_id} #{pane_current_command}' | grep '%s' | awk '{print $1}' | xargs -I {} tmux kill-pane -t {} || tmux split-window %s '%s'",
@@ -200,15 +192,13 @@ local defaults = {
       end,
       ---@param self opencode.provider.Tmux
       start = function(self)
-        if not self:check_tmux() then
-          return
-        end
+        self:check_tmux()
         -- Check if an `opencode` pane already exists; if not, split and run
         local tmux_cmd = string.format("tmux split-window %s '%s'", self.options, self.cmd)
         vim.fn.system(tmux_cmd)
       end,
       ---@param self opencode.provider.Tmux
-      show = function() end, -- users manage tmux panes themselves
+      show = function(self) end, -- users manage tmux panes themselves
     },
   },
 }
