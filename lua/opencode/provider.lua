@@ -53,6 +53,10 @@ function Tmux:check_tmux()
   if not vim.env.TMUX then
     error("Tmux provider selected but not running inside a tmux session.", 0)
   end
+
+  if not vim.fn.has("unix") then
+    error("Tmux provider is only supported on Unix-like systems.", 0)
+  end
 end
 
 ---Get the pane ID where opencode is running
@@ -63,7 +67,8 @@ function Tmux:get_pane_id()
   end
 
   -- Find existing opencode pane
-  local find_cmd = "tmux list-panes -F '#{pane_id} #{pane_current_command}' | grep 'opencode' | awk '{print $1}'"
+  local find_cmd =
+    string.format("tmux list-panes -F '#{pane_id} #{pane_current_command}' | grep '%s' | awk '{print $1}'", self.cmd)
   local result = vim.fn.system(find_cmd):match("^%S+")
 
   if result then
