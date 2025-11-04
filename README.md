@@ -84,7 +84,7 @@ vim.g.opencode_opts = {
       -- Customize `snacks.terminal` to your liking.
     }
     tmux = {
-      split_window_options = "-h", -- options to pass to `tmux split-window`
+      options = "-h", -- options to pass to `tmux split-window`
     }
   }
 }

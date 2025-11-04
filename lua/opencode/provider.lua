@@ -34,10 +34,80 @@
 ---@class opencode.provider.Tmux : opencode.Provider
 ---
 ---@field options? string Tmux options to use when creating the pane. Defaults to `-h`, which creates a horizontal split.
----
----@field check_tmux? fun() Function that checks if tmux is running. Defaults to checking if the `TMUX` environment variable is set.
+---@field pane_id? string The tmux pane ID where opencode is running (internal use only)
+local Tmux = {}
+Tmux.__index = Tmux
+
+---Create a new Tmux provider instance
+---@param opts? {options?: string} Configuration options
+---@return opencode.provider.Tmux
+function Tmux.new(opts)
+  local self = setmetatable({}, Tmux)
+  self.options = opts and opts.options or "-h"
+  self.pane_id = nil -- The tmux pane ID where opencode is running
+  return self
+end
+
+---Check if tmux is running in current terminal
+function Tmux:check_tmux()
+  if not vim.env.TMUX then
+    error("Tmux provider selected but not running inside a tmux session.", 0)
+  end
+end
+
+---Get the pane ID where opencode is running
+---@return string|nil pane_id The tmux pane ID
+function Tmux:get_pane_id()
+  if self.pane_id then
+    return self.pane_id
+  end
+
+  -- Find existing opencode pane
+  local find_cmd = "tmux list-panes -F '#{pane_id} #{pane_current_command}' | grep 'opencode' | awk '{print $1}'"
+  local result = vim.fn.system(find_cmd):match("^%S+")
+
+  if result then
+    self.pane_id = result
+  end
+
+  return result
+end
+
+---Toggle opencode in tmux pane
+function Tmux:toggle()
+  self:check_tmux()
+
+  local pane_id = self:get_pane_id()
+  if pane_id then
+    -- Kill existing pane
+    vim.fn.system("tmux kill-pane -t " .. pane_id)
+    self.pane_id = nil
+  else
+    -- Create new pane
+    local tmux_cmd = string.format("tmux split-window -P -F '#{pane_id}' %s '%s'", self.options, self.cmd)
+    self.pane_id = vim.fn.system(tmux_cmd)
+  end
+end
+
+---Start opencode in tmux pane
+function Tmux:start()
+  self:check_tmux()
+
+  local pane_id = self:get_pane_id()
+  if not pane_id then
+    -- Create new pane
+    local tmux_cmd = string.format("tmux split-window -d -P -F '#{pane_id}' %s '%s'", self.options, self.cmd)
+    self.pane_id = vim.fn.system(tmux_cmd)
+  end
+end
+
+---Show opencode pane (no-op for tmux)
+function Tmux:show() end
 
 local M = {}
+
+-- Export Tmux class for external use
+M.Tmux = Tmux
 
 ---@type opencode.Provider|nil
 local provider
@@ -50,7 +120,11 @@ if provider_or_opts and (provider_or_opts.toggle or provider_or_opts.start or pr
 elseif provider_or_opts and provider_or_opts.enabled then
   -- Resolve the built-in provider.
   -- Retains the base `cmd` if not overridden to deduplicate necessary config.
-  provider = provider_or_opts[provider_or_opts.enabled]
+  if provider_or_opts.enabled == "tmux" then
+    provider = Tmux.new(provider_or_opts.tmux)
+  else
+    provider = provider_or_opts[provider_or_opts.enabled]
+  end
   provider.cmd = provider.cmd or provider_or_opts.cmd
 end
 
