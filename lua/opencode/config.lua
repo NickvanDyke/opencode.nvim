@@ -169,7 +169,7 @@ local defaults = {
       end,
     },
     tmux = {
-      split_window_options = "-h", -- Open in a horizontal split by default
+      options = "-h", -- Open in a horizontal split by default
       ---@param self opencode.provider.Tmux
       check_tmux = function(self)
         -- Check if tmux is running in current terminal
@@ -193,7 +193,7 @@ local defaults = {
           "tmux list-panes -F '#{pane_id} #{pane_current_command}' | grep -q '%s' && tmux list-panes -F '#{pane_id} #{pane_current_command}' | grep '%s' | awk '{print $1}' | xargs -I {} tmux kill-pane -t {} || tmux split-window %s '%s'",
           "opencode",
           "opencode",
-          self.split_window_options,
+          self.options,
           self.cmd
         )
         vim.fn.system(tmux_cmd)
@@ -204,7 +204,7 @@ local defaults = {
           return
         end
         -- Check if an `opencode` pane already exists; if not, split and run
-        local tmux_cmd = string.format("tmux split-window %s '%s'", self.split_window_options, self.cmd)
+        local tmux_cmd = string.format("tmux split-window %s '%s'", self.options, self.cmd)
         vim.fn.system(tmux_cmd)
       end,
       ---@param self opencode.provider.Tmux

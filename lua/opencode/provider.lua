@@ -32,6 +32,8 @@
 
 ---Provide an opencode instance in a tmux pane
 ---@class opencode.provider.Tmux : opencode.Provider
+---
+---@field options? string Tmux options to use when creating the pane. Defaults to `-h`, which creates a horizontal split.
 
 local M = {}
 
