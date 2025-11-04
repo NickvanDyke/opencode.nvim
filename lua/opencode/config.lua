@@ -135,6 +135,10 @@ local defaults = {
       if snacks_ok and snacks.config.get("terminal", {}).enabled then
         return "snacks"
       end
+      -- Fallback to tmux if inside a tmux session
+      if vim.env.TMUX then
+        return "tmux"
+      end
 
       return false
     end)(),
