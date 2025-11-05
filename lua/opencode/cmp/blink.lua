@@ -58,10 +58,10 @@ function source:get_completions(ctx, callback)
     --- @type lsp.CompletionItem
     local item = {
       label = placeholder,
-      kind = require("blink.cmp.types").CompletionItemKind.Variable,
       filterText = placeholder,
       insertText = placeholder,
       insertTextFormat = vim.lsp.protocol.InsertTextFormat.PlainText,
+      kind = require("blink.cmp.types").CompletionItemKind.Variable,
 
       -- There are some other fields you may want to explore which are blink.cmp
       -- specific, such as `score_offset` (blink.cmp.CompletionItem)
@@ -70,14 +70,14 @@ function source:get_completions(ctx, callback)
   end
 
   for _, agent in ipairs(source.agents or {}) do
-    agent.name = "@" .. agent.name
+    local label = "@" .. agent.name
     ---@type lsp.CompletionItem
     local item = {
-      label = agent.name,
-      kind = require("blink.cmp.types").CompletionItemKind.Property,
-      filterText = agent.name,
-      insertText = agent.name,
+      label = label,
+      filterText = label,
+      insertText = label,
       insertTextFormat = vim.lsp.protocol.InsertTextFormat.PlainText,
+      kind = require("blink.cmp.types").CompletionItemKind.Property,
       documentation = {
         kind = "plaintext",
         value = agent.description or "Agent",
