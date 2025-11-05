@@ -63,6 +63,10 @@ end
 ---@return string|nil pane_id The tmux pane ID
 function Tmux:get_pane_id()
   if self.pane_id then
+    local pane_found = vim.fn.system("tmux list-panes -t " .. self.pane_id)
+    if pane_found:match("can't find pane") then
+      self.pane_id = nil
+    end
     return self.pane_id
   end
 
