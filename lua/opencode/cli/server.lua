@@ -158,7 +158,12 @@ end
 ---1. A process responding on `opts.port`.
 ---2. Any `opencode` process running inside Neovim's CWD. Prioritizes embedded.
 ---3. Calling `opts.provider.start` and polling for the port.
-function M.get_port()
+---@param launch boolean? Whether to launch a new server if none found. Defaults to true.
+function M.get_port(launch)
+  if launch == nil then
+    launch = true
+  end
+
   local Promise = require("opencode.promise")
 
   return Promise.new(function(resolve, reject)
@@ -175,12 +180,14 @@ function M.get_port()
       return
     end
 
-    vim.notify(initial_result .. " — starting `opencode`…", vim.log.levels.INFO, { title = "opencode" })
+    if launch then
+      vim.notify(initial_result .. " — starting `opencode`…", vim.log.levels.INFO, { title = "opencode" })
 
-    local start_ok, start_result = pcall(require("opencode.provider").start)
-    if not start_ok then
-      reject("Error starting `opencode`: " .. start_result)
-      return
+      local start_ok, start_result = pcall(require("opencode.provider").start)
+      if not start_ok then
+        reject("Error starting `opencode`: " .. start_result)
+        return
+      end
     end
 
     poll_for_port(find_port_fn, function(ok, result)

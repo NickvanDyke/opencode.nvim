@@ -38,11 +38,14 @@ M.Tmux = require("opencode.provider.tmux").Tmux
 local started = false
 
 local function subscribe_to_sse()
-  require("opencode.cli.server").get_port():next(function(port)
-    require("opencode.autocmd").subscribe_to_sse(port)
-  end):catch(function(err)
-    vim.notify("Failed to subscribe to SSE: " .. err, vim.log.levels.WARN)
-  end)
+  require("opencode.cli.server")
+    .get_port(false)
+    :next(function(port)
+      require("opencode.autocmd").subscribe_to_sse(port)
+    end)
+    :catch(function(err)
+      vim.notify("Failed to subscribe to SSE: " .. err, vim.log.levels.WARN)
+    end)
 end
 
 ---Toggle `opencode` via `opts.provider`.
