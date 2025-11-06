@@ -37,12 +37,22 @@ M.Tmux = require("opencode.provider.tmux").Tmux
 
 local started = false
 
+local function subscribe_to_sse()
+  require("opencode.cli.server").get_port():next(function(port)
+    require("opencode.autocmd").subscribe_to_sse(port)
+  end):catch(function(err)
+    vim.notify("Failed to subscribe to SSE: " .. err, vim.log.levels.WARN)
+  end)
+end
+
 ---Toggle `opencode` via `opts.provider`.
 function M.toggle()
   local provider = require("opencode.config").provider
   if provider and provider.toggle then
     provider:toggle()
     started = true
+
+    subscribe_to_sse()
   else
     error("No `provider.toggle` available — run `:checkhealth opencode` for details", 0)
   end
@@ -54,6 +64,8 @@ function M.start()
   if provider and provider.start then
     provider:start()
     started = true
+
+    subscribe_to_sse()
   else
     error("No `provider.start` available — run `:checkhealth opencode` for details", 0)
   end
