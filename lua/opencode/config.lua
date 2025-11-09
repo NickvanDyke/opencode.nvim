@@ -135,6 +135,10 @@ local defaults = {
       if snacks_ok and snacks.config.get("terminal", {}).enabled then
         return "snacks"
       end
+      -- Fallback to tmux if inside a tmux session
+      if vim.env.TMUX then
+        return "tmux"
+      end
 
       return false
     end)(),
@@ -167,6 +171,9 @@ local defaults = {
           win:show()
         end
       end,
+    },
+    tmux = {
+      options = "-h", -- Open in a horizontal split by default
     },
   },
 }
@@ -231,7 +238,12 @@ M.provider = (function()
   elseif provider_or_opts and provider_or_opts.enabled then
     -- Resolve the built-in provider.
     -- Retains the base `cmd` if not overridden to deduplicate necessary config.
-    provider = provider_or_opts[provider_or_opts.enabled]
+    if provider_or_opts.enabled == "tmux" then
+      local Tmux = require("opencode.provider.tmux").Tmux
+      provider = Tmux.new(provider_or_opts.tmux)
+    else
+      provider = provider_or_opts[provider_or_opts.enabled]
+    end
     provider.cmd = provider.cmd or provider_or_opts.cmd
   end
 

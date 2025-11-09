@@ -109,6 +109,25 @@ function M.check()
       "Or configure `vim.g.opencode_opts.provider`",
     })
   end
+
+  vim.health.start("opencode.nvim [tmux]")
+
+  local advice = {
+    "Install `tmux` and ensure it's in your `$PATH`",
+    "Or launch and manage `opencode` yourself",
+    "Or configure `vim.g.opencode_opts.provider` to use a different provider",
+  }
+
+  if vim.fn.has("unix") then
+    vim.health.ok("Running inside a Unix system: the `tmux` provider can be selected.")
+    if vim.env.TMUX then
+      vim.health.ok("Running inside `tmux`: the `tmux` provider can be selected.")
+    else
+      vim.health.warn("Not running inside `tmux`: the `tmux` provider won't work.", advice)
+    end
+  else
+    vim.health.warn("Not running inside a Unix system: the `tmux` provider won't work.", advice)
+  end
 end
 
 return M
