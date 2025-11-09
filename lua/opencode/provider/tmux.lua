@@ -14,11 +14,11 @@ Tmux.__index = Tmux
 
 ---Create a new Tmux provider instance
 ---Upon toggling or starting, this will create a new tmux pane to run opencode, in the current window.
----@param opts? opencode.provider.tmux.Opts Configuration options
+---@param opts opencode.provider.tmux.Opts Configuration options
 ---@return opencode.provider.Tmux
 function Tmux.new(opts)
   local self = setmetatable({}, Tmux)
-  self.options = opts and opts.options or "-h"
+  self.options = opts.options
   self.pane_id = nil -- The tmux pane ID where opencode is running
   return self
 end
@@ -91,4 +91,3 @@ function Tmux:show() end
 return {
   Tmux = Tmux,
 }
-
