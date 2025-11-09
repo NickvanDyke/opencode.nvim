@@ -239,7 +239,7 @@ M.provider = (function()
     -- Resolve the built-in provider.
     -- Retains the base `cmd` if not overridden to deduplicate necessary config.
     if provider_or_opts.enabled == "tmux" then
-      local Tmux = require("opencode.provider").Tmux
+      local Tmux = require("opencode.provider.tmux").Tmux
       provider = Tmux.new(provider_or_opts.tmux)
     else
       provider = provider_or_opts[provider_or_opts.enabled]
