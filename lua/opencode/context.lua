@@ -10,6 +10,7 @@
 ---@field row integer
 ---@field col integer
 ---@field range table|nil
+---@field agents opencode.client.Agent[]|nil
 local Context = {}
 Context.__index = Context
 
@@ -76,22 +77,50 @@ end
 
 ---Render `opts.contexts` in `prompt`.
 ---@param prompt string
----@param opts? { agents?: opencode.client.Agent[] }
 ---@return { input: snacks.picker.Text[], output: snacks.picker.Text[] }
-function Context:render(prompt, opts)
-  -- TODO: Highlight opts.agents
+function Context:render(prompt)
   local contexts = require("opencode.config").opts.contexts or {}
-  local placeholders = vim.tbl_keys(contexts)
-  table.sort(placeholders, function(a, b)
+  local agents = self.agents or {}
+  local context_placeholders = vim.tbl_keys(contexts)
+  table.sort(context_placeholders, function(a, b)
     return #a > #b -- longest first, in case some overlap
   end)
+
+  ---@type table<string, { input: (fun(): snacks.picker.Text), output: (fun(): snacks.picker.Text) }>
+  local placeholders = {}
+  for _, context_placeholder in ipairs(context_placeholders) do
+    placeholders[context_placeholder] = {
+      input = function()
+        return { context_placeholder, "OpencodeContextPlaceholder" }
+      end,
+      output = function()
+        local value = contexts[context_placeholder](self)
+        if value then
+          return { value, "OpencodeContextValue" }
+        else
+          return { context_placeholder, "OpencodeContextPlaceholder" }
+        end
+      end,
+    }
+  end
+  for _, agent in ipairs(agents) do
+    local agent_placeholder = "@" .. agent.name
+    placeholders[agent_placeholder] = {
+      input = function()
+        return { agent_placeholder, "OpencodeAgent" }
+      end,
+      output = function()
+        return { agent_placeholder, "OpencodeAgent" }
+      end,
+    }
+  end
 
   local input, output = {}, {}
   local i = 1
   while i <= #prompt do
     -- Find the next placeholder and its position
     local next_pos, next_placeholder = #prompt + 1, nil
-    for _, placeholder in ipairs(placeholders) do
+    for placeholder in pairs(placeholders) do
       local pos = prompt:find(placeholder, i, true)
       if pos and pos < next_pos then
         next_pos = pos
@@ -106,15 +135,10 @@ function Context:render(prompt, opts)
       table.insert(output, { text })
     end
 
-    -- If a placeholder is found, add it and its value
+    -- If a placeholder is found, replace it with its value
     if next_placeholder then
-      table.insert(input, { next_placeholder, "OpencodeContextPlaceholder" })
-      local value = contexts[next_placeholder](self)
-      if value then
-        table.insert(output, { value, "OpencodeContextValue" })
-      else
-        table.insert(output, { next_placeholder, "OpencodeContextPlaceholder" })
-      end
+      table.insert(input, placeholders[next_placeholder].input())
+      table.insert(output, placeholders[next_placeholder].output())
       i = next_pos + #next_placeholder
     else
       -- No more placeholders, break

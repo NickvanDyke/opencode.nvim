@@ -4,8 +4,6 @@ local source = {}
 
 ---@type opencode.Context
 source.context = nil
----@type opencode.client.Agent[]|nil
-source.agents = nil
 
 local is_setup = false
 
@@ -69,7 +67,7 @@ function source:get_completions(ctx, callback)
     table.insert(items, item)
   end
 
-  for _, agent in ipairs(source.agents or {}) do
+  for _, agent in ipairs(source.context.agents or {}) do
     local label = "@" .. agent.name
     ---@type lsp.CompletionItem
     local item = {

@@ -23,6 +23,21 @@ function M.select(opts)
   require("opencode.cli.server")
     .get_port()
     :next(function(port)
+      if opts.prompts then
+        return require("opencode.promise").new(function(resolve)
+          require("opencode.cli.client").get_agents(port, function(agents)
+            context.agents = vim.tbl_filter(function(agent)
+              return agent.mode == "subagent"
+            end, agents)
+
+            resolve(port)
+          end)
+        end)
+      else
+        return port
+      end
+    end)
+    :next(function(port)
       if opts.commands then
         return require("opencode.promise").new(function(resolve)
           require("opencode.cli.client").get_commands(port, function(custom_commands)
@@ -32,10 +47,6 @@ function M.select(opts)
       else
         return {}
       end
-    end)
-    :catch(function(err)
-      vim.notify("Couldn't fetch `opencode` commands: " .. err, vim.log.levels.ERROR, { title = "opencode" })
-      return true
     end)
     :next(function(custom_commands)
       local prompts = require("opencode.config").opts.prompts or {}
@@ -200,6 +211,9 @@ function M.select(opts)
           end
         end
       )
+    end)
+    :catch(function(err)
+      vim.notify(err, vim.log.levels.ERROR)
     end)
 end
 

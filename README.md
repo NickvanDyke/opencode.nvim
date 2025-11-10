@@ -129,27 +129,20 @@ Please submit PRs adding new providers! 🙂
 ### ✍️ Ask — `require("opencode").ask()`
 
 Input a prompt to send to `opencode`.
-
-<img width="800" alt="image" src="https://github.com/user-attachments/assets/8591c610-4824-4480-9e6d-0c94e9c18f3a" />
-
 - Press `<Up>` to browse recent asks.
-- Fetches available subagents from `opencode`.
-- Highlights placeholders.
-- Completes placeholders and subagents.
+- Highlights contexts and `opencode` subagents.
+- Completes contexts and `opencode` subagents.
   - Press `<Tab>` to trigger built-in completion.
   - When using `blink.cmp` and `snacks.input`, registers `opts.auto_register_cmp_sources`.
+
+<img width="800" alt="image" src="https://github.com/user-attachments/assets/8591c610-4824-4480-9e6d-0c94e9c18f3a" />
 
 ### 📝 Select — `require("opencode").select()`
 
 Select from all `opencode.nvim` functionality.
+- Fetches custom commands from `opencode`.
 
 <img width="800" alt="image" src="https://github.com/user-attachments/assets/afd85acd-e4b3-47d2-b92f-f58d25972edb" />
-
-- Prompts
-  - Previews the prompt with contexts injected.
-- Commands
-  - Fetches available custom commands from `opencode`.
-- Provider
 
 ### 🗣️ Prompt — `require("opencode").prompt()` | `:[range]OpencodePrompt`
 

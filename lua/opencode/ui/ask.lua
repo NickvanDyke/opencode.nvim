@@ -5,9 +5,8 @@ local M = {}
 ---Input a prompt to send to `opencode`.
 ---Press the up arrow to browse recent prompts.
 ---
---- - Fetches available subagents from `opencode`.
---- - Highlights `opts.contexts` placeholders.
---- - Completes `opts.contexts` placeholders and `opencode` subagents.
+--- - Highlights contexts and `opencode` subagents.
+--- - Completes contexts and `opencode` subagents.
 ---   - Press `<Tab>` to trigger built-in completion.
 ---   - When using `blink.cmp` and `snacks.input`, registers `opts.auto_register_cmp_sources`.
 ---
@@ -60,21 +59,16 @@ function M.ask(default, opts)
     :next(function(port)
       return require("opencode.promise").new(function(resolve)
         require("opencode.cli.client").get_agents(port, function(agents)
-          local subagents = vim.tbl_filter(function(agent)
+          opts.context.agents = vim.tbl_filter(function(agent)
             return agent.mode == "subagent"
           end, agents)
 
-          resolve(subagents)
+          resolve(true)
         end)
       end)
     end)
-    :catch(function(err)
-      vim.notify("Couldn't fetch `opencode` subagents: " .. err, vim.log.levels.ERROR, { title = "opencode" })
-      return true
-    end)
-    :next(function(subagents)
+    :next(function()
       require("opencode.cmp.blink").context = opts.context
-      require("opencode.cmp.blink").agents = subagents
 
       vim.ui.input(input_opts, function(value)
         if value and value ~= "" then
@@ -82,12 +76,15 @@ function M.ask(default, opts)
         end
       end)
     end)
+    :catch(function(err)
+      vim.notify(err, vim.log.levels.ERROR)
+    end)
 end
 
 -- FIX: Overridden by blink.cmp cmdline completion if both are enabled, and that won't have our items.
 -- Possible to register our blink source there? But only active in our own vim.ui.input calls.
 
----Completion function for context placeholders.
+---Completion function for context placeholders and `opencode` subagents.
 ---Must be a global variable for use with `vim.ui.select`.
 ---
 ---@param ArgLead string The text being completed.
@@ -103,7 +100,7 @@ _G.opencode_completion = function(ArgLead, CmdLine, CursorPos)
   for placeholder, _ in pairs(require("opencode.config").opts.contexts) do
     table.insert(completions, placeholder)
   end
-  for _, agent in ipairs(require("opencode.cmp.blink").agents or {}) do
+  for _, agent in ipairs(require("opencode.cmp.blink").context.agents or {}) do
     table.insert(completions, "@" .. agent.name)
   end
 
