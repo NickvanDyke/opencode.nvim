@@ -52,16 +52,11 @@ function M.prompt(prompt, opts)
       end)
     end)
     :next(function(port)
+      require("opencode.autocmd").subscribe_to_sse(port)
+      return port
+    end)
+    :next(function(port)
       if opts.submit then
-        require("opencode.cli.client").listen_to_sse(port, function(response)
-          vim.api.nvim_exec_autocmds("User", {
-            pattern = "OpencodeEvent",
-            data = {
-              event = response,
-              port = port,
-            },
-          })
-        end)
         require("opencode.cli.client").tui_execute_command("prompt.submit", port)
       end
       return port
