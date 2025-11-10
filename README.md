@@ -6,7 +6,7 @@ https://github.com/user-attachments/assets/01e4e2fc-bbfa-427e-b9dc-c1c1badaa90e
 
 ## ✨ Features
 
-- Auto-connect to *any* `opencode` running inside Neovim's CWD, or conveniently manage an instance.
+- Auto-connect to *any* `opencode` running inside Neovim's CWD, or manage an integrated instance.
 - Input prompts with completions, highlights, and normal-mode support.
 - Select prompts from a library and define your own.
 - Inject relevant editor context (buffer, cursor, selection, diagnostics, etc.).
@@ -73,16 +73,17 @@ programs.nixvim = {
 ### Provider
 
 You can manually run `opencode` inside Neovim's CWD however you like (terminal app, multiplexer, plugin, etc.) and `opencode.nvim` will find it!
-But consider configuring a `provider` for `opencode.nvim` to conveniently manage it for you.
 
-`opencode.nvim` only uses the `provider` when it can't find an existing `opencode`, so you can alternate between manual and integrated management.
+But, consider configuring a provider for `opencode.nvim` to conveniently manage it for you — or let it intelligently default based on availability.
+
+`opencode.nvim` only uses the provider when it can't find an existing `opencode`, so you can alternate between manual and integrated management.
 
 #### [snacks.terminal](https://github.com/folke/snacks.nvim/blob/main/docs/terminal.md)
 
 ```lua
 vim.g.opencode_opts = {
   provider = {
-    enabled = "snacks",
+    enabled = "snacks", -- Default when `snacks.terminal` is enabled.
     snacks = {
       -- Customize `snacks.terminal` to your liking.
     }
@@ -95,7 +96,7 @@ vim.g.opencode_opts = {
 ```lua
 vim.g.opencode_opts = {
   provider = {
-    enabled = "tmux",
+    enabled = "tmux", -- Default when running inside a `tmux` session.
     tmux = {
       options = "-h", -- options to pass to `tmux split-window`
     }
