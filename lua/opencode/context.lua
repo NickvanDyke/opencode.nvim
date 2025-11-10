@@ -265,16 +265,18 @@ function Context:visible_text()
   local visible = {}
   for _, win in ipairs(vim.api.nvim_list_wins()) do
     local buf = vim.api.nvim_win_get_buf(win)
-    local start_line = vim.fn.line("w0", win)
-    local end_line = vim.fn.line("w$", win)
-    table.insert(
-      visible,
-      Context.format({
-        buf = buf,
-        start_line = start_line,
-        end_line = end_line,
-      })
-    )
+    if is_buf_valid(buf) then
+      local start_line = vim.fn.line("w0", win)
+      local end_line = vim.fn.line("w$", win)
+      table.insert(
+        visible,
+        Context.format({
+          buf = buf,
+          start_line = start_line,
+          end_line = end_line,
+        })
+      )
+    end
   end
   if #visible == 0 then
     return nil
