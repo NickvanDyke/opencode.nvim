@@ -1,6 +1,6 @@
 ---@module 'snacks.terminal'
 
----Provide methods for `opencode.nvim` to conveniently manage `opencode` for you.
+---Provide an integrated `opencode`.
 ---@class opencode.Provider
 ---
 ---The command to start `opencode`.

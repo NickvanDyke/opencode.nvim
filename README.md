@@ -6,15 +6,15 @@ https://github.com/user-attachments/assets/01e4e2fc-bbfa-427e-b9dc-c1c1badaa90e
 
 ## ✨ Features
 
-- Auto-connect to *any* `opencode` running inside Neovim's CWD, or manage an integrated instance.
+- Auto-connects to *any* `opencode` running inside Neovim's CWD, or provides an integrated instance.
 - Input prompts with completions, highlights, and normal-mode support.
 - Select prompts from a library and define your own.
 - Inject relevant editor context (buffer, cursor, selection, diagnostics, etc.).
 - Control `opencode` with commands.
-- Auto-reload buffers edited by `opencode` in real-time.
 - Respond to `opencode` permission requests.
 - Monitor state via statusline component.
-- Forward `opencode`'s Server-Sent-Events as Neovim autocmds for automation.
+- Auto-reloads buffers edited by `opencode` in real-time.
+- Forwards `opencode`'s Server-Sent-Events as autocmds for automation.
 - Sensible defaults with well-documented, flexible configuration and API to fit your workflow.
 
 ## 📦 Setup
@@ -29,7 +29,7 @@ https://github.com/user-attachments/assets/01e4e2fc-bbfa-427e-b9dc-c1c1badaa90e
   "NickvanDyke/opencode.nvim",
   dependencies = {
     -- Recommended for `ask()` and `select()`.
-    -- Required for default `toggle()` implementation.
+    -- Required for `snacks` provider.
     ---@module 'snacks' <- Loads `snacks.nvim` types for configuration intellisense.
     { "folke/snacks.nvim", opts = { input = {}, picker = {}, terminal = {} } },
   },
@@ -72,11 +72,9 @@ programs.nixvim = {
 
 ### Provider
 
-You can manually run `opencode` inside Neovim's CWD however you like (terminal app, multiplexer, plugin, etc.) and `opencode.nvim` will find it!
+You can manually run `opencode` inside Neovim's CWD however you like and `opencode.nvim` will find it!
 
-But, consider configuring a provider for `opencode.nvim` to conveniently manage it for you — or let it intelligently default based on availability.
-
-`opencode.nvim` only uses the provider when it can't find an existing `opencode`, so you can alternate between manual and integrated management.
+If `opencode.nvim` can't find an existing `opencode`, it uses the configured provider (defaulting based on availability) to `toggle`, `start`, and `show` one when appropriate.
 
 #### [snacks.terminal](https://github.com/folke/snacks.nvim/blob/main/docs/terminal.md)
 
@@ -106,9 +104,10 @@ vim.g.opencode_opts = {
 
 #### Custom
 
+Integrate your custom method for convenience!
+
 ```lua
 vim.g.opencode_opts = {
-  ---@type opencode.Provider
   provider = {
     toggle = function(self)
       -- ...
@@ -123,8 +122,7 @@ vim.g.opencode_opts = {
 }
 ```
 
-> [!TIP]
-> Please submit PRs adding your custom providers! 🙂
+Please submit PRs adding new providers! 🙂
 
 ## 🚀 Usage
 

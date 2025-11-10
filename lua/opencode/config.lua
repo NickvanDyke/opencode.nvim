@@ -46,8 +46,7 @@ vim.g.opencode_opts = vim.g.opencode_opts
 ---Options for `opencode` permission requests.
 ---@field permissions? opencode.permissions.Opts
 ---
----Provide methods for `opencode.nvim` to conveniently manage `opencode` for you.
----You can ignore this field and manually manage your own `opencode`.
+---How to provide an integrated `opencode` when one is not found.
 ---@field provider? opencode.Provider|opencode.provider.Opts
 
 ---@class opencode.Prompt : opencode.prompt.Opts

@@ -1,15 +1,15 @@
----Provide an `opencode` instance in a tmux pane in the current window
+---Provide `opencode` in a `tmux` pane in the current window.
 ---Works only in Unix systems.
 ---@class opencode.provider.Tmux : opencode.Provider
 ---
 ---@field opts opencode.provider.tmux.Opts
----@field pane_id? string The tmux pane ID where opencode is running (internal use only)
+---@field pane_id? string The tmux pane ID where `opencode` is running (internal use only)
 local Tmux = {}
 Tmux.__index = Tmux
 
 ---@class opencode.provider.tmux.Opts
 ---
----Tmux options to use when creating the pane. Defaults to `-h`, which creates a horizontal split.
+---`tmux` options for creating the pane.
 ---@field options? string
 
 ---@param opts? opencode.provider.tmux.Opts
