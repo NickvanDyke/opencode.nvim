@@ -46,8 +46,8 @@ vim.g.opencode_opts = vim.g.opencode_opts
 ---Options for `opencode` permission requests.
 ---@field permissions? opencode.permissions.Opts
 ---
----Provide methods for `opencode.nvim` to toggle, start, and show `opencode`.
----Only for convenience/integration — you can ignore this field and manually manage your own `opencode`.
+---Provide methods for `opencode.nvim` to conveniently manage `opencode` for you.
+---You can ignore this field and manually manage your own `opencode`.
 ---@field provider? opencode.Provider|opencode.provider.Opts
 ---
 ---DEPRECATED: Please use `opts.provider = { name = "snacks", ... }` instead.
@@ -133,10 +133,11 @@ local defaults = {
     enabled = (function()
       local snacks_ok, snacks = pcall(require, "snacks")
       if snacks_ok and snacks.config.get("terminal", {}).enabled then
+        -- Default to snacks if `snacks.terminal` is available
         return "snacks"
       end
-      -- Fallback to tmux if inside a tmux session
       if vim.env.TMUX then
+        -- Default to tmux if inside a tmux session
         return "tmux"
       end
 
@@ -156,24 +157,9 @@ local defaults = {
           filetype = "opencode_terminal",
         },
       },
-      ---@param self opencode.provider.Snacks
-      toggle = function(self)
-        require("snacks.terminal").toggle(self.cmd, self)
-      end,
-      ---@param self opencode.provider.Snacks
-      start = function(self)
-        require("snacks.terminal").open(self.cmd, self)
-      end,
-      ---@param self opencode.provider.Snacks
-      show = function(self)
-        local win = require("snacks.terminal").get(self.cmd, vim.tbl_deep_extend("force", self, { create = false }))
-        if win then
-          win:show()
-        end
-      end,
     },
     tmux = {
-      options = "-h", -- Open in a horizontal split by default
+      options = "-h", -- Open in a horizontal split
     },
   },
 }
@@ -230,6 +216,7 @@ end
 M.provider = (function()
   local provider
   local provider_or_opts = M.opts.provider
+
   if provider_or_opts and (provider_or_opts.toggle or provider_or_opts.start or provider_or_opts.show) then
     -- An implementation was passed.
     -- Be careful: `provider.enabled` may still exist from merging with defaults.
@@ -237,13 +224,20 @@ M.provider = (function()
     provider = provider_or_opts
   elseif provider_or_opts and provider_or_opts.enabled then
     -- Resolve the built-in provider.
-    -- Retains the base `cmd` if not overridden to deduplicate necessary config.
-    if provider_or_opts.enabled == "tmux" then
-      local Tmux = require("opencode.provider.tmux").Tmux
-      provider = Tmux.new(provider_or_opts.tmux)
-    else
-      provider = provider_or_opts[provider_or_opts.enabled]
+    ---@type boolean, opencode.provider.Snacks|opencode.provider.Tmux
+    local ok, resolved_provider = pcall(require, "opencode.provider." .. provider_or_opts.enabled)
+    if not ok then
+      vim.notify(
+        "Failed to load `opencode` provider '" .. provider_or_opts.enabled .. "': " .. resolved_provider,
+        vim.log.levels.ERROR,
+        { title = "opencode" }
+      )
+      return nil
     end
+
+    local resolver_provider_opts = provider_or_opts[provider_or_opts.enabled]
+    provider = resolved_provider.new(resolver_provider_opts)
+    -- Retain the base `cmd` if not overridden.
     provider.cmd = provider.cmd or provider_or_opts.cmd
   end
 

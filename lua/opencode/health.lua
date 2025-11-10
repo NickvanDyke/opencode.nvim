@@ -93,40 +93,39 @@ function M.check()
       vim.health.warn("`snacks.picker` is disabled: `select()` will not be enhanced.")
     end
     if snacks.picker and snacks.config.get("terminal", {}).enabled then
-      vim.health.ok("`snacks.terminal` is enabled: will default to `snacks` provider.")
+      vim.health.ok("`snacks.terminal` is enabled: the `snacks` provider will be available.")
     else
-      vim.health.warn("`snacks.terminal` is disabled: the default `snacks` provider will not be available.", {
+      vim.health.warn("`snacks.terminal` is disabled: the `snacks` provider will not be available.", {
         "Enable `snacks.terminal`",
-        "Or launch and manage `opencode` yourself",
-        "Or configure `vim.g.opencode_opts.provider`",
       })
     end
   else
     vim.health.warn("`snacks.nvim` is not available: `ask()` and `select()` will not be enhanced.")
-    vim.health.warn("`snacks.nvim` is not available: the default `snacks` provider will not be available.", {
-      "Install `snacks.nvim`",
-      "Or launch and manage `opencode` yourself",
-      "Or configure `vim.g.opencode_opts.provider`",
+    vim.health.warn("`snacks.nvim` is not available: the `snacks` provider will not be available.", {
+      "Install `snacks.nvim` and enable `snacks.terminal`",
     })
   end
 
   vim.health.start("opencode.nvim [tmux]")
 
-  local advice = {
-    "Install `tmux` and ensure it's in your `$PATH`",
-    "Or launch and manage `opencode` yourself",
-    "Or configure `vim.g.opencode_opts.provider` to use a different provider",
-  }
-
   if vim.fn.has("unix") then
-    vim.health.ok("Running inside a Unix system: the `tmux` provider can be selected.")
-    if vim.env.TMUX then
-      vim.health.ok("Running inside `tmux`: the `tmux` provider can be selected.")
+    vim.health.ok("Running inside a Unix system.")
+    if vim.fn.executable("tmux") == 1 then
+      vim.health.ok("`tmux` executable found in `$PATH`.")
+      if vim.env.TMUX then
+        vim.health.ok("Running inside a `tmux` session: the `tmux` provider will be available.")
+      else
+        vim.health.warn("Not running inside a `tmux` session: the `tmux` provider will not be available.", {
+          "Launch Neovim inside a `tmux` session.",
+        })
+      end
     else
-      vim.health.warn("Not running inside `tmux`: the `tmux` provider won't work.", advice)
+      vim.health.warn("`tmux` executable not found in `$PATH`: the `tmux` provider will not be available.", {
+        "Install `tmux` and ensure it's in your `$PATH`.",
+      })
     end
   else
-    vim.health.warn("Not running inside a Unix system: the `tmux` provider won't work.", advice)
+    vim.health.warn("Not running inside a Unix system: the `tmux` provider will not be available.")
   end
 end
 

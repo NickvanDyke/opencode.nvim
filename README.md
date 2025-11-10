@@ -6,10 +6,10 @@ https://github.com/user-attachments/assets/01e4e2fc-bbfa-427e-b9dc-c1c1badaa90e
 
 ## ✨ Features
 
-- Auto-connect to *any* `opencode` running inside Neovim's CWD, or manage an embedded instance.
+- Auto-connect to *any* `opencode` running inside Neovim's CWD, or conveniently manage an instance.
 - Input prompts with completions, highlights, and normal-mode support.
 - Select prompts from a library and define your own.
-- Inject relevant editor context (buffer, cursor, selection, diagnostics, ...).
+- Inject relevant editor context (buffer, cursor, selection, diagnostics, etc.).
 - Control `opencode` with commands.
 - Auto-reload buffers edited by `opencode` in real-time.
 - Respond to `opencode` permission requests.
@@ -19,7 +19,10 @@ https://github.com/user-attachments/assets/01e4e2fc-bbfa-427e-b9dc-c1c1badaa90e
 
 ## 📦 Setup
 
-[lazy.nvim](https://github.com/folke/lazy.nvim):
+> [!TIP]
+> Run `:checkhealth opencode` after setup.
+
+### [lazy.nvim](https://github.com/folke/lazy.nvim)
 
 ```lua
 {
@@ -27,6 +30,7 @@ https://github.com/user-attachments/assets/01e4e2fc-bbfa-427e-b9dc-c1c1badaa90e
   dependencies = {
     -- Recommended for `ask()` and `select()`.
     -- Required for default `toggle()` implementation.
+    ---@module 'snacks' <- Loads `snacks.nvim` types for configuration intellisense.
     { "folke/snacks.nvim", opts = { input = {}, picker = {}, terminal = {} } },
   },
   config = function()
@@ -52,8 +56,7 @@ https://github.com/user-attachments/assets/01e4e2fc-bbfa-427e-b9dc-c1c1badaa90e
 }
 ```
 
-<details>
-<summary><a href="https://github.com/nix-community/nixvim">nixvim</a></summary>
+### [nixvim](https://github.com/nix-community/nixvim)
 
 ```nix
 programs.nixvim = {
@@ -62,10 +65,6 @@ programs.nixvim = {
   ];
 };
 ```
-</details>
-
-> [!TIP]
-> Run `:checkhealth opencode` after installation.
 
 ## ⚙️ Configuration
 
@@ -73,16 +72,30 @@ programs.nixvim = {
 
 ### Provider
 
-By default, `opencode.nvim` will use [`snacks.terminal`](https://github.com/folke/snacks.nvim/blob/main/docs/terminal.md) (if available) to run `opencode` when it isn't already running:
+You can manually run `opencode` inside Neovim's CWD however you like (terminal app, multiplexer, plugin, etc.) and `opencode.nvim` will find it!
+But consider configuring a `provider` for `opencode.nvim` to conveniently manage it for you.
+
+`opencode.nvim` only uses the `provider` when it can't find an existing `opencode`, so you can alternate between manual and integrated management.
+
+#### [snacks.terminal](https://github.com/folke/snacks.nvim/blob/main/docs/terminal.md)
 
 ```lua
 vim.g.opencode_opts = {
   provider = {
-    enabled = "snacks", -- or "tmux", or your custom provider (see below)
-    ---@type opencode.provider.Snacks
+    enabled = "snacks",
     snacks = {
       -- Customize `snacks.terminal` to your liking.
     }
+  }
+}
+```
+
+#### [tmux](https://github.com/tmux/tmux)
+
+```lua
+vim.g.opencode_opts = {
+  provider = {
+    enabled = "tmux",
     tmux = {
       options = "-h", -- options to pass to `tmux split-window`
     }
@@ -90,30 +103,27 @@ vim.g.opencode_opts = {
 }
 ```
 
-You can manually run `opencode` inside Neovim's CWD however you like (terminal plugin, multiplexer, app, ...) and `opencode.nvim` will find it! But consider configuring `opencode.nvim` to manage it on your behalf:
+#### Custom
 
 ```lua
 vim.g.opencode_opts = {
   ---@type opencode.Provider
   provider = {
     toggle = function(self)
-      -- Called by `require("opencode").toggle()`.
+      -- ...
     end,
     start = function(self)
-      -- Called when sending a prompt or command to `opencode` but no process was found.
-      -- `opencode.nvim` will poll for a couple seconds waiting for one to appear.
+      -- ...
     end,
     show = function(self)
-      -- Called when a prompt or command is sent to `opencode`,
-      -- *and* this provider's `toggle` or `start` has previously been called
-      -- (so as to not interfere when `opencode` was started externally).
+      -- ...
     end
   }
 }
 ```
 
 > [!TIP]
-> I only use `snacks.terminal`, but welcome PRs adding your custom method as a built-in provider 🙂
+> Please submit PRs adding your custom providers! 🙂
 
 ## 🚀 Usage
 
@@ -135,6 +145,12 @@ Input a prompt to send to `opencode`.
 Select from all `opencode.nvim` functionality.
 
 <img width="800" alt="image" src="https://github.com/user-attachments/assets/afd85acd-e4b3-47d2-b92f-f58d25972edb" />
+
+- Prompts
+  - Previews the prompt with contexts injected.
+- Commands
+  - Fetches available custom commands from `opencode`.
+- Provider
 
 ### 🗣️ Prompt — `require("opencode").prompt()` | `:[range]OpencodePrompt`
 

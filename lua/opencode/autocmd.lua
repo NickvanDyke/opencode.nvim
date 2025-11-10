@@ -1,6 +1,5 @@
 local M = {}
 
-
 ---Subscribe to Server-Sent Events (SSE) and trigger OpencodeEvent autocmd.
 ---Listens for SSE responses on the specified port and triggers a User autocmd
 ---with the pattern "OpencodeEvent" containing the response data.
