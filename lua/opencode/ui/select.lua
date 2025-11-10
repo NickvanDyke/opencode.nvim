@@ -64,14 +64,19 @@ function M.select(opts)
               extmarks = context.extmarks(rendered.output),
             },
             ask = prompt.ask,
+            submit = prompt.submit,
           }
           table.insert(prompt_items, item)
         end
-        -- Sort: ask=true first, then by name
+        -- Sort: ask=true, submit=false, name
         table.sort(prompt_items, function(a, b)
           if a.ask and not b.ask then
             return true
           elseif not a.ask and b.ask then
+            return false
+          elseif not a.submit and b.submit then
+            return true
+          elseif a.submit and not b.submit then
             return false
           else
             return a.name < b.name
