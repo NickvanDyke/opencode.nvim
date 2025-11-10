@@ -60,11 +60,9 @@ local defaults = {
   auto_register_cmp_sources = { "opencode", "buffer" },
   -- stylua: ignore
   contexts = {
+    ["@this"] = function(context) return context:this() end,
     ["@buffer"] = function(context) return context:buffer() end,
     ["@buffers"] = function(context) return context:buffers() end,
-    ["@cursor"] = function(context) return context:cursor_position() end,
-    ["@selection"] = function(context) return context:visual_selection() end,
-    ["@this"] = function(context) return context:this() end,
     ["@visible"] = function(context) return context:visible_text() end,
     ["@diagnostics"] = function(context) return context:diagnostics() end,
     ["@quickfix"] = function(context) return context:quickfix() end,
@@ -73,6 +71,7 @@ local defaults = {
   },
   prompts = {
     ask = { prompt = "", ask = true, submit = true },
+    ask_append = { prompt = "", ask = true }, -- Handy to insert context mid-prompt. Simpler than exposing every context as a prompt by default.
     explain = { prompt = "Explain @this and its context", submit = true },
     optimize = { prompt = "Optimize @this for performance and readability", submit = true },
     document = { prompt = "Add comments documenting @this", submit = true },
@@ -81,8 +80,6 @@ local defaults = {
     diagnostics = { prompt = "Explain @diagnostics", submit = true },
     fix = { prompt = "Fix @diagnostics", submit = true },
     diff = { prompt = "Review the following git diff for correctness and readability: @diff", submit = true },
-    buffer = { prompt = "@buffer" },
-    this = { prompt = "@this" },
   },
   commands = {
     ["session.new"] = "Start a new session",

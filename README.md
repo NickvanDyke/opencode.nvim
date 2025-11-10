@@ -161,11 +161,9 @@ Replaces placeholders in the prompt with the corresponding context:
 
 | Placeholder | Context |
 | - | - |
+| `@this` | Visual selection if any, else cursor position |
 | `@buffer` | Current buffer |
 | `@buffers` | Open buffers |
-| `@cursor` | Cursor position |
-| `@selection` | Visual selection |
-| `@this` | Visual selection if any, else cursor position |
 | `@visible` | Visible text |
 | `@diagnostics` | Current buffer diagnostics |
 | `@quickfix` | Quickfix list |
