@@ -49,15 +49,6 @@ vim.g.opencode_opts = vim.g.opencode_opts
 ---Provide methods for `opencode.nvim` to conveniently manage `opencode` for you.
 ---You can ignore this field and manually manage your own `opencode`.
 ---@field provider? opencode.Provider|opencode.provider.Opts
----
----DEPRECATED: Please use `opts.provider = { name = "snacks", ... }` instead.
----@field terminal? { cmd: string }|snacks.terminal.Opts
----
----DEPRECATED: Please use `opts.provider.start` instead.
----@field on_opencode_not_found? fun()
----
----DEPRECATED: Please use `opts.provider.show` instead.
----@field on_send? fun()
 
 ---@class opencode.Prompt : opencode.prompt.Opts
 ---@field prompt string The prompt to send to `opencode`, with placeholders for context like `@cursor`, `@buffer`, etc.
@@ -167,32 +158,6 @@ local defaults = {
 ---Plugin options, lazily merged from `defaults` and `vim.g.opencode_opts`.
 ---@type opencode.Opts
 M.opts = vim.tbl_deep_extend("force", vim.deepcopy(defaults), vim.g.opencode_opts or {})
-
--- TODO: Remove later
-if M.opts.terminal then
-  M.opts.provider.snacks = vim.tbl_deep_extend("force", M.opts.provider.snacks, M.opts.terminal)
-  vim.notify(
-    '`opts.terminal` has been deprecated; please use `opts.provider = { name = "snacks", snacks = { ... } }` instead.',
-    vim.log.levels.WARN,
-    { title = "opencode" }
-  )
-end
-if M.opts.on_opencode_not_found then
-  M.opts.provider.start = M.opts.on_opencode_not_found
-  vim.notify(
-    "`opts.on_opencode_not_found` has been deprecated; please use `opts.provider.start` instead.",
-    vim.log.levels.WARN,
-    { title = "opencode" }
-  )
-end
-if M.opts.on_send then
-  M.opts.provider.show = M.opts.on_send
-  vim.notify(
-    "`opts.on_send` has been deprecated; please use `opts.provider.show` instead.",
-    vim.log.levels.WARN,
-    { title = "opencode" }
-  )
-end
 
 -- Allow removing default `contexts`, `prompts`, and `commands` by setting them to `false` in your user config.
 -- Example:
