@@ -123,6 +123,53 @@ vim.g.opencode_opts = {
 </details>
 
 <details>
+<summary><a href="https://sw.kovidgoyal.net/kitty/">kitty</a></summary>
+
+```lua
+vim.g.opencode_opts = {
+  provider = {
+    enabled = "kitty", -- Default when running inside a `kitty` session with remote control enabled.
+    kitty = {
+      -- Location where `opencode` instance should be opened
+      -- Possible values:
+      -- * https://sw.kovidgoyal.net/kitty/launch/#cmdoption-launch-location
+      -- * `tab`
+      -- * `os-window`
+      location = "default",
+      -- Optional password for kitty remote control
+      -- https://sw.kovidgoyal.net/kitty/remote-control/#cmdoption-kitten-password
+      password = nil,
+    }
+  }
+}
+```
+
+The kitty provider requires [remote control via a socket](https://sw.kovidgoyal.net/kitty/remote-control/#remote-control-via-a-socket) to be enabled.
+
+You can do this either by running Kitty with the following command:
+
+```bash
+# For Linux only:
+kitty -o allow_remote_control=yes --single-instance --listen-on unix:@mykitty
+
+# Other UNIX systems:
+kitty -o allow_remote_control=yes --single-instance --listen-on unix:/tmp/mykitty
+```
+
+OR, by adding the following to your `kitty.conf`:
+
+```
+# For Linux only:
+allow_remote_control yes
+listen_on unix:@mykitty
+# Other UNIX systems:
+allow_remote_control yes
+listen_on unix:/tmp/kitty
+```
+
+</details>
+
+<details>
 <summary><a href="https://github.com/tmux/tmux">tmux</a></summary>
 
 ```lua

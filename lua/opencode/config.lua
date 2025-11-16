@@ -139,6 +139,9 @@ local defaults = {
         },
       },
     },
+    kitty = {
+      location = "default", --"after" | "before" | "default" | "first" | "hsplit" | "last" | "neighbor" | "split" | "vsplit" | "tab" | "os-window"
+    },
     tmux = {
       options = "-h", -- Open in a horizontal split
     },
