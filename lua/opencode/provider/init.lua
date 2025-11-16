@@ -25,10 +25,13 @@
 ---@class opencode.provider.Opts
 ---
 ---The built-in provider to use, or `false` for none.
----Defaults to `"snacks"` if `snacks.terminal` is available, else `"tmux"` if in a `tmux` session, else `false`.
----@field enabled? "snacks"|"tmux"|false
+---Defaults to `"snacks"` if `snacks.terminal` is available,
+---else `"kitty"` if in a kitty session with remote control enabled,
+---else `"tmux"` if in a `tmux` session, else `false`.
+---@field enabled? "snacks"|"kitty"|"tmux"|false
 ---
 ---@field snacks? opencode.provider.snacks.Opts
+---@field kitty? opencode.provider.kitty.Opts
 ---@field tmux? opencode.provider.tmux.Opts
 
 local M = {}

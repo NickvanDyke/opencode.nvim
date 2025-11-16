@@ -127,6 +127,10 @@ local defaults = {
         -- Default to tmux if inside a tmux session
         return "tmux"
       end
+      if vim.env.KITTY_LISTEN_ON and #vim.env.KITTY_LISTEN_ON > 0 then
+        -- Default to kitty if inside a kitty session with remote control enabled
+        return "kitty"
+      end
 
       return false
     end)(),
@@ -144,6 +148,9 @@ local defaults = {
           filetype = "opencode_terminal",
         },
       },
+    },
+    kitty = {
+      location = "default", --"after" | "before" | "default" | "first" | "hsplit" | "last" | "neighbor" | "split" | "vsplit" | "tab" | "os-window"
     },
     tmux = {
       options = "-h", -- Open in a horizontal split
