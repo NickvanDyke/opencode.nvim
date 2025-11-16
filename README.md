@@ -1,12 +1,12 @@
 # opencode.nvim
 
-Integrate the [opencode](https://github.com/sst/opencode) AI assistant with Neovim — streamline editor-aware research, reviews, and requests. 
+Integrate the [opencode](https://github.com/sst/opencode) AI assistant with Neovim — streamline editor-aware research, reviews, and requests.
 
-https://github.com/user-attachments/assets/01e4e2fc-bbfa-427e-b9dc-c1c1badaa90e
+<https://github.com/user-attachments/assets/01e4e2fc-bbfa-427e-b9dc-c1c1badaa90e>
 
 ## ✨ Features
 
-- Auto-connects to *any* `opencode` running inside Neovim's CWD, or provides an integrated instance.
+- Auto-connects to _any_ `opencode` running inside Neovim's CWD, or provides an integrated instance.
 - Input prompts with completions, highlights, and normal-mode support.
 - Select prompts from a library and define your own.
 - Inject relevant editor context (buffer, cursor, selection, diagnostics, etc.).
@@ -174,6 +174,7 @@ Please submit PRs adding new providers! 🙂
 ### ✍️ Ask — `require("opencode").ask()`
 
 Input a prompt to send to `opencode`.
+
 - Press `<Up>` to browse recent asks.
 - Highlights contexts and `opencode` subagents.
 - Completes contexts and `opencode` subagents.
@@ -185,6 +186,7 @@ Input a prompt to send to `opencode`.
 ### 📝 Select — `require("opencode").select()`
 
 Select from all `opencode.nvim` functionality.
+
 - Fetches custom commands from `opencode`.
 
 <img width="800" alt="image" src="https://github.com/user-attachments/assets/afd85acd-e4b3-47d2-b92f-f58d25972edb" />
@@ -197,57 +199,57 @@ Send a prompt to `opencode`.
 
 Replaces placeholders in the prompt with the corresponding context:
 
-| Placeholder | Context |
-| - | - |
-| `@this` | Visual selection if any, else cursor position |
-| `@buffer` | Current buffer |
-| `@buffers` | Open buffers |
-| `@visible` | Visible text |
-| `@diagnostics` | Current buffer diagnostics |
-| `@quickfix` | Quickfix list |
-| `@diff` | Git diff |
-| `@grapple` | [grapple.nvim](https://github.com/cbochs/grapple.nvim) tags |
+| Placeholder    | Context                                                     |
+| -------------- | ----------------------------------------------------------- |
+| `@this`        | Visual selection if any, else cursor position               |
+| `@buffer`      | Current buffer                                              |
+| `@buffers`     | Open buffers                                                |
+| `@visible`     | Visible text                                                |
+| `@diagnostics` | Current buffer diagnostics                                  |
+| `@quickfix`    | Quickfix list                                               |
+| `@diff`        | Git diff                                                    |
+| `@grapple`     | [grapple.nvim](https://github.com/cbochs/grapple.nvim) tags |
 
 #### Prompts
 
 Reference a prompt by name to review, explain, and improve your code:
 
-| Name                               | Prompt                                                    |
-|------------------------------------|-----------------------------------------------------------|
-| `ask`         | *...*                                                             |
-| `explain`     | Explain `@this` and its context                                   |
-| `optimize`    | Optimize `@this` for performance and readability                  |
-| `document`    | Add comments documenting `@this`                                  |
-| `test`        | Add tests for `@this`                                             |
-| `review`      | Review `@this` for correctness and readability                    |
-| `diagnostics` | Explain `@diagnostics`                                            |
-| `fix`         | Fix `@diagnostics`                                                |
-| `diff`        | Review the following git diff for correctness and readability: `@diff`         |
-| `buffer`  | `@buffer`                                                             |
-| `this`    | `@this`                                                               |
+| Name          | Prompt                                                                 |
+| ------------- | ---------------------------------------------------------------------- |
+| `ask`         | _..._                                                                  |
+| `explain`     | Explain `@this` and its context                                        |
+| `optimize`    | Optimize `@this` for performance and readability                       |
+| `document`    | Add comments documenting `@this`                                       |
+| `test`        | Add tests for `@this`                                                  |
+| `review`      | Review `@this` for correctness and readability                         |
+| `diagnostics` | Explain `@diagnostics`                                                 |
+| `fix`         | Fix `@diagnostics`                                                     |
+| `diff`        | Review the following git diff for correctness and readability: `@diff` |
+| `buffer`      | `@buffer`                                                              |
+| `this`        | `@this`                                                                |
 
 ### 🧑‍🏫 Command — `require("opencode").command()`
 
 Send a command to `opencode`:
 
-| Command                 | Description                                              |
-|-------------------------|----------------------------------------------------------|
-| `session.list`          | List sessions                                            |
-| `session.new`             | Start a new session                                      |
-| `session.share`           | Share the current session                                |
-| `session.interrupt`       | Interrupt the current session                            |
-| `session.compact`         | Compact the current session (reduce context size)        |
-| `session.page.up`        | Scroll messages up by one page                           |
-| `session.page.down`      | Scroll messages down by one page                         |
-| `session.half.page.up`   | Scroll messages up by half a page                        |
-| `session.half.page.down` | Scroll messages down by half a page                      |
-| `session.first`          | Jump to the first message in the session                 |
-| `session.last`           | Jump to the last message in the session                  |
-| `session.undo` | Undo the last action in the current session |
-| `session.redo` | Redo the last undone action in the current session |
-| `prompt.submit`             | Submit the TUI input                                      |
-| `prompt.clear`             | Clear the TUI input                                      |
-| `agent.cycle`             | Cycle the selected agent                                 |
+| Command                  | Description                                        |
+| ------------------------ | -------------------------------------------------- |
+| `session.list`           | List sessions                                      |
+| `session.new`            | Start a new session                                |
+| `session.share`          | Share the current session                          |
+| `session.interrupt`      | Interrupt the current session                      |
+| `session.compact`        | Compact the current session (reduce context size)  |
+| `session.page.up`        | Scroll messages up by one page                     |
+| `session.page.down`      | Scroll messages down by one page                   |
+| `session.half.page.up`   | Scroll messages up by half a page                  |
+| `session.half.page.down` | Scroll messages down by half a page                |
+| `session.first`          | Jump to the first message in the session           |
+| `session.last`           | Jump to the last message in the session            |
+| `session.undo`           | Undo the last action in the current session        |
+| `session.redo`           | Redo the last undone action in the current session |
+| `prompt.submit`          | Submit the TUI input                               |
+| `prompt.clear`           | Clear the TUI input                                |
+| `agent.cycle`            | Cycle the selected agent                           |
 
 ## 👀 Events
 
