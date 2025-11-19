@@ -8,6 +8,7 @@
   },
   "workspace": {
     "library": [
+      "./lua",
       "/opt/snacks.nvim/lua",
       "/opt/blink.cmp/lua"
     ]

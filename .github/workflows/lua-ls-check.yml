@@ -28,4 +28,4 @@ jobs:
 
       - name: Run Lua LS diagnostics
         run: |
-          lua-language-server --check=.
+          lua-language-server --configpath .luarc.ci.json --check=.
