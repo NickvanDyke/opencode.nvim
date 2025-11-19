@@ -14,9 +14,10 @@ local M = {}
 ---Commands to display, and their descriptions.
 ---@field commands? table<opencode.Command|string, string>
 
----Select a prompt, command, or provider function.
----Fetches custom commands from `opencode`.
----Includes previews when [`snacks.picker`](https://github.com/folke/snacks.nvim/blob/main/docs/picker.md) is enabled.
+---Select from all `opencode.nvim` functionality.
+---
+--- - Fetches custom commands from `opencode`.
+--- - Highlights and previews items when using `snacks.picker`.
 ---
 ---@param opts? opencode.select.Opts Override configured options for this call.
 function M.select(opts)

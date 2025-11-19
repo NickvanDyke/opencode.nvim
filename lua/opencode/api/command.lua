@@ -19,7 +19,7 @@ local M = {}
 ---| 'prompt.clear'
 ---| 'agent.cycle'
 
----Send a command to `opencode`.
+---Command `opencode`.
 ---
 ---@param command opencode.Command|string The command to send. Can be built-in or reference your custom commands.
 function M.command(command)

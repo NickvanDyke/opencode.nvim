@@ -7,14 +7,11 @@ local M = {}
 
 ---Prompt `opencode`.
 ---
----1. Resolves `prompt` if it's a prompt name from `opts.prompts`.
----2. Clears the TUI input if `opts.clear`.
----3. Injects `opts.contexts` into `prompt`.
----4. Appends `prompt` to the TUI input.
----5. Submits the TUI input if `opts.submit`.
----6. Listens for Server-Sent-Events to forward as `OpencodeEvent` autocmd.
+--- - Resolves `prompt` if it references an `opts.prompts` entry by name.
+--- - Injects `opts.contexts` into `prompt`.
+--- - `opencode` will interpret `@` references to files or subagents
 ---
----@param prompt string The prompt to send to `opencode`, or a prompt name from `opts.prompts`.
+---@param prompt string
 ---@param opts? opencode.prompt.Opts
 function M.prompt(prompt, opts)
   -- TODO: Referencing `ask = true` prompts doesn't actually ask.

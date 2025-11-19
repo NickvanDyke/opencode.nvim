@@ -6,7 +6,7 @@ local M = {}
 ---| "responding"
 ---| "requesting_permission"
 
----@type nil|opencode.Status
+---@type opencode.Status|nil
 local status = nil
 
 -- TODO: Still seem to not get `session.idle` events reliably... So fallback to a timer.

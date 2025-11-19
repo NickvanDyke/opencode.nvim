@@ -140,25 +140,29 @@ Please submit PRs adding new providers! 🙂
 
 ### ✍️ Ask — `require("opencode").ask()`
 
-Input a prompt to send to `opencode`.
+Input a prompt for `opencode`.
+
 - Press `<Up>` to browse recent asks.
-- Highlights contexts and `opencode` subagents.
-- Completes contexts and `opencode` subagents.
+- Highlights and completes contexts and `opencode` subagents.
   - Press `<Tab>` to trigger built-in completion.
-  - When using `blink.cmp` and `snacks.input`, registers `opts.ask.blink_cmp_sources`.
+  - Registers `opts.ask.blink_cmp_sources` when using `blink.cmp` and `snacks.input`.
 
 <img width="800" alt="image" src="https://github.com/user-attachments/assets/8591c610-4824-4480-9e6d-0c94e9c18f3a" />
 
 ### 📝 Select — `require("opencode").select()`
 
 Select from all `opencode.nvim` functionality.
+
 - Fetches custom commands from `opencode`.
+- Highlights and previews items when using `snacks.picker`.
 
 <img width="800" alt="image" src="https://github.com/user-attachments/assets/afd85acd-e4b3-47d2-b92f-f58d25972edb" />
 
 ### 🗣️ Prompt — `require("opencode").prompt()` | `:[range]OpencodePrompt`
 
-Send a prompt to `opencode`.
+Prompt `opencode`.
+
+- `opencode` will interpret `@` references to files or subagents.
 
 #### Contexts
 
@@ -192,7 +196,7 @@ Reference a prompt by name to review, explain, and improve your code:
 
 ### 🧑‍🏫 Command — `require("opencode").command()`
 
-Send a command to `opencode`:
+Command `opencode`:
 
 | Command                 | Description                                              |
 |-------------------------|----------------------------------------------------------|
@@ -244,7 +248,8 @@ When `opencode` requests a permission, `opencode.nvim` waits for idle to ask you
 
 ### Statusline
 
-[lualine](https://github.com/nvim-lualine/lualine.nvim):
+<details>
+<summary><a href="https://github.com/nvim-lualine/lualine.nvim">lualine</a></summary>
 
 ```lua
 require("lualine").setup({
@@ -257,6 +262,8 @@ require("lualine").setup({
   }
 })
 ```
+
+</details>
 
 ## 🙏 Acknowledgments
 

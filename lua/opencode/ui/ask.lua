@@ -7,20 +7,19 @@ local M = {}
 ---Text of the prompt.
 ---@field prompt? string
 ---
----Completion sources to automatically register when using `snacks.input` and [`blink.cmp`](https://github.com/Saghen/blink.cmp).
----The `"opencode"` source offers completions and previews for contexts and agents.
+---Completion sources to automatically register when using [`snacks.input`](https://github.com/folke/snacks.nvim/blob/main/docs/input.md) and [`blink.cmp`](https://github.com/Saghen/blink.cmp).
+---The `"opencode"` source offers completions and previews for contexts and `opencode` subagents.
 ---@field blink_cmp_sources? string[]
 ---
 ---Options for [`snacks.input`](https://github.com/folke/snacks.nvim/blob/main/docs/input.md).
 ---@field snacks? snacks.input.Opts
 
----Input a prompt to send to `opencode`.
----Press the up arrow to browse recent prompts.
+---Input a prompt for `opencode`.
 ---
---- - Highlights contexts and `opencode` subagents.
---- - Completes contexts and `opencode` subagents.
+--- - Press the up arrow to browse recent asks.
+--- - Highlights and completes contexts and `opencode` subagents.
 ---   - Press `<Tab>` to trigger built-in completion.
----   - When using `blink.cmp` and `snacks.input`, registers `opts.input.blink_cmp_sources`.
+---   - Registers `opts.ask.blink_cmp_sources` when using `blink.cmp` and `snacks.input`.
 ---
 ---@param default? string Text to pre-fill the input with.
 ---@param opts? opencode.prompt.Opts Options for `prompt()`.
