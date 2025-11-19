@@ -1,6 +1,6 @@
 ---@module 'blink.cmp'
----@module 'snacks.picker'
----@module 'vim.lsp.protocol'
+---@module 'vim._meta'
+---@module 'vim.lsp._meta'
 
 ---@class blink.cmp.Source
 local source = {}
