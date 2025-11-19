@@ -18,6 +18,7 @@ jobs:
           curl -L https://github.com/neovim/neovim/releases/download/v0.11.5/nvim-linux-x86_64.tar.gz -o /opt/nvim.tar.gz
           mkdir /opt/nvim
           tar xzf /opt/nvim.tar.gz -C /opt/nvim
+          ls -l /opt/nvim
           echo "/opt/nvim/bin" >> $GITHUB_PATH
           which nvim
 
