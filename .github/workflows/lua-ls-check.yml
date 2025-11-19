@@ -11,6 +11,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Clone snacks.nvim dependency
+        run: git clone --depth=1 https://github.com/folke/snacks.nvim /opt/snacks.nvim
+
+      - name: Clone blink.cmp dependency
+        run: git clone --depth=1 https://github.com/Saghen/blink.cmp /opt/blink.cmp
+
       - name: Install Lua Language Server
         run: |
           curl -L "https://github.com/LuaLS/lua-language-server/releases/download/3.15.0/lua-language-server-3.15.0-linux-x64.tar.gz" -o /opt/lls.tar.gz

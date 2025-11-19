@@ -5,5 +5,11 @@
   },
   "runtime": {
     "version": "LuaJIT"
+  },
+  "workspace": {
+    "library": [
+      "/opt/snacks.nvim/lua",
+      "/opt/blink.cmp/lua"
+    ]
   }
 }
