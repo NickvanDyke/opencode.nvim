@@ -28,10 +28,13 @@ jobs:
           tar -xzf /opt/lls.tar.gz -C /opt/lls
           echo "/opt/lls/bin" >> $GITHUB_PATH
 
-      - name: Clone snacks.nvim dependency
+      - name: Clone lazydev.nvim
+        run: git clone --depth=1 https://github.com/folke/lazydev.nvim /opt/lazydev.nvim
+
+      - name: Clone snacks.nvim
         run: git clone --depth=1 https://github.com/folke/snacks.nvim /opt/snacks.nvim
 
-      - name: Clone blink.cmp dependency
+      - name: Clone blink.cmp
         run: git clone --depth=1 https://github.com/Saghen/blink.cmp /opt/blink.cmp
 
       - name: Run Lua LS diagnostics

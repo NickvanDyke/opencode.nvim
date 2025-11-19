@@ -9,6 +9,7 @@
   "workspace": {
     "library": [
       "/opt/nvim/share/nvim/runtime/lua",
+      "/opt/lazydev.nvim/lua",
       "/opt/snacks.nvim/lua",
       "/opt/blink.cmp/lua",
       "./lua"
