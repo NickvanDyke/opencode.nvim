@@ -90,6 +90,7 @@ function M.check()
 
   vim.health.start("opencode.nvim [snacks]")
 
+  ---@type boolean, Snacks
   local snacks_ok, snacks = pcall(require, "snacks")
   if snacks_ok then
     if snacks.config.get("input", {}).enabled then
