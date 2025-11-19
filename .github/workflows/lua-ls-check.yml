@@ -19,6 +19,7 @@ jobs:
           mkdir /opt/nvim
           tar xzf /opt/nvim.tar.gz -C /opt/nvim
           echo "/opt/nvim/bin" >> $GITHUB_PATH
+          which nvim
 
       - name: Clone lazydev.nvim
         run: git clone --depth=1 https://github.com/folke/lazydev.nvim /opt/lazydev.nvim
