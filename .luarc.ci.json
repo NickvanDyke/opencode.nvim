@@ -1,17 +1,14 @@
 {
   "$schema": "https://raw.githubusercontent.com/LuaLS/vscode-lua/master/setting/schema.json",
-  "diagnostics": {
-    "globals": ["vim"]
-  },
   "runtime": {
     "version": "LuaJIT"
   },
   "workspace": {
     "library": [
+      "/opt/nvim/share/nvim/runtime/lua"
       "./lua",
       "/opt/snacks.nvim/lua",
       "/opt/blink.cmp/lua",
-      "/opt/nvim/share/nvim/runtime/lua"
     ]
   }
 }
