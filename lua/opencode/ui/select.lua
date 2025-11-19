@@ -8,6 +8,7 @@ local M = {}
 ---
 ---@field show_commands? boolean
 ---
+---Always `false` if no provider is available.
 ---@field show_provider? boolean
 ---
 ---Commands to display, and their descriptions.
@@ -20,6 +21,9 @@ local M = {}
 ---@param opts? opencode.select.Opts Override configured options for this call.
 function M.select(opts)
   opts = vim.tbl_deep_extend("force", require("opencode.config").opts.select or {}, opts or {})
+  if not require("opencode.config").provider then
+    opts.show_provider = false
+  end
 
   local context = require("opencode.context").new()
 
