@@ -14,7 +14,7 @@ function M.check()
     vim.health.warn("Could not determine `opencode.nvim` git commit hash.")
   end
 
-  vim.health.ok("`vim.g.opencode_opts` is " .. (vim.g.opencode_opts and vim.inspect(vim.g.opencode_opts) or "`nil`"))
+  vim.health.ok("`vim.g.opencode_opts`: " .. (vim.g.opencode_opts and vim.inspect(vim.g.opencode_opts) or "`nil`"))
 
   if require("opencode.config").opts.auto_reload and not vim.o.autoread then
     vim.health.warn(
@@ -43,7 +43,7 @@ function M.check()
             .. latest_tested_version
             .. "`: may cause compatibility issues."
         )
-      elseif latest_tested_version_parsed[2] ~= found_version_parsed[2] then
+      elseif found_version_parsed[2] < latest_tested_version_parsed[2] then
         vim.health.warn(
           "`opencode` version has an older `minor` version than latest tested version `"
             .. latest_tested_version
@@ -52,7 +52,7 @@ function M.check()
             "Update `opencode`.",
           }
         )
-      elseif latest_tested_version_parsed[3] ~= found_version_parsed[3] then
+      elseif found_version_parsed[3] < latest_tested_version_parsed[3] then
         vim.health.warn(
           "`opencode` version has an older `patch` version than latest tested version `"
             .. latest_tested_version

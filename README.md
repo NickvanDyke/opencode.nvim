@@ -169,7 +169,6 @@ Reference a prompt by name to review, explain, and improve your code:
 
 | Name                               | Prompt                                                    |
 |------------------------------------|-----------------------------------------------------------|
-| `ask`         | *...*                                                             |
 | `explain`     | Explain `@this` and its context                                   |
 | `optimize`    | Optimize `@this` for performance and readability                  |
 | `document`    | Add comments documenting `@this`                                  |
@@ -178,8 +177,6 @@ Reference a prompt by name to review, explain, and improve your code:
 | `diagnostics` | Explain `@diagnostics`                                            |
 | `fix`         | Fix `@diagnostics`                                                |
 | `diff`        | Review the following git diff for correctness and readability: `@diff`         |
-| `buffer`  | `@buffer`                                                             |
-| `this`    | `@this`                                                               |
 
 ### 🧑‍🏫 Command — `require("opencode").command()`
 
