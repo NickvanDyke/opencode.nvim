@@ -1,4 +1,4 @@
-name: Lua LS Diagnostics
+name: LuaLS
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
     branches: [main]
 
 jobs:
-  lua-ls-diagnostics:
+  diagnostics:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
