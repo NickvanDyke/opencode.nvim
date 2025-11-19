@@ -4,15 +4,21 @@ local M = {}
 
 ---@class opencode.select.Opts : snacks.picker.ui_select.Opts
 ---
----@field show_prompts? boolean
+---Configure the displayed sections.
+---@field sections? opencode.select.sections.Opts
+
+---@class opencode.select.sections.Opts
 ---
----@field show_commands? boolean
----
----Always `false` if no provider is available.
----@field show_provider? boolean
+---Whether to show the prompts section.
+---@field prompts? boolean
 ---
 ---Commands to display, and their descriptions.
----@field commands? table<opencode.Command|string, string>
+---Or `false` to hide the commands section.
+---@field commands? table<opencode.Command|string, string>|false
+---
+---Whether to show the provider section.
+---Always `false` if no provider is available.
+---@field provider? boolean
 
 ---Select from all `opencode.nvim` functionality.
 ---
@@ -23,7 +29,7 @@ local M = {}
 function M.select(opts)
   opts = vim.tbl_deep_extend("force", require("opencode.config").opts.select or {}, opts or {})
   if not require("opencode.config").provider then
-    opts.show_provider = false
+    opts.sections.provider = false
   end
 
   local context = require("opencode.context").new()
@@ -31,7 +37,7 @@ function M.select(opts)
   require("opencode.cli.server")
     .get_port()
     :next(function(port)
-      if opts.show_prompts then
+      if opts.sections.prompts then
         return require("opencode.promise").new(function(resolve)
           require("opencode.cli.client").get_agents(port, function(agents)
             context.agents = vim.tbl_filter(function(agent)
@@ -46,7 +52,7 @@ function M.select(opts)
       end
     end)
     :next(function(port)
-      if opts.show_commands then
+      if opts.sections.commands then
         return require("opencode.promise").new(function(resolve)
           require("opencode.cli.client").get_commands(port, function(custom_commands)
             resolve(custom_commands)
@@ -58,7 +64,7 @@ function M.select(opts)
     end)
     :next(function(custom_commands)
       local prompts = require("opencode.config").opts.prompts or {}
-      local commands = require("opencode.config").opts.select.commands or {}
+      local commands = require("opencode.config").opts.select.sections.commands or {}
       for _, command in ipairs(custom_commands) do
         commands[command.name] = command.description
       end
@@ -66,8 +72,8 @@ function M.select(opts)
       ---@type snacks.picker.finder.Item[]
       local items = {}
 
-      -- Prompts group
-      if opts.show_prompts then
+      -- Prompts section
+      if opts.sections.prompts then
         table.insert(items, { __group = true, name = "PROMPT", preview = { text = "" } })
         local prompt_items = {}
         for name, prompt in pairs(prompts) do
@@ -106,8 +112,8 @@ function M.select(opts)
         end
       end
 
-      -- Commands group
-      if opts.commands then
+      -- Commands section
+      if type(opts.sections.commands) == "table" then
         table.insert(items, { __group = true, name = "COMMAND", preview = { text = "" } })
         local command_items = {}
         for name, description in pairs(commands) do
@@ -129,8 +135,8 @@ function M.select(opts)
         end
       end
 
-      -- Provider group
-      if opts.show_provider then
+      -- Provider section
+      if opts.sections.provider then
         table.insert(items, { __group = true, name = "PROVIDER", preview = { text = "" } })
         table.insert(items, {
           __type = "provider",

@@ -88,17 +88,18 @@ local defaults = {
   },
   select = {
     prompt = "opencode: ",
-    show_prompts = true,
-    show_commands = true,
-    show_provider = true,
-    commands = {
-      ["session.new"] = "Start a new session",
-      ["session.share"] = "Share the current session",
-      ["session.interrupt"] = "Interrupt the current session",
-      ["session.compact"] = "Compact the current session (reduce context size)",
-      ["session.undo"] = "Undo the last action in the current session",
-      ["session.redo"] = "Redo the last undone action in the current session",
-      ["agent.cycle"] = "Cycle the selected agent",
+    sections = {
+      prompts = true,
+      commands = {
+        ["session.new"] = "Start a new session",
+        ["session.share"] = "Share the current session",
+        ["session.interrupt"] = "Interrupt the current session",
+        ["session.compact"] = "Compact the current session (reduce context size)",
+        ["session.undo"] = "Undo the last action in the current session",
+        ["session.redo"] = "Redo the last undone action in the current session",
+        ["agent.cycle"] = "Cycle the selected agent",
+      },
+      provider = true,
     },
     snacks = {
       preview = "preview",

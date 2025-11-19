@@ -19,7 +19,7 @@ local M = {}
 --- - Press the up arrow to browse recent asks.
 --- - Highlights and completes contexts and `opencode` subagents.
 ---   - Press `<Tab>` to trigger built-in completion.
----   - Registers `opts.ask.blink_cmp_sources` when using `blink.cmp` and `snacks.input`.
+---   - Registers `opts.ask.blink_cmp_sources` when using `snacks.input` and `blink.cmp`.
 ---
 ---@param default? string Text to pre-fill the input with.
 ---@param opts? opencode.prompt.Opts Options for `prompt()`.

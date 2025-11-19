@@ -145,7 +145,7 @@ Input a prompt for `opencode`.
 - Press `<Up>` to browse recent asks.
 - Highlights and completes contexts and `opencode` subagents.
   - Press `<Tab>` to trigger built-in completion.
-  - Registers `opts.ask.blink_cmp_sources` when using `blink.cmp` and `snacks.input`.
+  - Registers `opts.ask.blink_cmp_sources` when using `snacks.input` and `blink.cmp`.
 
 <img width="800" alt="image" src="https://github.com/user-attachments/assets/8591c610-4824-4480-9e6d-0c94e9c18f3a" />
 
