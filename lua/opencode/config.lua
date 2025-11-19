@@ -22,42 +22,34 @@ vim.g.opencode_opts = vim.g.opencode_opts
 ---Requires `vim.o.autoread = true`.
 ---@field auto_reload? boolean
 ---
----Completion sources to automatically register in the `ask` input with [blink.cmp](https://github.com/Saghen/blink.cmp) and [snacks.input](https://github.com/folke/snacks.nvim/blob/main/docs/input.md).
----The `"opencode"` source offers completions and previews for contexts and agents.
----@field auto_register_cmp_sources? string[]
----
 ---Contexts to inject into prompts, keyed by their placeholder.
 ---@field contexts? table<string, fun(context: opencode.Context): string|nil>
 ---
----Prompts to select from.
+---Prompts to reference or select from.
 ---@field prompts? table<string, opencode.Prompt>
 ---
----Commands to select from.
----@field commands? table<string, opencode.Command|string>
+---Options for `ask()`.
+---Supports [`snacks.input`](https://github.com/folke/snacks.nvim/blob/main/docs/input.md).
+---@field ask? opencode.ask.Opts
 ---
----Input options for `ask()`.
----Supports [snacks.input](https://github.com/folke/snacks.nvim/blob/main/docs/input.md).
----@field input? snacks.input.Opts
----
----Select options for `select()`.
----Supports [snacks.picker](https://github.com/folke/snacks.nvim/blob/main/docs/picker.md).
----@field select? snacks.picker.ui_select.Opts
+---Options for `select()`.
+---Supports [`snacks.picker`](https://github.com/folke/snacks.nvim/blob/main/docs/picker.md).
+---@field select? opencode.select.Opts
 ---
 ---Options for `opencode` permission requests.
 ---@field permissions? opencode.permissions.Opts
 ---
----How to provide an integrated `opencode` when one is not found.
+---Provide an integrated `opencode` when one is not found.
 ---@field provider? opencode.Provider|opencode.provider.Opts
 
 ---@class opencode.Prompt : opencode.prompt.Opts
----@field prompt string The prompt to send to `opencode`, with placeholders for context like `@cursor`, `@buffer`, etc.
+---@field prompt string The prompt to send to `opencode`.
 ---@field ask? boolean Call `ask(prompt)` instead of `prompt(prompt)`. Useful for prompts that expect additional user input.
 
 ---@type opencode.Opts
 local defaults = {
   port = nil,
   auto_reload = true,
-  auto_register_cmp_sources = { "opencode", "buffer" },
   -- stylua: ignore
   contexts = {
     ["@this"] = function(context) return context:this() end,
@@ -81,28 +73,33 @@ local defaults = {
     review = { prompt = "Review @this for correctness and readability", submit = true },
     test = { prompt = "Add tests for @this", submit = true },
   },
-  commands = {
-    ["session.new"] = "Start a new session",
-    ["session.share"] = "Share the current session",
-    ["session.interrupt"] = "Interrupt the current session",
-    ["session.compact"] = "Compact the current session (reduce context size)",
-    ["session.undo"] = "Undo the last action in the current session",
-    ["session.redo"] = "Redo the last undone action in the current session",
-    ["agent.cycle"] = "Cycle the selected agent",
-  },
-  input = {
+  ask = {
     prompt = "Ask opencode: ",
-    -- `snacks.input`-only options
-    icon = "󰚩 ",
-    win = {
-      title_pos = "left",
-      relative = "cursor",
-      row = -3, -- Row above the cursor
-      col = 0, -- Align with the cursor
+    blink_cmp_sources = { "opencode", "buffer" },
+    snacks = {
+      icon = "󰚩 ",
+      win = {
+        title_pos = "left",
+        relative = "cursor",
+        row = -3, -- Row above the cursor
+        col = 0, -- Align with the cursor
+      },
     },
   },
   select = {
     prompt = "opencode: ",
+    show_prompts = true,
+    show_commands = true,
+    show_provider = true,
+    commands = {
+      ["session.new"] = "Start a new session",
+      ["session.share"] = "Share the current session",
+      ["session.interrupt"] = "Interrupt the current session",
+      ["session.compact"] = "Compact the current session (reduce context size)",
+      ["session.undo"] = "Undo the last action in the current session",
+      ["session.redo"] = "Redo the last undone action in the current session",
+      ["agent.cycle"] = "Cycle the selected agent",
+    },
     snacks = {
       preview = "preview",
       layout = {
@@ -155,14 +152,10 @@ local defaults = {
 ---@type opencode.Opts
 M.opts = vim.tbl_deep_extend("force", vim.deepcopy(defaults), vim.g.opencode_opts or {})
 
--- Allow removing default `contexts`, `prompts`, and `commands` by setting them to `false` in your user config.
--- Example:
---   contexts = { ['@buffer'] = false }
---   prompts = { ask = false }
---   commands = { session_new = false }
--- TODO: Add to type definition
+-- Allow removing default `contexts` and `prompts` by setting them to `false` in your user config.
+-- TODO: Add to type definition, and apply to `opts.select.commands`.
 local user_opts = vim.g.opencode_opts or {}
-for _, field in ipairs({ "contexts", "prompts", "commands" }) do
+for _, field in ipairs({ "contexts", "prompts" }) do
   if user_opts[field] and M.opts[field] then
     for k, v in pairs(user_opts[field]) do
       if not v then

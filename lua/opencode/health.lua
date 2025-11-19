@@ -18,7 +18,7 @@ function M.check()
 
   if require("opencode.config").opts.auto_reload and not vim.o.autoread then
     vim.health.warn(
-      "`vim.g.opencode_opts.auto_reload = true` but `vim.o.autoread = false`: files edited by `opencode` won't be automatically reloaded in buffers.",
+      "`opts.auto_reload = true` but `vim.o.autoread = false`: files edited by `opencode` won't be automatically reloaded in buffers.",
       {
         "Set `vim.o.autoread = true`",
         "Or set `vim.g.opencode_opts.auto_reload = false`",
@@ -95,7 +95,7 @@ function M.check()
       local blink_ok = pcall(require, "blink.cmp")
       if blink_ok then
         vim.health.ok(
-          "`blink.cmp` is available: `vim.g.opencode_opts.auto_register_cmp_sources` will be registered in `ask()`."
+          "`blink.cmp` is available: `opts.ask.blink_cmp_sources` will be registered in `ask()`."
         )
       end
     else

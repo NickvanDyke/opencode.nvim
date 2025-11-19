@@ -2,13 +2,25 @@
 
 local M = {}
 
+---@class opencode.ask.Opts
+---
+---Text of the prompt.
+---@field prompt? string
+---
+---Completion sources to automatically register when using `snacks.input` and [`blink.cmp`](https://github.com/Saghen/blink.cmp).
+---The `"opencode"` source offers completions and previews for contexts and agents.
+---@field blink_cmp_sources? string[]
+---
+---Options for [`snacks.input`](https://github.com/folke/snacks.nvim/blob/main/docs/input.md).
+---@field snacks? snacks.input.Opts
+
 ---Input a prompt to send to `opencode`.
 ---Press the up arrow to browse recent prompts.
 ---
 --- - Highlights contexts and `opencode` subagents.
 --- - Completes contexts and `opencode` subagents.
 ---   - Press `<Tab>` to trigger built-in completion.
----   - When using `blink.cmp` and `snacks.input`, registers `opts.auto_register_cmp_sources`.
+---   - When using `blink.cmp` and `snacks.input`, registers `opts.input.blink_cmp_sources`.
 ---
 ---@param default? string Text to pre-fill the input with.
 ---@param opts? opencode.prompt.Opts Options for `prompt()`.
@@ -27,7 +39,7 @@ function M.ask(default, opts)
       end, opts.context.extmarks(rendered.input))
     end,
     completion = "customlist,v:lua.opencode_completion",
-    -- snacks-only options
+    -- `snacks.input`-only options
     win = {
       b = {
         -- Enable `blink.cmp` completion
@@ -45,14 +57,17 @@ function M.ask(default, opts)
           buffer = win.buf,
           callback = function()
             if package.loaded["blink.cmp"] then
-              require("opencode.cmp.blink").setup(require("opencode.config").opts.auto_register_cmp_sources)
+              require("opencode.cmp.blink").setup(require("opencode.config").opts.ask.blink_cmp_sources)
             end
           end,
         })
       end,
     },
   }
-  input_opts = vim.tbl_deep_extend("force", input_opts, require("opencode.config").opts.input)
+  -- Nest `snacks.input` options under `opts.ask.snacks` for consistency with other `snacks`-exclusive config,
+  -- and to keep its fields optional. Double-merge is kinda ugly but seems like the lesser evil.
+  input_opts = vim.tbl_deep_extend("force", input_opts, require("opencode.config").opts.ask)
+  input_opts = vim.tbl_deep_extend("force", input_opts, require("opencode.config").opts.ask.snacks)
 
   require("opencode.cli.server")
     .get_port()
