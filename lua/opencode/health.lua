@@ -1,3 +1,5 @@
+---@module 'snacks'
+
 local M = {}
 
 function M.check()
