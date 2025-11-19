@@ -1,3 +1,5 @@
+---@module 'snacks'
+
 local M = {}
 
 function M.check()
@@ -89,19 +91,18 @@ function M.check()
   vim.health.start("opencode.nvim [snacks]")
 
   local snacks_ok, snacks = pcall(require, "snacks")
+  ---@cast snacks Snacks Cast because CI lint resolves to our `snacks.lua` instead...
   if snacks_ok then
-    if snacks.input and snacks.config.get("input", {}).enabled then
+    if snacks.config.get("input", {}).enabled then
       vim.health.ok("`snacks.input` is enabled: `ask()` will be enhanced.")
       local blink_ok = pcall(require, "blink.cmp")
       if blink_ok then
-        vim.health.ok(
-          "`blink.cmp` is available: `opts.ask.blink_cmp_sources` will be registered in `ask()`."
-        )
+        vim.health.ok("`blink.cmp` is available: `opts.ask.blink_cmp_sources` will be registered in `ask()`.")
       end
     else
       vim.health.warn("`snacks.input` is disabled: `ask()` will not be enhanced.")
     end
-    if snacks.picker and snacks.config.get("picker", {}).enabled then
+    if snacks.config.get("picker", {}).enabled then
       vim.health.ok("`snacks.picker` is enabled: `select()` will be enhanced.")
     else
       vim.health.warn("`snacks.picker` is disabled: `select()` will not be enhanced.")

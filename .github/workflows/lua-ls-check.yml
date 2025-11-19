@@ -3,6 +3,8 @@ name: Lua LS Diagnostics
 on:
   push:
     branches: [main]
+  pull_request:
+    branches: [main]
 
 jobs:
   lua-ls-diagnostics:
@@ -11,6 +13,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Install Neovim
+        run: |
+          curl -L https://github.com/neovim/neovim/releases/download/v0.11.5/nvim-linux-x86_64.tar.gz -o /opt/nvim.tar.gz
+          mkdir /opt/nvim
+          tar xzf /opt/nvim.tar.gz -C /opt/nvim
+          mv /opt/nvim/nvim-linux-x86_64/* /opt/nvim
+          echo "/opt/nvim/bin" >> $GITHUB_PATH
+
       - name: Install Lua Language Server
         run: |
           curl -L "https://github.com/LuaLS/lua-language-server/releases/download/3.15.0/lua-language-server-3.15.0-linux-x64.tar.gz" -o /opt/lls.tar.gz
@@ -18,7 +28,15 @@ jobs:
           tar -xzf /opt/lls.tar.gz -C /opt/lls
           echo "/opt/lls/bin" >> $GITHUB_PATH
 
+      - name: Clone luvit-meta
+        run: git clone --depth=1 https://github.com/Bilal2453/luvit-meta /opt/luvit-meta
+
+      - name: Clone snacks.nvim
+        run: git clone --depth=1 https://github.com/folke/snacks.nvim /opt/snacks.nvim
+
+      - name: Clone blink.cmp
+        run: git clone --depth=1 https://github.com/Saghen/blink.cmp /opt/blink.cmp
+
       - name: Run Lua LS diagnostics
         run: |
-          # TODO: Fix remaining CI-only lint issues
-          lua-language-server --check=. || exit 0
+          lua-language-server --configpath .luarc.ci.json --check=.
