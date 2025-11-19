@@ -17,6 +17,7 @@ local M = {}
 ---@param prompt string The prompt to send to `opencode`, or a prompt name from `opts.prompts`.
 ---@param opts? opencode.prompt.Opts
 function M.prompt(prompt, opts)
+  -- TODO: Referencing `ask = true` prompts doesn't actually ask.
   local referenced_prompt = require("opencode.config").opts.prompts[prompt]
   prompt = referenced_prompt and referenced_prompt.prompt or prompt
   opts = {

@@ -106,40 +106,26 @@ function M.check()
     else
       vim.health.warn("`snacks.picker` is disabled: `select()` will not be enhanced.")
     end
-    if snacks.picker and snacks.config.get("terminal", {}).enabled then
-      vim.health.ok("`snacks.terminal` is enabled: the `snacks` provider will be available.")
-    else
-      vim.health.warn("`snacks.terminal` is disabled: the `snacks` provider will not be available.", {
-        "Enable `snacks.terminal`",
-      })
-    end
   else
     vim.health.warn("`snacks.nvim` is not available: `ask()` and `select()` will not be enhanced.")
-    vim.health.warn("`snacks.nvim` is not available: the `snacks` provider will not be available.", {
-      "Install `snacks.nvim` and enable `snacks.terminal`",
-    })
   end
 
-  vim.health.start("opencode.nvim [tmux]")
+  vim.health.start("opencode.nvim [providers]")
 
-  if vim.fn.has("unix") then
-    vim.health.ok("Running inside a Unix system.")
-    if vim.fn.executable("tmux") == 1 then
-      vim.health.ok("`tmux` available.")
-      if vim.env.TMUX then
-        vim.health.ok("Running inside a `tmux` session: the `tmux` provider will be available.")
-      else
-        vim.health.warn("Not running inside a `tmux` session: the `tmux` provider will not be available.", {
-          "Launch Neovim inside a `tmux` session.",
-        })
-      end
-    else
-      vim.health.warn("`tmux` executable not found in `$PATH`: the `tmux` provider will not be available.", {
-        "Install `tmux` and ensure it's in your `$PATH`.",
-      })
-    end
+  local configured_provider = require("opencode.config").provider
+  if configured_provider then
+    vim.health.ok("Configured `opencode` provider: `" .. configured_provider.name .. "`.")
   else
-    vim.health.warn("Not running inside a Unix system: the `tmux` provider will not be available.")
+    vim.health.warn("No `opencode` provider configured.")
+  end
+
+  for _, provider in ipairs(require("opencode.provider").list()) do
+    local ok, advice = provider.health()
+    if ok == true then
+      vim.health.ok("The `" .. provider.name .. "` provider is available.")
+    else
+      vim.health.warn("The `" .. provider.name .. "` provider is not available — " .. ok, advice)
+    end
   end
 end
 

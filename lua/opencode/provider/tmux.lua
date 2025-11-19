@@ -3,9 +3,11 @@
 ---@class opencode.provider.Tmux : opencode.Provider
 ---
 ---@field opts opencode.provider.tmux.Opts
----@field pane_id? string The tmux pane ID where `opencode` is running (internal use only)
+---@field pane_id? string The tmux pane ID where `opencode` is running (internal use only).
 local Tmux = {}
 Tmux.__index = Tmux
+
+Tmux.name = "tmux"
 
 ---@class opencode.provider.tmux.Opts
 ---
@@ -21,60 +23,67 @@ function Tmux.new(opts)
   return self
 end
 
----Check if tmux is running in current terminal
-function Tmux:check_tmux()
-  if not vim.env.TMUX then
-    error("Tmux provider selected but not running inside a tmux session.", 0)
+---Check if `tmux` is running in current terminal.
+function Tmux.health()
+  if not vim.fn.has("unix") then
+    return "Not running inside a Unix system."
   end
 
-  if not vim.fn.has("unix") then
-    error("Tmux provider is only supported on Unix-like systems.", 0)
+  if vim.fn.executable("tmux") ~= 1 then
+    return "`tmux` executable not found in `$PATH`.", {
+      "Install `tmux` and ensure it's in your `$PATH`.",
+    }
   end
+
+  if not vim.env.TMUX then
+    return "Not running inside a `tmux` session.", {
+      "Launch Neovim inside a `tmux` session.",
+    }
+  end
+
+  return true
 end
 
----Get the pane ID where opencode is running
+---Get the pane ID where `opencode` is running.
 ---@return string|nil pane_id The tmux pane ID
 function Tmux:get_pane_id()
+  local ok = self.health()
+  if ok ~= true then
+    error(ok)
+  end
+
   if self.pane_id then
-    local pane_found = vim.fn.system("tmux list-panes -t " .. self.pane_id)
-    if pane_found:match("can't find pane") then
+    -- Confirm it still exists
+    if vim.fn.system("tmux list-panes -t " .. self.pane_id):match("can't find pane") then
       self.pane_id = nil
     end
-    return self.pane_id
+  else
+    -- Find existing `opencode` pane
+    self.pane_id = vim.fn
+      .system(
+        string.format(
+          "tmux list-panes -F '#{pane_id} #{pane_current_command}' | grep '%s' | awk '{print $1}'",
+          self.cmd
+        )
+      )
+      :match("^%S+")
   end
 
-  -- Find existing opencode pane
-  local find_cmd =
-    string.format("tmux list-panes -F '#{pane_id} #{pane_current_command}' | grep '%s' | awk '{print $1}'", self.cmd)
-  local result = vim.fn.system(find_cmd):match("^%S+")
-
-  if result then
-    self.pane_id = result
-  end
-
-  return result
+  return self.pane_id
 end
 
----Toggle opencode in tmux pane
+---Create or kill the `opencode` tmux pane.
 function Tmux:toggle()
-  self:check_tmux()
-
   local pane_id = self:get_pane_id()
   if pane_id then
-    -- Kill existing pane
-    vim.fn.system("tmux kill-pane -t " .. pane_id)
-    self.pane_id = nil
+    self:stop()
   else
-    -- Create new pane
-    local tmux_cmd = string.format("tmux split-window -P -F '#{pane_id}' %s '%s'", self.opts.options, self.cmd)
-    self.pane_id = vim.fn.system(tmux_cmd)
+    self:start()
   end
 end
 
----Start opencode in tmux pane
+---Start `opencode` in tmux pane.
 function Tmux:start()
-  self:check_tmux()
-
   local pane_id = self:get_pane_id()
   if not pane_id then
     -- Create new pane
@@ -83,8 +92,16 @@ function Tmux:start()
   end
 end
 
----Show opencode pane
----No-op for tmux - too many different implementations that may conflict with user's preferences
+---Kill the `opencode` pane.
+function Tmux:stop()
+  local pane_id = self:get_pane_id()
+  if pane_id then
+    vim.fn.system("tmux kill-pane -t " .. pane_id)
+    self.pane_id = nil
+  end
+end
+
+---No-op for tmux - too many different implementations that may conflict with user's preferences.
 function Tmux:show() end
 
 return Tmux

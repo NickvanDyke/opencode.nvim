@@ -147,6 +147,13 @@ function M.select(opts)
         })
         table.insert(items, {
           __type = "provider",
+          name = "stop",
+          text = "Stop opencode",
+          highlights = { { "Stop opencode", "Comment" } },
+          preview = { text = "" },
+        })
+        table.insert(items, {
+          __type = "provider",
           name = "show",
           text = "Show opencode",
           highlights = { { "Show opencode", "Comment" } },
@@ -212,6 +219,8 @@ function M.select(opts)
             require("opencode").start()
           elseif choice.name == "show" then
             require("opencode").show()
+          elseif choice.name == "stop" then
+            require("opencode").stop()
           end
         end
       end)

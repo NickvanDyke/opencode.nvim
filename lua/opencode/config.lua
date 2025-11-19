@@ -115,14 +115,11 @@ local defaults = {
   provider = {
     cmd = "opencode",
     enabled = (function()
-      local snacks_ok, snacks = pcall(require, "snacks")
-      if snacks_ok and snacks.config.get("terminal", {}).enabled then
-        -- Default to snacks if `snacks.terminal` is available
-        return "snacks"
-      end
-      if vim.env.TMUX then
-        -- Default to tmux if inside a tmux session
-        return "tmux"
+      for _, provider in ipairs(require("opencode.provider").list()) do
+        local ok, _ = provider.health()
+        if ok == true then
+          return provider.name
+        end
       end
 
       return false
@@ -171,7 +168,10 @@ M.provider = (function()
   local provider
   local provider_or_opts = M.opts.provider
 
-  if provider_or_opts and (provider_or_opts.toggle or provider_or_opts.start or provider_or_opts.show) then
+  if
+    provider_or_opts
+    and (provider_or_opts.toggle or provider_or_opts.start or provider_or_opts.stop or provider_or_opts.show)
+  then
     -- An implementation was passed.
     -- Be careful: `provider.enabled` may still exist from merging with defaults.
     ---@cast provider_or_opts opencode.Provider

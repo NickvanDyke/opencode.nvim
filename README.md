@@ -74,14 +74,15 @@ programs.nixvim = {
 
 You can manually run `opencode` inside Neovim's CWD however you like and `opencode.nvim` will find it!
 
-If `opencode.nvim` can't find an existing `opencode`, it uses the configured provider (defaulting based on availability) to `toggle`, `start`, and `show` one when appropriate.
+If `opencode.nvim` can't find an existing `opencode`, it uses the configured provider (defaulting based on availability) to manage one for you.
 
-#### [snacks.terminal](https://github.com/folke/snacks.nvim/blob/main/docs/terminal.md)
+<details>
+<summary><a href="https://github.com/folke/snacks.nvim/blob/main/docs/terminal.md">snacks.terminal</a></summary>
 
 ```lua
 vim.g.opencode_opts = {
   provider = {
-    enabled = "snacks", -- Default when `snacks.terminal` is enabled.
+    enabled = "snacks", -- Default if `snacks.terminal` is available and enabled.
     snacks = {
       -- Customize `snacks.terminal` to your liking.
     }
@@ -89,20 +90,26 @@ vim.g.opencode_opts = {
 }
 ```
 
-#### [tmux](https://github.com/tmux/tmux)
+</details>
+
+<details>
+<summary><a href="https://github.com/tmux/tmux">tmux</a></summary>
 
 ```lua
 vim.g.opencode_opts = {
   provider = {
-    enabled = "tmux", -- Default when running inside a `tmux` session.
+    enabled = "tmux", -- Default if inside a `tmux` session.
     tmux = {
-      options = "-h", -- options to pass to `tmux split-window`
+      options = "-h", -- Options to pass to `tmux split-window`.
     }
   }
 }
 ```
 
-#### Custom
+</details>
+
+<details>
+<summary>custom</summary>
 
 Integrate your custom method for convenience!
 
@@ -115,12 +122,17 @@ vim.g.opencode_opts = {
     start = function(self)
       -- ...
     end,
+    stop = function(self)
+      -- ...
+    end,
     show = function(self)
       -- ...
     end
   }
 }
 ```
+
+</details>
 
 Please submit PRs adding new providers! 🙂
 
