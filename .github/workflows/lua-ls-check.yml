@@ -28,8 +28,8 @@ jobs:
           tar -xzf /opt/lls.tar.gz -C /opt/lls
           echo "/opt/lls/bin" >> $GITHUB_PATH
 
-      - name: Clone lazydev.nvim
-        run: git clone --depth=1 https://github.com/folke/lazydev.nvim /opt/lazydev.nvim
+      - name: Clone luvit-meta
+        run: git clone --depth=1 https://github.com/Bilal2453/luvit-meta /opt/luvit-meta
 
       - name: Clone snacks.nvim
         run: git clone --depth=1 https://github.com/folke/snacks.nvim /opt/snacks.nvim
