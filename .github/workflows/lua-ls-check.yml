@@ -13,6 +13,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Install Neovim
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y neovim
+
       - name: Clone snacks.nvim dependency
         run: git clone --depth=1 https://github.com/folke/snacks.nvim /opt/snacks.nvim
 
