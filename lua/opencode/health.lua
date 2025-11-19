@@ -90,8 +90,8 @@ function M.check()
 
   vim.health.start("opencode.nvim [snacks]")
 
-  ---@type boolean, Snacks
   local snacks_ok, snacks = pcall(require, "snacks")
+  ---@cast snacks Snacks Cast because CI lint resolves to our `snacks.lua` instead...
   if snacks_ok then
     if snacks.config.get("input", {}).enabled then
       vim.health.ok("`snacks.input` is enabled: `ask()` will be enhanced.")
