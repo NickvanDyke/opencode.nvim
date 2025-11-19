@@ -3,6 +3,8 @@ name: Lua LS Diagnostics
 on:
   push:
     branches: [main]
+  pull_request:
+    branches: [main]
 
 jobs:
   lua-ls-diagnostics:
@@ -26,5 +28,4 @@ jobs:
 
       - name: Run Lua LS diagnostics
         run: |
-          # TODO: Fix remaining CI-only lint issues
-          lua-language-server --check=. || exit 0
+          lua-language-server --check=.
