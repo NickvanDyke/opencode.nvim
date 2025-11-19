@@ -1,5 +1,8 @@
---- @module 'blink.cmp'
---- @class blink.cmp.Source
+---@module 'blink.cmp'
+---@module 'snacks.picker'
+---@module 'vim.lsp.protocol'
+
+---@class blink.cmp.Source
 local source = {}
 
 ---@type opencode.Context
