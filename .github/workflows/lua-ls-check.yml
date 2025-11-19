@@ -20,6 +20,15 @@ jobs:
           tar xzf /opt/nvim.tar.gz -C /opt/nvim
           sudo ln -s /opt/nvim/bin/nvim /usr/local/bin/nvim
 
+      - name: Clone lazydev.nvim
+        run: git clone --depth=1 https://github.com/folke/lazydev.nvim /opt/lazydev.nvim
+
+      - name: Generate Neovim types with lazydev
+        run: |
+          nvim --headless -c 'lua vim.opt.rtp:append("/opt/lazydev.nvim")' \
+                          -c 'lua require("lazydev").setup({})' \
+                          -c 'qa'
+
       - name: Install Lua Language Server
         run: |
           curl -L "https://github.com/LuaLS/lua-language-server/releases/download/3.15.0/lua-language-server-3.15.0-linux-x64.tar.gz" -o /opt/lls.tar.gz

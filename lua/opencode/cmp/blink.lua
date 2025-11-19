@@ -1,6 +1,4 @@
 ---@module 'blink.cmp'
----@module 'vim._meta'
----@module 'vim.lsp._meta'
 
 ---@class blink.cmp.Source
 local source = {}
