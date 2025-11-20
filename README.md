@@ -70,6 +70,36 @@ programs.nixvim = {
 
 `opencode.nvim` provides a rich and reliable default experience — see all available options and their defaults [here](./lua/opencode/config.lua).
 
+### Contexts
+
+`opencode.nvim` replaces placeholders in prompts with the corresponding context:
+
+| Placeholder | Context |
+| - | - |
+| `@this` | Visual selection if any, else cursor position |
+| `@buffer` | Current buffer |
+| `@buffers` | Open buffers |
+| `@visible` | Visible text |
+| `@diagnostics` | Current buffer diagnostics |
+| `@quickfix` | Quickfix list |
+| `@diff` | Git diff |
+| `@grapple` | [grapple.nvim](https://github.com/cbochs/grapple.nvim) tags |
+
+### Prompts
+
+Select or reference prompts to review, explain, and improve your code:
+
+| Name                               | Prompt                                                    |
+|------------------------------------|-----------------------------------------------------------|
+| `diagnostics` | Explain `@diagnostics`                                            |
+| `diff`        | Review the following git diff for correctness and readability: `@diff`         |
+| `document`    | Add comments documenting `@this`                                  |
+| `explain`     | Explain `@this` and its context                                   |
+| `fix`         | Fix `@diagnostics`                                                |
+| `optimize`    | Optimize `@this` for performance and readability                  |
+| `review`      | Review `@this` for correctness and readability                    |
+| `test`        | Add tests for `@this`                                             |
+
 ### Provider
 
 You can manually run `opencode` inside Neovim's CWD however you like and `opencode.nvim` will find it!
@@ -162,37 +192,8 @@ Select from all `opencode.nvim` functionality.
 
 Prompt `opencode`.
 
+- Resolves references to configured prompts by name.
 - `opencode` will interpret `@` references to files or subagents.
-
-#### Contexts
-
-Replaces placeholders in the prompt with the corresponding context:
-
-| Placeholder | Context |
-| - | - |
-| `@this` | Visual selection if any, else cursor position |
-| `@buffer` | Current buffer |
-| `@buffers` | Open buffers |
-| `@visible` | Visible text |
-| `@diagnostics` | Current buffer diagnostics |
-| `@quickfix` | Quickfix list |
-| `@diff` | Git diff |
-| `@grapple` | [grapple.nvim](https://github.com/cbochs/grapple.nvim) tags |
-
-#### Prompts
-
-Reference a prompt by name to review, explain, and improve your code:
-
-| Name                               | Prompt                                                    |
-|------------------------------------|-----------------------------------------------------------|
-| `explain`     | Explain `@this` and its context                                   |
-| `optimize`    | Optimize `@this` for performance and readability                  |
-| `document`    | Add comments documenting `@this`                                  |
-| `test`        | Add tests for `@this`                                             |
-| `review`      | Review `@this` for correctness and readability                    |
-| `diagnostics` | Explain `@diagnostics`                                            |
-| `fix`         | Fix `@diagnostics`                                                |
-| `diff`        | Review the following git diff for correctness and readability: `@diff`         |
 
 ### 🧑‍🏫 Command — `require("opencode").command()`
 
