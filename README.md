@@ -12,8 +12,8 @@ https://github.com/user-attachments/assets/01e4e2fc-bbfa-427e-b9dc-c1c1badaa90e
 - Inject relevant editor context (buffer, cursor, selection, diagnostics, etc.).
 - Control `opencode` with commands.
 - Respond to `opencode` permission requests.
-- Monitor state via statusline component.
-- Auto-reloads buffers edited by `opencode` in real-time.
+- Reloads buffers edited by `opencode` in real-time.
+- Monitor `opencode`'s state via statusline component.
 - Forwards `opencode`'s Server-Sent-Events as autocmds for automation.
 - Sensible defaults with well-documented, flexible configuration and API to fit your workflow.
 
@@ -39,7 +39,7 @@ https://github.com/user-attachments/assets/01e4e2fc-bbfa-427e-b9dc-c1c1badaa90e
       -- Your configuration, if any — see `lua/opencode/config.lua`, or "goto definition".
     }
 
-    -- Required for `opts.auto_reload`.
+    -- Required for `opts.events.reload`.
     vim.o.autoread = true
 
     -- Recommended/example keymaps.
@@ -192,7 +192,8 @@ Select from all `opencode.nvim` functionality.
 
 Prompt `opencode`.
 
-- Resolves references to configured prompts by name.
+- Resolves named references to configured prompts.
+- Injects configured contexts.
 - `opencode` will interpret `@` references to files or subagents.
 
 ### 🧑‍🏫 Command — `require("opencode").command()`
@@ -223,14 +224,19 @@ Command `opencode`:
 `opencode.nvim` forwards `opencode`'s Server-Sent-Events as an `OpencodeEvent` autocmd:
 
 ```lua
--- Listen for `opencode` events
+-- Handle `opencode` events
 vim.api.nvim_create_autocmd("User", {
-  pattern = "OpencodeEvent",
+  pattern = "OpencodeEvent:*", -- Optionally filter event types
   callback = function(args)
+    ---@type opencode.cli.client.Event
+    local event = args.data.event
+    ---@type number
+    local port = args.data.port
+
     -- See the available event types and their properties
-    vim.notify(vim.inspect(args.data.event))
+    vim.notify(vim.inspect(event))
     -- Do something useful
-    if args.data.event.type == "session.idle" then
+    if event.type == "session.idle" then
       vim.notify("`opencode` finished responding")
     end
   end,

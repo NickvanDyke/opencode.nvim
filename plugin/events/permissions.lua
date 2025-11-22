@@ -1,11 +1,14 @@
----@class opencode.permissions.Opts
----@field enabled boolean Whether to show permission requests.
----@field idle_delay_ms number Amount of user idle time before showing permission requests.
+---@class opencode.events.permissions.Opts
+---
+---Whether to show permission requests.
+---@field enabled boolean
+---
+---Amount of user idle time before showing permission requests.
+---@field idle_delay_ms number
 
----Waits for user to be idle (no keypresses) for `timeout` milliseconds, then calls `callback`.
----@param callback function Function to call when user is idle.
----@param timeout number Time in milliseconds to wait for idle.
-local function wait_for_user_idle(callback, timeout)
+---@param delay_ms number
+---@param callback function
+local function on_user_idle(delay_ms, callback)
   local idle_timer = vim.uv.new_timer()
   local key_listener_id = nil
 
@@ -19,7 +22,7 @@ local function wait_for_user_idle(callback, timeout)
 
   local function reset_idle_timer()
     idle_timer:stop()
-    idle_timer:start(timeout, 0, vim.schedule_wrap(on_idle))
+    idle_timer:start(delay_ms, 0, vim.schedule_wrap(on_idle))
   end
 
   key_listener_id = vim.on_key(function()
@@ -31,17 +34,20 @@ local function wait_for_user_idle(callback, timeout)
 end
 
 local is_permission_request_open = false
+
 vim.api.nvim_create_autocmd("User", {
   group = vim.api.nvim_create_augroup("OpencodePermissions", { clear = true }),
-  pattern = "OpencodeEvent",
+  pattern = { "OpencodeEvent:permission.updated", "OpencodeEvent:permission.replied" },
   callback = function(args)
-    if not require("opencode.config").opts.permissions.enabled then
-      return
-    end
-
+    ---@type opencode.cli.client.Event
     local event = args.data.event
     ---@type number
     local port = args.data.port
+
+    local opts = require("opencode.config").opts.events.permissions or {}
+    if not opts.enabled then
+      return
+    end
 
     if event.type == "permission.updated" then
       --[[
@@ -63,16 +69,16 @@ vim.api.nvim_create_autocmd("User", {
       }
       --]]
 
-      local idle_delay_ms = require("opencode.config").opts.permissions.idle_delay_ms
+      local idle_delay_ms = opts.idle_delay_ms
       vim.notify(
         "`opencode` requested permission — awaiting idle…",
         vim.log.levels.INFO,
         { title = "opencode", timeout = idle_delay_ms }
       )
-      wait_for_user_idle(function()
+      on_user_idle(idle_delay_ms, function()
         is_permission_request_open = true
         vim.ui.select({ "Once", "Always", "Reject" }, {
-          prompt = 'opencode requesting permission: "' .. event.properties.title .. '": ',
+          prompt = 'opencode requested permission: "' .. event.properties.title .. '": ',
           format_item = function(item)
             return item
           end,
@@ -84,7 +90,7 @@ vim.api.nvim_create_autocmd("User", {
             require("opencode.cli.client").permit(port, session_id, permission_id, choice:lower())
           end
         end)
-      end, idle_delay_ms)
+      end)
     elseif event.type == "permission.replied" and is_permission_request_open then
       -- Close our permission dialog, in case user responded in the TUI
       -- TODO: Hmm, we don't seem to process the event while built-in select is open...
@@ -94,5 +100,5 @@ vim.api.nvim_create_autocmd("User", {
       -- is_permission_request_open = false
     end
   end,
-  desc = "Display permission requests from `opencode`",
+  desc = "Display permission requests from opencode",
 })

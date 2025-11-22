@@ -50,7 +50,9 @@ function M.prompt(prompt, opts)
       end)
     end)
     :next(function(port)
-      require("opencode.autocmd").subscribe_to_sse(port)
+      if require("opencode.config").opts.events.enabled then
+        require("opencode.events").subscribe_to_sse(port)
+      end
       return port
     end)
     :next(function(port)

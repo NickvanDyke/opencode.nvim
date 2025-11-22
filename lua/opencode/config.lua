@@ -18,10 +18,6 @@ vim.g.opencode_opts = vim.g.opencode_opts
 ---If set, `opencode.nvim` will append `--port <port>` to `provider.cmd` if not already present.
 ---@field port? number
 ---
----Reload buffers edited by `opencode` in real-time.
----Requires `vim.o.autoread = true`.
----@field auto_reload? boolean
----
 ---Contexts to inject into prompts, keyed by their placeholder.
 ---@field contexts? table<string, fun(context: opencode.Context): string|nil>
 ---
@@ -36,8 +32,8 @@ vim.g.opencode_opts = vim.g.opencode_opts
 ---Supports [`snacks.picker`](https://github.com/folke/snacks.nvim/blob/main/docs/picker.md).
 ---@field select? opencode.select.Opts
 ---
----Options for `opencode` permission requests.
----@field permissions? opencode.permissions.Opts
+---Options for `opencode` event handling.
+---@field events? opencode.events.Opts
 ---
 ---Provide an integrated `opencode` when one is not found.
 ---@field provider? opencode.Provider|opencode.provider.Opts
@@ -49,7 +45,6 @@ vim.g.opencode_opts = vim.g.opencode_opts
 ---@type opencode.Opts
 local defaults = {
   port = nil,
-  auto_reload = true,
   -- stylua: ignore
   contexts = {
     ["@this"] = function(context) return context:this() end,
@@ -109,9 +104,13 @@ local defaults = {
       },
     },
   },
-  permissions = {
+  events = {
     enabled = true,
-    idle_delay_ms = 1000,
+    reload = true,
+    permissions = {
+      enabled = true,
+      idle_delay_ms = 1000,
+    },
   },
   provider = {
     cmd = "opencode",

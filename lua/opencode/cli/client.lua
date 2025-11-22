@@ -191,11 +191,15 @@ function M.get_commands(port, callback)
   M.call(port, "/command", "GET", nil, callback)
 end
 
+---@class opencode.cli.client.Event
+---@field type string
+---@field properties table
+
 ---Calls the `/event` SSE endpoint and invokes `callback` for each event received.
 ---
 ---@param port number
----@param callback fun(response: table)|nil
-function M.listen_to_sse(port, callback)
+---@param callback fun(response: opencode.cli.client.Event)|nil
+function M.subscribe_to_sse(port, callback)
   if sse_state.port ~= port then
     if sse_state.job_id then
       vim.fn.jobstop(sse_state.job_id)

@@ -18,12 +18,12 @@ function M.check()
 
   vim.health.ok("`vim.g.opencode_opts`: " .. (vim.g.opencode_opts and vim.inspect(vim.g.opencode_opts) or "`nil`"))
 
-  if require("opencode.config").opts.auto_reload and not vim.o.autoread then
+  if require("opencode.config").opts.events.reload and not vim.o.autoread then
     vim.health.warn(
-      "`opts.auto_reload = true` but `vim.o.autoread = false`: files edited by `opencode` won't be automatically reloaded in buffers.",
+      "`opts.events.reload = true` but `vim.o.autoread = false`: files edited by `opencode` won't be automatically reloaded in buffers.",
       {
         "Set `vim.o.autoread = true`",
-        "Or set `vim.g.opencode_opts.auto_reload = false`",
+        "Or set `vim.g.opencode_opts.events.reload = false`",
       }
     )
   end

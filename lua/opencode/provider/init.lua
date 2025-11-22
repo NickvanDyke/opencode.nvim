@@ -49,10 +49,14 @@
 local M = {}
 
 local function subscribe_to_sse()
+  if not require("opencode.config").opts.events.enabled then
+    return
+  end
+
   require("opencode.cli.server")
     .get_port(false)
     :next(function(port)
-      require("opencode.autocmd").subscribe_to_sse(port)
+      require("opencode.events").subscribe_to_sse(port)
     end)
     :catch(function(err)
       vim.notify("Failed to subscribe to SSE: " .. err, vim.log.levels.WARN)

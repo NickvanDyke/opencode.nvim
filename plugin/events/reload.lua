@@ -1,15 +1,13 @@
 vim.api.nvim_create_autocmd("User", {
-  group = vim.api.nvim_create_augroup("OpencodeAutoReload", { clear = true }),
-  pattern = "OpencodeEvent",
+  group = vim.api.nvim_create_augroup("OpencodeReload", { clear = true }),
+  pattern = "OpencodeEvent:file.edited",
   callback = function(args)
-    local event = args.data.event
-
-    if event.type == "file.edited" and require("opencode.config").opts.auto_reload then
+    if require("opencode.config").opts.events.reload then
       if not vim.o.autoread then
         -- Unfortunately `autoread` is kinda necessary, for `:checktime`.
         -- Alternatively we could `:edit!` but that would lose any unsaved changes.
         vim.notify(
-          "Please set `vim.o.autoread = true` to use `opencode.nvim` auto-reload, or set `vim.g.opencode_opts.auto_reload = false`",
+          "Please set `vim.o.autoread = true` to use `opencode.nvim` auto-reload",
           vim.log.levels.WARN,
           { title = "opencode" }
         )
@@ -22,5 +20,5 @@ vim.api.nvim_create_autocmd("User", {
       end
     end
   end,
-  desc = "Reload buffers edited by `opencode`",
+  desc = "Reload buffers edited by opencode",
 })
