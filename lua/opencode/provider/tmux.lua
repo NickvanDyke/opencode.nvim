@@ -1,12 +1,11 @@
----Provide `opencode` in a `tmux` pane in the current window.
----Works only in Unix systems.
+---Provide `opencode` in a [`tmux`](https://github.com/tmux/tmux) pane in the current window.
+---Requires Unix system.
 ---@class opencode.provider.Tmux : opencode.Provider
 ---
 ---@field opts opencode.provider.tmux.Opts
----@field pane_id? string The tmux pane ID where `opencode` is running (internal use only).
+---@field pane_id? string The `tmux` pane ID where `opencode` is running (internal use only).
 local Tmux = {}
 Tmux.__index = Tmux
-
 Tmux.name = "tmux"
 
 ---@class opencode.provider.tmux.Opts
@@ -44,8 +43,8 @@ function Tmux.health()
   return true
 end
 
----Get the pane ID where `opencode` is running.
----@return string|nil pane_id The tmux pane ID
+---Get the `tmux` pane ID where `opencode` is running.
+---@return string|nil pane_id
 function Tmux:get_pane_id()
   local ok = self.health()
   if ok ~= true then
@@ -72,7 +71,7 @@ function Tmux:get_pane_id()
   return self.pane_id
 end
 
----Create or kill the `opencode` tmux pane.
+---Create or kill the `opencode` pane.
 function Tmux:toggle()
   local pane_id = self:get_pane_id()
   if pane_id then
@@ -82,7 +81,7 @@ function Tmux:toggle()
   end
 end
 
----Start `opencode` in tmux pane.
+---Start `opencode` in pane.
 function Tmux:start()
   local pane_id = self:get_pane_id()
   if not pane_id then
@@ -101,7 +100,7 @@ function Tmux:stop()
   end
 end
 
----No-op for tmux - too many different implementations that may conflict with user's preferences.
+---No-op for `tmux` - too many different implementations that may conflict with user's preferences.
 function Tmux:show() end
 
 return Tmux

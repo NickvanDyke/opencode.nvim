@@ -6,7 +6,6 @@
 ---@field opts snacks.terminal.Opts
 local Snacks = {}
 Snacks.__index = Snacks
-
 Snacks.name = "snacks"
 
 ---@class opencode.provider.snacks.Opts : snacks.terminal.Opts

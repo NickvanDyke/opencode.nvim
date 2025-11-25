@@ -112,9 +112,9 @@ If `opencode.nvim` can't find an existing `opencode`, it uses the configured pro
 ```lua
 vim.g.opencode_opts = {
   provider = {
-    enabled = "snacks", -- Default if `snacks.terminal` is available and enabled.
+    enabled = "snacks",
     snacks = {
-      -- Customize `snacks.terminal` to your liking.
+      -- ...
     }
   }
 }
@@ -128,17 +128,9 @@ vim.g.opencode_opts = {
 ```lua
 vim.g.opencode_opts = {
   provider = {
-    enabled = "kitty", -- Default when running inside a `kitty` session with remote control enabled.
+    enabled = "kitty",
     kitty = {
-      -- Location where `opencode` instance should be opened
-      -- Possible values:
-      -- * https://sw.kovidgoyal.net/kitty/launch/#cmdoption-launch-location
-      -- * `tab`
-      -- * `os-window`
-      location = "default",
-      -- Optional password for kitty remote control
-      -- https://sw.kovidgoyal.net/kitty/remote-control/#cmdoption-kitten-password
-      password = nil,
+      -- ...
     }
   }
 }
@@ -175,9 +167,9 @@ listen_on unix:/tmp/kitty
 ```lua
 vim.g.opencode_opts = {
   provider = {
-    enabled = "tmux", -- Default if inside a `tmux` session.
+    enabled = "tmux",
     tmux = {
-      options = "-h", -- Options to pass to `tmux split-window`.
+      -- ...
     }
   }
 }

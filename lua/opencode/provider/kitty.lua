@@ -1,23 +1,23 @@
 ---Provide `opencode` in a `kitty` terminal instance.
----Works only when kitty remote control is enabled.
+---Requires [kitty remote control](https://sw.kovidgoyal.net/kitty/remote-control/#remote-control-via-a-socket) to be enabled.
 ---@class opencode.provider.Kitty : opencode.Provider
 ---
 ---@field opts opencode.provider.kitty.Opts
----@field window_id? number The kitty window ID where `opencode` is running (internal use only)
+---@field window_id? number The `kitty` window ID where `opencode` is running (internal use only).
 local Kitty = {}
 Kitty.__index = Kitty
 Kitty.name = "kitty"
 
 ---@class opencode.provider.kitty.Opts
 ---
----Location where `opencode` instance should be opened
+---Location where `opencode` instance should be opened.
 ---Possible values:
 --- * https://sw.kovidgoyal.net/kitty/launch/#cmdoption-launch-location
 --- * `tab`
 --- * `os-window`
 ---@field location? "after" | "before" | "default" | "first" | "hsplit" | "last" | "neighbor" | "split" | "vsplit" | "tab" | "os-window"
 ---
----Optional password for kitty remote control
+---Optional password for `kitty` remote control.
 ---https://sw.kovidgoyal.net/kitty/remote-control/#cmdoption-kitten-password
 ---@field password? string
 ---
@@ -32,16 +32,16 @@ function Kitty.new(opts)
   return self
 end
 
----Health check for the kitty provider
-function Kitty:health()
+---Check if `kitty` remote control is available.
+function Kitty.health()
   if vim.env.KITTY_LISTEN_ON and #vim.env.KITTY_LISTEN_ON > 0 then
     return true
   else
-    return "KITTY_LISTEN_ON environment variable is not set", "Enable remote control in kitty"
+    return "KITTY_LISTEN_ON environment variable is not set.", "Enable remote control in `kitty`."
   end
 end
 
----Execute a kitty remote control command
+---Execute a `kitty` remote control command.
 ---@param args string[] Arguments to pass to kitty @
 ---@return string|nil output, number|nil code
 function Kitty:kitty_exec(args)
@@ -65,8 +65,8 @@ function Kitty:kitty_exec(args)
   return output, code
 end
 
----Get the window ID where opencode is running
----@return number|nil window_id The kitty window ID
+---Get the `kitty` window ID where `opencode` is running.
+---@return number|nil window_id
 function Kitty:get_window_id()
   -- Return cached window_id if it still exists
   if self.window_id then
@@ -128,7 +128,7 @@ function Kitty:get_window_id()
   return nil
 end
 
----Toggle opencode in kitty window
+---Toggle `opencode` in window.
 function Kitty:toggle()
   local ok, err = self:health()
   if ok ~= true then
@@ -145,7 +145,7 @@ function Kitty:toggle()
   end
 end
 
----Start opencode in kitty window
+---Start `opencode` in window.
 function Kitty:start()
   local ok, err = self:health()
   if ok ~= true then
@@ -197,7 +197,7 @@ function Kitty:start()
   end
 end
 
----Stop opencode in kitty window
+---Stop `opencode` window.
 function Kitty:stop()
   local window_id = self:get_window_id()
   if window_id then
@@ -208,7 +208,7 @@ function Kitty:stop()
   end
 end
 
----Show opencode window
+---Show `opencode` window.
 function Kitty:show()
   local window_id = self:get_window_id()
   if not window_id then
