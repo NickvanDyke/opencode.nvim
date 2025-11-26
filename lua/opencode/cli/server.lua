@@ -46,13 +46,7 @@ end
 -- derive the CWD from a PID
 ---@param pid number
 local function read_proc_cwd(pid)
-  local path = '/proc/' .. tostring(pid) .. '/cwd'
-  local success, target = pcall(vim.loop.fs_readlink, path)
-  if success and target then
-    return target  -- Returns the symlink target
-  else
-    return nil     -- Not a symlink, path doesn't exist, or error
-  end
+  return exec("lsof -w -a -p " .. pid .. " -d cwd"):match("%s+(/.*)$")
 end
 
 ---@return Server[]
