@@ -24,23 +24,13 @@ end
 ---@param pid number
 ---@param string string
 ---@return boolean
-local function check_proc_cmdline_for_string(pid, string)
-  local cmdline_path = '/proc/' .. tostring(pid) .. '/cmdline'
-
-  -- Check if the file exists and is readable
-  if vim.fn.filereadable(cmdline_path) == 1 then
-    -- Read the file (it's a single line with null separators)
-    local cmdline = vim.fn.readfile(cmdline_path)[1]
-
-    -- Check if string appears anywhere in the command line
-    if string.find(cmdline, string) then
-      return true  -- Found it
-    else
-      return false  -- Not found
-    end
-  else
-    return false  -- File doesn't exist (invalid PID or process gone)
+local function check_proc_cmdline_for_string(pid, needle)
+  local output = exec("ps -p " .. pid .. " -ww -o args=")
+  if vim.v.shell_error ~= 0 then
+    return false
   end
+  local result = string.find(output, needle, 1, true)
+  return result ~= nil
 end
 
 -- derive the CWD from a PID
