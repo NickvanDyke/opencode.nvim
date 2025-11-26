@@ -39,11 +39,13 @@
 ---The built-in provider to use, or `false` for none.
 ---Default order:
 ---  - `"snacks"` if `snacks.terminal` is available and enabled
+---  - `"kitty"` if in a `kitty` session with remote control enabled
 ---  - `"tmux"` if in a `tmux` session
 ---  - `false`
----@field enabled? "snacks"|"tmux"|false
+---@field enabled? "snacks"|"kitty"|"tmux"|false
 ---
 ---@field snacks? opencode.provider.snacks.Opts
+---@field kitty? opencode.provider.kitty.Opts
 ---@field tmux? opencode.provider.tmux.Opts
 
 local M = {}
@@ -68,6 +70,7 @@ end
 function M.list()
   return {
     require("opencode.provider.snacks"),
+    require("opencode.provider.kitty"),
     require("opencode.provider.tmux"),
   }
 end

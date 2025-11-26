@@ -1,12 +1,12 @@
 # opencode.nvim
 
-Integrate the [opencode](https://github.com/sst/opencode) AI assistant with Neovim — streamline editor-aware research, reviews, and requests. 
+Integrate the [opencode](https://github.com/sst/opencode) AI assistant with Neovim — streamline editor-aware research, reviews, and requests.
 
-https://github.com/user-attachments/assets/01e4e2fc-bbfa-427e-b9dc-c1c1badaa90e
+<https://github.com/user-attachments/assets/01e4e2fc-bbfa-427e-b9dc-c1c1badaa90e>
 
 ## ✨ Features
 
-- Auto-connects to *any* `opencode` running inside Neovim's CWD, or provides an integrated instance.
+- Auto-connects to _any_ `opencode` running inside Neovim's CWD, or provides an integrated instance.
 - Input prompts with completions, highlights, and normal-mode support.
 - Select prompts from a library and define your own.
 - Inject relevant editor context (buffer, cursor, selection, diagnostics, etc.).
@@ -74,31 +74,31 @@ programs.nixvim = {
 
 `opencode.nvim` replaces placeholders in prompts with the corresponding context:
 
-| Placeholder | Context |
-| - | - |
-| `@this` | Visual selection if any, else cursor position |
-| `@buffer` | Current buffer |
-| `@buffers` | Open buffers |
-| `@visible` | Visible text |
-| `@diagnostics` | Current buffer diagnostics |
-| `@quickfix` | Quickfix list |
-| `@diff` | Git diff |
-| `@grapple` | [grapple.nvim](https://github.com/cbochs/grapple.nvim) tags |
+| Placeholder    | Context                                                     |
+| -------------- | ----------------------------------------------------------- |
+| `@this`        | Visual selection if any, else cursor position               |
+| `@buffer`      | Current buffer                                              |
+| `@buffers`     | Open buffers                                                |
+| `@visible`     | Visible text                                                |
+| `@diagnostics` | Current buffer diagnostics                                  |
+| `@quickfix`    | Quickfix list                                               |
+| `@diff`        | Git diff                                                    |
+| `@grapple`     | [grapple.nvim](https://github.com/cbochs/grapple.nvim) tags |
 
 ### Prompts
 
 Select or reference prompts to review, explain, and improve your code:
 
-| Name                               | Prompt                                                    |
-|------------------------------------|-----------------------------------------------------------|
-| `diagnostics` | Explain `@diagnostics`                                            |
-| `diff`        | Review the following git diff for correctness and readability: `@diff`         |
-| `document`    | Add comments documenting `@this`                                  |
-| `explain`     | Explain `@this` and its context                                   |
-| `fix`         | Fix `@diagnostics`                                                |
-| `optimize`    | Optimize `@this` for performance and readability                  |
-| `review`      | Review `@this` for correctness and readability                    |
-| `test`        | Add tests for `@this`                                             |
+| Name          | Prompt                                                                 |
+| ------------- | ---------------------------------------------------------------------- |
+| `diagnostics` | Explain `@diagnostics`                                                 |
+| `diff`        | Review the following git diff for correctness and readability: `@diff` |
+| `document`    | Add comments documenting `@this`                                       |
+| `explain`     | Explain `@this` and its context                                        |
+| `fix`         | Fix `@diagnostics`                                                     |
+| `optimize`    | Optimize `@this` for performance and readability                       |
+| `review`      | Review `@this` for correctness and readability                         |
+| `test`        | Add tests for `@this`                                                  |
 
 ### Provider
 
@@ -112,12 +112,51 @@ If `opencode.nvim` can't find an existing `opencode`, it uses the configured pro
 ```lua
 vim.g.opencode_opts = {
   provider = {
-    enabled = "snacks", -- Default if `snacks.terminal` is available and enabled.
+    enabled = "snacks",
     snacks = {
-      -- Customize `snacks.terminal` to your liking.
+      -- ...
     }
   }
 }
+```
+
+</details>
+
+<details>
+<summary><a href="https://sw.kovidgoyal.net/kitty/">kitty</a></summary>
+
+```lua
+vim.g.opencode_opts = {
+  provider = {
+    enabled = "kitty",
+    kitty = {
+      -- ...
+    }
+  }
+}
+```
+
+The kitty provider requires [remote control via a socket](https://sw.kovidgoyal.net/kitty/remote-control/#remote-control-via-a-socket) to be enabled.
+
+You can do this either by running Kitty with the following command:
+
+```bash
+# For Linux only:
+kitty -o allow_remote_control=yes --single-instance --listen-on unix:@mykitty
+
+# Other UNIX systems:
+kitty -o allow_remote_control=yes --single-instance --listen-on unix:/tmp/mykitty
+```
+
+OR, by adding the following to your `kitty.conf`:
+
+```
+# For Linux only:
+allow_remote_control yes
+listen_on unix:@mykitty
+# Other UNIX systems:
+allow_remote_control yes
+listen_on unix:/tmp/kitty
 ```
 
 </details>
@@ -128,9 +167,9 @@ vim.g.opencode_opts = {
 ```lua
 vim.g.opencode_opts = {
   provider = {
-    enabled = "tmux", -- Default if inside a `tmux` session.
+    enabled = "tmux",
     tmux = {
-      options = "-h", -- Options to pass to `tmux split-window`.
+      -- ...
     }
   }
 }
@@ -200,24 +239,24 @@ Prompt `opencode`.
 
 Command `opencode`:
 
-| Command                 | Description                                              |
-|-------------------------|----------------------------------------------------------|
-| `session.list`          | List sessions                                            |
-| `session.new`             | Start a new session                                      |
-| `session.share`           | Share the current session                                |
-| `session.interrupt`       | Interrupt the current session                            |
-| `session.compact`         | Compact the current session (reduce context size)        |
-| `session.page.up`        | Scroll messages up by one page                           |
-| `session.page.down`      | Scroll messages down by one page                         |
-| `session.half.page.up`   | Scroll messages up by half a page                        |
-| `session.half.page.down` | Scroll messages down by half a page                      |
-| `session.first`          | Jump to the first message in the session                 |
-| `session.last`           | Jump to the last message in the session                  |
-| `session.undo` | Undo the last action in the current session |
-| `session.redo` | Redo the last undone action in the current session |
-| `prompt.submit`             | Submit the TUI input                                      |
-| `prompt.clear`             | Clear the TUI input                                      |
-| `agent.cycle`             | Cycle the selected agent                                 |
+| Command                  | Description                                        |
+| ------------------------ | -------------------------------------------------- |
+| `session.list`           | List sessions                                      |
+| `session.new`            | Start a new session                                |
+| `session.share`          | Share the current session                          |
+| `session.interrupt`      | Interrupt the current session                      |
+| `session.compact`        | Compact the current session (reduce context size)  |
+| `session.page.up`        | Scroll messages up by one page                     |
+| `session.page.down`      | Scroll messages down by one page                   |
+| `session.half.page.up`   | Scroll messages up by half a page                  |
+| `session.half.page.down` | Scroll messages down by half a page                |
+| `session.first`          | Jump to the first message in the session           |
+| `session.last`           | Jump to the last message in the session            |
+| `session.undo`           | Undo the last action in the current session        |
+| `session.redo`           | Redo the last undone action in the current session |
+| `prompt.submit`          | Submit the TUI input                               |
+| `prompt.clear`           | Clear the TUI input                                |
+| `agent.cycle`            | Cycle the selected agent                           |
 
 ## 👀 Events
 
