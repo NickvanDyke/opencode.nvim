@@ -40,12 +40,14 @@
 ---Default order:
 ---  - `"snacks"` if `snacks.terminal` is available and enabled
 ---  - `"kitty"` if in a `kitty` session with remote control enabled
+---  - `"wezterm"` if in a `wezterm` window
 ---  - `"tmux"` if in a `tmux` session
 ---  - `false`
----@field enabled? "snacks"|"kitty"|"tmux"|false
+---@field enabled? "snacks"|"kitty"|"wezterm"|"tmux"|false
 ---
 ---@field snacks? opencode.provider.snacks.Opts
 ---@field kitty? opencode.provider.kitty.Opts
+---@field wezterm? opencode.provider.wezterm.Opts
 ---@field tmux? opencode.provider.tmux.Opts
 
 local M = {}
@@ -71,6 +73,7 @@ function M.list()
   return {
     require("opencode.provider.snacks"),
     require("opencode.provider.kitty"),
+    require("opencode.provider.wezterm"),
     require("opencode.provider.tmux"),
   }
 end
