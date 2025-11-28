@@ -38,19 +38,25 @@ local function handle_sse(data)
   return responses
 end
 
+local json_state = {
+  buffer = {},
+}
+
 ---@param data table
 ---@return table
 local function handle_json(data)
-  for _, line in ipairs(data) do
-    if line == "" then
-      return {}
-    end
-    local ok, response = pcall(vim.fn.json_decode, line)
+  if #data == 1 and data[1] == "" then -- this is eof
+    local full_data = table.concat(json_state.buffer)
+    json_state.buffer = {}
+
+    local ok, response = pcall(vim.fn.json_decode, full_data)
     if ok then
       return { response }
     else
-      vim.notify("JSON decode error: " .. line, vim.log.levels.ERROR, { title = "opencode" })
+      vim.notify("JSON decode error: " .. full_data, vim.log.levels.ERROR, { title = "opencode" })
     end
+  else
+    vim.list_extend(json_state.buffer, data)
   end
 
   return {}
