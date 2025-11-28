@@ -26,7 +26,8 @@ local function exec(command)
   return output
 end
 
----Find opencode servers on Windows using PowerShell and API queries
+---Find opencode servers running on Windows using PowerShell and curl - Both of
+---which are installed on Windows 11 by default.
 ---@return Server[]
 local function find_servers_windows()
   local ps_script = [[
@@ -41,7 +42,8 @@ ForEach-Object {
 } | ConvertTo-Json -Compress
 ]]
 
-  -- Execute PowerShell synchronously
+  -- Execute PowerShell synchronously, but this doesn't hold up the UI since
+  -- this gets called from a function that returns a promise.
   local ps_result = vim.system({'powershell', '-NoProfile', '-Command', ps_script}):wait()
 
   if ps_result.code ~= 0 then
@@ -52,14 +54,14 @@ ForEach-Object {
     error("No `opencode` processes found", 0)
   end
 
-  -- Parse JSON response
+  -- The Powershell script should return the response as JSON to ease parsing.
   local ok, processes = pcall(vim.fn.json_decode, ps_result.stdout)
   if not ok then
     error("Failed to parse PowerShell output: " .. tostring(processes), 0)
   end
 
-  -- Handle single object vs array
   if processes.pid then
+    -- A single process was found, so wrap it in a table.
     processes = {processes}
   end
 
@@ -67,10 +69,10 @@ ForEach-Object {
     error("No `opencode` processes found", 0)
   end
 
-  -- Query each port synchronously for working directory
+  -- Query each port synchronously for working directory using curl
   local servers = {}
   for _, proc in ipairs(processes) do
-    -- Query the opencode API synchronously
+    -- Query the opencode API using curl
     local curl_result = vim.system({
       'curl',
       '-s',
