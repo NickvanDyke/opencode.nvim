@@ -20,6 +20,25 @@ local function exec(command)
   return output
 end
 
+-- check if a cmdline of a PID contains a string
+---@param pid number
+---@param string string
+---@return boolean
+local function check_proc_cmdline_for_string(pid, needle)
+  local output = exec("ps -p " .. pid .. " -ww -o args=")
+  if vim.v.shell_error ~= 0 then
+    return false
+  end
+  local result = string.find(output, needle, 1, true)
+  return result ~= nil
+end
+
+-- derive the CWD from a PID
+---@param pid number
+local function read_proc_cwd(pid)
+  return exec("lsof -w -a -p " .. pid .. " -d cwd"):match("%s+(/.*)$")
+end
+
 ---@return Server[]
 local function find_servers()
   if vim.fn.executable("lsof") == 0 then
@@ -33,7 +52,8 @@ local function find_servers()
   -- With these flags, we'll only get processes that are listening on TCP ports and have 'opencode' in their command name.
   -- i.e. pretty much guaranteed to be just opencode server processes.
   -- `-w` flag suppresses warnings about inaccessible filesystems (e.g. Docker FUSE).
-  local output = exec("lsof -w -iTCP -sTCP:LISTEN -P -n | grep opencode")
+  -- NOTE: some versions of opencode will name themselves opencode, while others will be named bun, we will disambiguate these below.
+  local output = exec("lsof -w -iTCP -sTCP:LISTEN -P -n | grep -e opencode -e bun")
   if output == "" then
     error("No `opencode` processes", 0)
   end
@@ -44,28 +64,32 @@ local function find_servers()
     local parts = vim.split(line, "%s+")
 
     local pid = tonumber(parts[2])
+    local comm = parts[1]
     local port = tonumber(parts[9]:match(":(%d+)$")) -- Extract port from NAME field (which is e.g. "127.0.0.1:12345")
     if not pid or not port then
       error("Couldn't parse `opencode` PID and port from `lsof` entry: " .. line, 0)
     end
 
-    local cwd = exec("lsof -w -a -p " .. pid .. " -d cwd"):match("%s+(/.*)$")
-    if not cwd then
-      error("Couldn't determine CWD for PID: " .. pid, 0)
-    end
+    -- skip any processes that do not contain opencode string in the command line
+    if check_proc_cmdline_for_string(pid, 'opencode') then
+      local cwd = read_proc_cwd(pid)
+      if not cwd then
+        error("Couldn't determine CWD for PID: " .. pid, 0)
+      end
 
-    table.insert(
-      servers,
-      ---@class Server
-      ---@field pid number
-      ---@field port number
-      ---@field cwd string
-      {
-        pid = pid,
-        port = port,
-        cwd = cwd,
-      }
-    )
+      table.insert(
+        servers,
+        ---@class Server
+        ---@field pid number
+        ---@field port number
+        ---@field cwd string
+        {
+          pid = pid,
+          port = port,
+          cwd = cwd,
+        }
+      )
+    end
   end
   return servers
 end
