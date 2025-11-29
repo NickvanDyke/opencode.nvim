@@ -12,6 +12,30 @@ local sse_state = {
   job_id = nil,
 }
 
+---Generate a UUID v4 (cross-platform, no external dependencies)
+---@return string UUID in format xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx
+local function generate_uuid()
+  local bytes = vim.uv.random(16) -- (uv.random is cryptographically secure :help uv.random())
+
+  -- Convert to hex and format as UUID v4
+  local hex = {}
+  for i = 1, 16 do
+    hex[i] = string.format('%02x', string.byte(bytes, i) or 0)
+  end
+
+  hex[7] = '4' .. hex[7]:sub(2)
+  hex[9] = string.format('%x', (tonumber(hex[9]:sub(1, 1), 16) % 4) + 8) .. hex[9]:sub(2)
+
+  return string.format(
+    '%s%s%s%s-%s%s-%s%s-%s%s-%s%s%s%s%s%s',
+    hex[1], hex[2], hex[3], hex[4],
+    hex[5], hex[6],
+    hex[7], hex[8],
+    hex[9], hex[10],
+    hex[11], hex[12], hex[13], hex[14], hex[15], hex[16]
+  )
+end
+
 ---@param data table
 ---@return table
 local function handle_sse(data)
@@ -160,7 +184,7 @@ function M.send_message(prompt, session_id, port, provider_id, model_id, callbac
     parts = {
       {
         type = "text",
-        id = vim.fn.system("uuidgen"):gsub("\n", ""),
+        id = generate_uuid(),
         text = prompt,
       },
     },
