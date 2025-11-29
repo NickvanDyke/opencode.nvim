@@ -30,6 +30,10 @@ function Wezterm.new(opts)
   return self
 end
 
+local function focus_pane(pane_id)
+  vim.fn.system(string.format("wezterm cli activate-pane --pane-id %d", pane_id))
+end
+
 ---Check if `wezterm` is running in current terminal.
 function Wezterm.health()
   if vim.fn.executable("wezterm") ~= 1 then
@@ -106,6 +110,8 @@ function Wezterm:start()
 
     -- Execute and capture the pane ID
     local result = vim.fn.system(table.concat(cmd_parts, " "))
+    focus_pane(vim.env.WEZTERM_PANE)
+
     self.pane_id = result:match("^%d+")
   end
 end
@@ -127,7 +133,7 @@ function Wezterm:show()
     return
   end
 
-  vim.fn.system(string.format("wezterm cli activate-pane --pane-id %d", pane_id))
+  focus_pane(pane_id)
 end
 
 return Wezterm
