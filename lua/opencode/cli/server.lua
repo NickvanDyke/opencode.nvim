@@ -1,5 +1,10 @@
 local M = {}
 
+---@class Server
+---@field pid number
+---@field port number
+---@field cwd string
+
 ---Check if running on Windows
 ---@return boolean
 local function is_windows()
@@ -26,10 +31,55 @@ local function exec(command)
   return output
 end
 
----Find opencode servers running on Windows using PowerShell and curl - Both of
----which are installed on Windows 11 by default.
+local function retrieveOpencodeProcessesUnix()
+
+  -- On Unix, use lsof-based detection
+  if vim.fn.executable("lsof") == 0 then
+    -- lsof is a common utility to list open files and ports, but not always available by default.
+    error(
+      "`lsof` executable not found in `PATH` to auto-find `opencode` — please install it or set `vim.g.opencode_opts.port`",
+      0
+    )
+  end
+
+  -- Going straight to `lsof` relieves us of parsing `ps` and all the non-portable 'opencode'-containing processes it might return.
+  -- With these flags, we'll only get processes that are listening on TCP ports and have 'opencode' in their command name.
+  -- i.e. pretty much guaranteed to be just opencode server processes.
+  -- `-w` flag suppresses warnings about inaccessible filesystems (e.g. Docker FUSE).
+  local output = exec("lsof -w -iTCP -sTCP:LISTEN -P -n | grep opencode")
+  if output == "" then
+    error("No `opencode` processes", 0)
+  end
+
+  local processes = {}
+  for line in output:gmatch("[^\r\n]+") do
+    -- lsof output: COMMAND PID USER FD TYPE DEVICE SIZE/OFF NODE NAME
+    local parts = vim.split(line, "%s+")
+
+    local pid = tonumber(parts[2])
+    local port = tonumber(parts[9]:match(":(%d+)$")) -- Extract port from NAME field (which is e.g. "127.0.0.1:12345")
+    if not pid or not port then
+      error("Couldn't parse `opencode` PID and port from `lsof` entry: " .. line, 0)
+    end
+
+    table.insert(
+      processes,
+      ---@class Processes
+      ---@field pid number
+      ---@field port number
+      {
+        pid = pid,
+        port = port,
+      }
+    )
+  end
+
+  return processes
+end
+
+---Find opencode servers running on Windows using PowerShell
 ---@return Server[]
-local function find_servers_windows()
+local function retrieveOpencodeProcessesWin()
   local ps_script = [[
 Get-Process -Name '*opencode*' -ErrorAction SilentlyContinue |
 ForEach-Object {
@@ -69,31 +119,59 @@ ForEach-Object {
     error("No `opencode` processes found", 0)
   end
 
-  -- Query each port synchronously for working directory using curl
-  local servers = {}
-  for _, proc in ipairs(processes) do
-    -- Query the opencode API using curl
-    local curl_result = vim.system({
-      'curl',
-      '-s',
-      '--connect-timeout', '1',
-      'http://localhost:' .. proc.port .. '/path'
-    }):wait()
+  return processes
+end
 
-    if curl_result.code == 0 and curl_result.stdout and curl_result.stdout ~= "" then
-      local path_ok, path_data = pcall(vim.fn.json_decode, curl_result.stdout)
-      if path_ok and (path_data.directory or path_data.worktree) then
-        table.insert(servers, {
-          pid = proc.pid,
-          port = proc.port,
-          cwd = path_data.directory or path_data.worktree
-        })
-      end
+-- Find the working directories of running instances of opencode.
+---@param processes {pid: number, port: number}[]
+---@return Server table
+local function populateWorkingDirectories(processes)
+  local servers = {}
+
+  -- Determine access to needed executables
+  local use_curl = vim.fn.executable("curl") == 1
+  local use_lsof = not use_curl and not is_windows() and vim.fn.executable("lsof") == 1
+
+  if not use_curl and not use_lsof then
+    if is_windows() then
+      error("`curl` executable not found in `PATH` to query `opencode` working directories", 0)
+    else
+      error("`curl` or `lsof` executable not found in `PATH` to query `opencode` working directories", 0)
     end
   end
 
-  if #servers == 0 then
-    error("No `opencode` processes with valid working directories found", 0)
+  -- Query each port synchronously for working directory
+  for _, proc in ipairs(processes) do
+    local cwd = nil
+
+    if use_curl then
+      -- Prefer curl, as it is cross platform
+      local curl_result = vim.system({
+        'curl',
+        '-s',
+        '--connect-timeout', '1',
+        'http://localhost:' .. proc.port .. '/path'
+      }):wait()
+
+      if curl_result.code == 0 and curl_result.stdout and curl_result.stdout ~= "" then
+        local path_ok, path_data = pcall(vim.fn.json_decode, curl_result.stdout)
+        if path_ok and (path_data.directory or path_data.worktree) then
+          cwd = path_data.directory or path_data.worktree
+        end
+      end
+    elseif use_lsof then
+      -- Fall back to lsof on Unix systems if available
+      local lsof_output = exec("lsof -w -a -p " .. proc.pid .. " -d cwd")
+      cwd = lsof_output:match("%s+(/.*)$")
+    end
+
+    if cwd then
+      table.insert(servers, {
+        pid = proc.pid,
+        port = proc.port,
+        cwd = cwd
+      })
+    end
   end
 
   return servers
@@ -101,57 +179,20 @@ end
 
 ---@return Server[]
 local function find_servers()
-  -- On Windows, use PowerShell-based detection
+
+  local processes = {}
   if is_windows() then
-    return find_servers_windows()
+    processes = retrieveOpencodeProcessesWin()
+  else
+    processes = retrieveOpencodeProcessesUnix()
   end
 
-  -- On Unix, use lsof-based detection
-  if vim.fn.executable("lsof") == 0 then
-    -- lsof is a common utility to list open files and ports, but not always available by default.
-    error(
-      "`lsof` executable not found in `PATH` to auto-find `opencode` — please install it or set `vim.g.opencode_opts.port`",
-      0
-    )
-  end
-  -- Going straight to `lsof` relieves us of parsing `ps` and all the non-portable 'opencode'-containing processes it might return.
-  -- With these flags, we'll only get processes that are listening on TCP ports and have 'opencode' in their command name.
-  -- i.e. pretty much guaranteed to be just opencode server processes.
-  -- `-w` flag suppresses warnings about inaccessible filesystems (e.g. Docker FUSE).
-  local output = exec("lsof -w -iTCP -sTCP:LISTEN -P -n | grep opencode")
-  if output == "" then
-    error("No `opencode` processes", 0)
+  local servers = populateWorkingDirectories(processes)
+
+  if #servers == 0 then
+    error("No `opencode` processes with valid working directories found", 0)
   end
 
-  local servers = {}
-  for line in output:gmatch("[^\r\n]+") do
-    -- lsof output: COMMAND PID USER FD TYPE DEVICE SIZE/OFF NODE NAME
-    local parts = vim.split(line, "%s+")
-
-    local pid = tonumber(parts[2])
-    local port = tonumber(parts[9]:match(":(%d+)$")) -- Extract port from NAME field (which is e.g. "127.0.0.1:12345")
-    if not pid or not port then
-      error("Couldn't parse `opencode` PID and port from `lsof` entry: " .. line, 0)
-    end
-
-    local cwd = exec("lsof -w -a -p " .. pid .. " -d cwd"):match("%s+(/.*)$")
-    if not cwd then
-      error("Couldn't determine CWD for PID: " .. pid, 0)
-    end
-
-    table.insert(
-      servers,
-      ---@class Server
-      ---@field pid number
-      ---@field port number
-      ---@field cwd string
-      {
-        pid = pid,
-        port = port,
-        cwd = cwd,
-      }
-    )
-  end
   return servers
 end
 
