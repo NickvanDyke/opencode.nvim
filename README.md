@@ -162,6 +162,25 @@ listen_on unix:/tmp/kitty
 </details>
 
 <details>
+<summary><a href="https://wezterm.org/">wezterm</a></summary>
+
+```lua
+vim.g.opencode_opts = {
+  provider = {
+    enabled = "wezterm",
+    -- these are defaults set by wezterm
+    wezterm = {
+      direction = "bottom", -- left/right/top/bottom
+      top_level = false,
+      percent = 50,
+    }
+  }
+}
+```
+
+</details>
+
+<details>
 <summary><a href="https://github.com/tmux/tmux">tmux</a></summary>
 
 ```lua
