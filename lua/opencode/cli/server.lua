@@ -82,20 +82,19 @@ end
 local function populateWorkingDirectories(processes)
   local servers = {}
 
-  -- Determine access to needed executables
-  local use_curl = vim.fn.executable("curl") == 1
-  local use_lsof = not use_curl and not is_windows() and vim.fn.executable("lsof") == 1
-
-  if not use_curl and not use_lsof then
-    if is_windows() then
-      error("`curl` executable not found in `PATH` to query `opencode` working directories", 0)
-    else
-      error("`curl` or `lsof` executable not found in `PATH` to query `opencode` working directories", 0)
-    end
+  if vim.fn.executable("curl") == 0 then
+    error("`curl` executable not found in `PATH` to query `opencode` working directories", 0)
   end
 
   -- Query each port synchronously for working directory
   for _, proc in ipairs(processes) do
+    local curl_result = vim.system({
+      'curl',
+      '-s',
+      '--connect-timeout', '1',
+      'http://localhost:' .. proc.port .. '/path'
+    }):wait()
+
     local cwd = nil
 
     if use_curl then
@@ -116,10 +115,6 @@ local function populateWorkingDirectories(processes)
           cwd = path_data.directory or path_data.worktree
         end
       end
-    elseif use_lsof then
-      -- Fall back to lsof on Unix systems if available
-      local lsof_output = exec("lsof -w -a -p " .. proc.pid .. " -d cwd")
-      cwd = lsof_output:match("%s+(/.*)$")
     end
 
     if cwd then
