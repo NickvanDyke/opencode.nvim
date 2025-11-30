@@ -111,6 +111,10 @@ local defaults = {
       enabled = true,
       idle_delay_ms = 1000,
     },
+    session_diff = {
+      enabled = true, -- Show session review for session.diff events
+      open_in_tab = false, -- Open review in a new tab (and reuse the same tab for navigation)
+    },
   },
   provider = {
     cmd = "opencode",
