@@ -29,44 +29,55 @@ local function find_servers()
       0
     )
   end
-  -- Going straight to `lsof` relieves us of parsing `ps` and all the non-portable 'opencode'-containing processes it might return.
-  -- With these flags, we'll only get processes that are listening on TCP ports and have 'opencode' in their command name.
-  -- i.e. pretty much guaranteed to be just opencode server processes.
-  -- `-w` flag suppresses warnings about inaccessible filesystems (e.g. Docker FUSE).
-  local output = exec("lsof -w -iTCP -sTCP:LISTEN -P -n | grep opencode")
-  if output == "" then
+
+  -- Find PIDs by command line pattern (handles process names like 'bun', 'node', etc.)
+  local pgrep_output = exec("pgrep -f 'opencode run' 2>/dev/null || true")
+  if pgrep_output == "" then
     error("No `opencode` processes", 0)
   end
 
   local servers = {}
-  for line in output:gmatch("[^\r\n]+") do
-    -- lsof output: COMMAND PID USER FD TYPE DEVICE SIZE/OFF NODE NAME
-    local parts = vim.split(line, "%s+")
-
-    local pid = tonumber(parts[2])
-    local port = tonumber(parts[9]:match(":(%d+)$")) -- Extract port from NAME field (which is e.g. "127.0.0.1:12345")
-    if not pid or not port then
-      error("Couldn't parse `opencode` PID and port from `lsof` entry: " .. line, 0)
+  for pid_str in pgrep_output:gmatch("[^\r\n]+") do
+    local pid = tonumber(pid_str)
+    if pid then
+      -- `-w` suppresses warnings about inaccessible filesystems (e.g. Docker FUSE)
+      local lsof_output = exec("lsof -w -iTCP -sTCP:LISTEN -P -n -a -p " .. pid .. " 2>/dev/null || true")
+      
+      if lsof_output ~= "" then
+        for line in lsof_output:gmatch("[^\r\n]+") do
+          local parts = vim.split(line, "%s+")
+          
+          if parts[1] ~= "COMMAND" then -- Skip header
+            local port = parts[9] and parts[9]:match(":(%d+)$") -- Extract port from "127.0.0.1:12345"
+            if port then
+              port = tonumber(port)
+              
+              local cwd = exec("lsof -w -a -p " .. pid .. " -d cwd 2>/dev/null || true"):match("%s+(/.*)$")
+              if cwd then
+                table.insert(
+                  servers,
+                  ---@class Server
+                  ---@field pid number
+                  ---@field port number
+                  ---@field cwd string
+                  {
+                    pid = pid,
+                    port = port,
+                    cwd = cwd,
+                  }
+                )
+              end
+            end
+          end
+        end
+      end
     end
-
-    local cwd = exec("lsof -w -a -p " .. pid .. " -d cwd"):match("%s+(/.*)$")
-    if not cwd then
-      error("Couldn't determine CWD for PID: " .. pid, 0)
-    end
-
-    table.insert(
-      servers,
-      ---@class Server
-      ---@field pid number
-      ---@field port number
-      ---@field cwd string
-      {
-        pid = pid,
-        port = port,
-        cwd = cwd,
-      }
-    )
   end
+
+  if #servers == 0 then
+    error("No `opencode` processes with listening ports found", 0)
+  end
+
   return servers
 end
 
