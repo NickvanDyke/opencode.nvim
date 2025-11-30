@@ -38,7 +38,7 @@ local function find_servers()
   end
 
   -- Find PIDs by command line pattern (handles process names like 'bun', 'node', etc.)
-  local pgrep_output = exec("pgrep -f 'opencode run' 2>/dev/null || true")
+  local pgrep_output = exec("pgrep -f 'opencode' 2>/dev/null || true")
   if pgrep_output == "" then
     error("No `opencode` processes", 0)
   end
