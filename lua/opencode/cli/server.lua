@@ -30,6 +30,13 @@ local function find_servers()
     )
   end
 
+  if vim.fn.executable("pgrep") == 0 then
+    error(
+      "`pgrep` executable not found in `PATH` to auto-find `opencode` — please install it or set `vim.g.opencode_opts.port`",
+      0
+    )
+  end
+
   -- Find PIDs by command line pattern (handles process names like 'bun', 'node', etc.)
   local pgrep_output = exec("pgrep -f 'opencode run' 2>/dev/null || true")
   if pgrep_output == "" then
@@ -40,20 +47,22 @@ local function find_servers()
   for pid_str in pgrep_output:gmatch("[^\r\n]+") do
     local pid = tonumber(pid_str)
     if pid then
-      -- `-w` suppresses warnings about inaccessible filesystems (e.g. Docker FUSE)
-      local lsof_output = exec("lsof -w -iTCP -sTCP:LISTEN -P -n -a -p " .. pid .. " 2>/dev/null || true")
+      -- Get CWD once per PID
+      local cwd = exec("lsof -w -a -p " .. pid .. " -d cwd 2>/dev/null || true"):match("%s+(/.*)$")
       
-      if lsof_output ~= "" then
-        for line in lsof_output:gmatch("[^\r\n]+") do
-          local parts = vim.split(line, "%s+")
-          
-          if parts[1] ~= "COMMAND" then -- Skip header
-            local port = parts[9] and parts[9]:match(":(%d+)$") -- Extract port from "127.0.0.1:12345"
-            if port then
-              port = tonumber(port)
-              
-              local cwd = exec("lsof -w -a -p " .. pid .. " -d cwd 2>/dev/null || true"):match("%s+(/.*)$")
-              if cwd then
+      if cwd then
+        -- `-w` suppresses filesystem warnings (e.g. Docker FUSE)
+        local lsof_output = exec("lsof -w -iTCP -sTCP:LISTEN -P -n -a -p " .. pid .. " 2>/dev/null || true")
+        
+        if lsof_output ~= "" then
+          for line in lsof_output:gmatch("[^\r\n]+") do
+            local parts = vim.split(line, "%s+")
+            
+            if parts[1] ~= "COMMAND" then -- Skip header
+              local port = parts[9] and parts[9]:match(":(%d+)$") -- e.g. "127.0.0.1:12345" -> "12345"
+              if port then
+                port = tonumber(port)
+                
                 table.insert(
                   servers,
                   ---@class Server
