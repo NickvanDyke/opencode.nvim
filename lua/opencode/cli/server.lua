@@ -217,9 +217,14 @@ local function find_server_inside_nvim_cwd()
   local found_server
   local nvim_cwd = vim.fn.getcwd()
   for _, server in ipairs(find_servers()) do
-    -- Normalize paths for comparison (handle forward/backward slashes)
-    local normalized_server_cwd = server.cwd:gsub("/", "\\")
-    local normalized_nvim_cwd = nvim_cwd:gsub("/", "\\")
+    local normalized_server_cwd = server.cwd
+    local normalized_nvim_cwd = nvim_cwd
+
+    if is_windows() then
+      -- On Windows, normalize to backslashes for consistent comparison
+      normalized_server_cwd = server.cwd:gsub("/", "\\")
+      normalized_nvim_cwd = nvim_cwd:gsub("/", "\\")
+    end
 
     -- CWDs match exactly, or opencode's CWD is under neovim's CWD.
     if normalized_server_cwd:find(normalized_nvim_cwd, 1, true) == 1 then
@@ -243,8 +248,11 @@ end
 local function poll_for_port(fn, callback)
   local retries = 0
   local timer = vim.uv.new_timer()
+<<<<<<< HEAD
 
   -- Unlikely, but message an error on a nil timer
+=======
+>>>>>>> 3b6fed3 (Only normalize paths to backslashes on windows)
   if not timer then
     callback(false, "Failed to create timer for polling `opencode` port")
     return
