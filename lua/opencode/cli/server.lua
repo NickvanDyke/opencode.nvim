@@ -31,6 +31,62 @@ local function exec(command)
   return output
 end
 
+local function retrieveOpencodeProcessesUnix()
+  -- On Unix, use lsof to find cwd of processes
+  if vim.fn.executable("lsof") == 0 then
+    -- lsof is a common utility to list open files and ports, but not always available by default.
+    error(
+      "`lsof` executable not found in `PATH` to auto-find `opencode` — please install it or set `vim.g.opencode_opts.port`",
+      0
+    )
+  end
+
+  -- Find PIDs by command line pattern (handles process names like 'bun', 'node', etc.)
+  local pgrep_output = exec("pgrep -f 'opencode' 2>/dev/null || true")
+  if pgrep_output == "" then
+    error("No `opencode` processes", 0)
+  end
+
+  local servers = {}
+  for pid_str in pgrep_output:gmatch("[^\r\n]+") do
+    local pid = tonumber(pid_str)
+    if pid then
+      -- Get CWD once per PID
+      local cwd = exec("lsof -w -a -p " .. pid .. " -d cwd 2>/dev/null || true"):match("%s+(/.*)$")
+
+      if cwd then
+        -- `-w` suppresses filesystem warnings (e.g. Docker FUSE)
+        local lsof_output = exec("lsof -w -iTCP -sTCP:LISTEN -P -n -a -p " .. pid .. " 2>/dev/null || true")
+
+        if lsof_output ~= "" then
+          for line in lsof_output:gmatch("[^\r\n]+") do
+            local parts = vim.split(line, "%s+")
+
+            if parts[1] ~= "COMMAND" then -- Skip header
+              local port = parts[9] and parts[9]:match(":(%d+)$") -- e.g. "127.0.0.1:12345" -> "12345"
+              if port then
+                port = tonumber(port)
+
+                table.insert(servers, {
+                  pid = pid,
+                  port = port,
+                  cwd = cwd,
+                })
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+
+  if #servers == 0 then
+    error("No `opencode` processes with valid working directories found", 0)
+  end
+
+  return servers
+end
+
 ---Find opencode servers running on Windows using PowerShell
 ---@return Server[]
 local function retrieveOpencodeProcessesWin()
@@ -88,32 +144,21 @@ local function populateWorkingDirectories(processes)
 
   -- Query each port synchronously for working directory
   for _, proc in ipairs(processes) do
-    local curl_result = vim.system({
-      'curl',
-      '-s',
-      '--connect-timeout', '1',
-      'http://localhost:' .. proc.port .. '/path'
-    }):wait()
+    local curl_result = vim
+      .system({
+        "curl",
+        "-s",
+        "--connect-timeout",
+        "1",
+        "http://localhost:" .. proc.port .. "/path",
+      })
+      :wait()
 
     local cwd = nil
-
-    if use_curl then
-      -- Prefer curl, as it is cross platform
-      local curl_result = vim
-        .system({
-          "curl",
-          "-s",
-          "--connect-timeout",
-          "1",
-          "http://localhost:" .. proc.port .. "/path",
-        })
-        :wait()
-
-      if curl_result.code == 0 and curl_result.stdout and curl_result.stdout ~= "" then
-        local path_ok, path_data = pcall(vim.fn.json_decode, curl_result.stdout)
-        if path_ok and (path_data.directory or path_data.worktree) then
-          cwd = path_data.directory or path_data.worktree
-        end
+    if curl_result.code == 0 and curl_result.stdout and curl_result.stdout ~= "" then
+      local path_ok, path_data = pcall(vim.fn.json_decode, curl_result.stdout)
+      if path_ok and (path_data.directory or path_data.worktree) then
+        cwd = path_data.directory or path_data.worktree
       end
     end
 
@@ -123,53 +168,6 @@ local function populateWorkingDirectories(processes)
         port = proc.port,
         cwd = cwd,
       })
-    end
-  end
-
-  if #servers == 0 then
-    error("No `opencode` processes with valid working directories found", 0)
-  end
-
-  return servers
-end
-
-local function retrieveOpencodeProcessesUnix()
-  -- Find PIDs by command line pattern (handles process names like 'bun', 'node', etc.)
-  local pgrep_output = exec("pgrep -f 'opencode' 2>/dev/null || true")
-  if pgrep_output == "" then
-    error("No `opencode` processes", 0)
-  end
-
-  local servers = {}
-  for pid_str in pgrep_output:gmatch("[^\r\n]+") do
-    local pid = tonumber(pid_str)
-    if pid then
-      -- Get CWD once per PID
-      local cwd = exec("lsof -w -a -p " .. pid .. " -d cwd 2>/dev/null || true"):match("%s+(/.*)$")
-
-      if cwd then
-        -- `-w` suppresses filesystem warnings (e.g. Docker FUSE)
-        local lsof_output = exec("lsof -w -iTCP -sTCP:LISTEN -P -n -a -p " .. pid .. " 2>/dev/null || true")
-
-        if lsof_output ~= "" then
-          for line in lsof_output:gmatch("[^\r\n]+") do
-            local parts = vim.split(line, "%s+")
-
-            if parts[1] ~= "COMMAND" then -- Skip header
-              local port = parts[9] and parts[9]:match(":(%d+)$") -- e.g. "127.0.0.1:12345" -> "12345"
-              if port then
-                port = tonumber(port)
-
-                table.insert(servers, {
-                  pid = pid,
-                  port = port,
-                  cwd = cwd,
-                })
-              end
-            end
-          end
-        end
-      end
     end
   end
 
