@@ -20,19 +20,33 @@ local function generate_uuid()
   -- Convert to hex and format as UUID v4
   local hex = {}
   for i = 1, 16 do
-    hex[i] = string.format('%02x', string.byte(bytes, i) or 0)
+    if(bytes ~= nil) then
+      local byte_val = string.byte(bytes, i) or 0
+      hex[i] = string.format("%02x", byte_val)
+    end
   end
 
-  hex[7] = '4' .. hex[7]:sub(2)
-  hex[9] = string.format('%x', (tonumber(hex[9]:sub(1, 1), 16) % 4) + 8) .. hex[9]:sub(2)
+  hex[7] = "4" .. hex[7]:sub(2)
+  hex[9] = string.format("%x", (tonumber(hex[9]:sub(1, 1), 16) % 4) + 8) .. hex[9]:sub(2)
 
   return string.format(
-    '%s%s%s%s-%s%s-%s%s-%s%s-%s%s%s%s%s%s',
-    hex[1], hex[2], hex[3], hex[4],
-    hex[5], hex[6],
-    hex[7], hex[8],
-    hex[9], hex[10],
-    hex[11], hex[12], hex[13], hex[14], hex[15], hex[16]
+    "%s%s%s%s-%s%s-%s%s-%s%s-%s%s%s%s%s%s",
+    hex[1],
+    hex[2],
+    hex[3],
+    hex[4],
+    hex[5],
+    hex[6],
+    hex[7],
+    hex[8],
+    hex[9],
+    hex[10],
+    hex[11],
+    hex[12],
+    hex[13],
+    hex[14],
+    hex[15],
+    hex[16]
   )
 end
 
