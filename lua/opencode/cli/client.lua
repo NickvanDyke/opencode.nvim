@@ -20,7 +20,7 @@ local function generate_uuid()
   -- Convert to hex and format as UUID v4
   local hex = {}
   for i = 1, 16 do
-    if(bytes ~= nil) then
+    if bytes ~= nil then
       local byte_val = string.byte(bytes, i) or 0
       hex[i] = string.format("%02x", byte_val)
     end
