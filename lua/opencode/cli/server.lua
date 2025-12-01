@@ -49,20 +49,20 @@ local function find_servers()
     if pid then
       -- Get CWD once per PID
       local cwd = exec("lsof -w -a -p " .. pid .. " -d cwd 2>/dev/null || true"):match("%s+(/.*)$")
-      
+
       if cwd then
         -- `-w` suppresses filesystem warnings (e.g. Docker FUSE)
         local lsof_output = exec("lsof -w -iTCP -sTCP:LISTEN -P -n -a -p " .. pid .. " 2>/dev/null || true")
-        
+
         if lsof_output ~= "" then
           for line in lsof_output:gmatch("[^\r\n]+") do
             local parts = vim.split(line, "%s+")
-            
+
             if parts[1] ~= "COMMAND" then -- Skip header
               local port = parts[9] and parts[9]:match(":(%d+)$") -- e.g. "127.0.0.1:12345" -> "12345"
               if port then
                 port = tonumber(port)
-                
+
                 table.insert(
                   servers,
                   ---@class Server
