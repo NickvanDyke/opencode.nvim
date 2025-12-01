@@ -60,7 +60,6 @@ function Wezterm:get_pane_id()
     error(ok)
   end
 
-  -- Find existing `opencode` pane by searching for the command in the title
   local base_cmd = self.cmd:match("^%S+") or self.cmd
   local result = vim.fn.system(
     string.format("wezterm cli list --format json 2>&1 | jq -r '.[] | select(.title == \"%s\") | .pane_id'", base_cmd)
@@ -88,7 +87,6 @@ end
 function Wezterm:start()
   local pane_id = self:get_pane_id()
   if not pane_id then
-    -- Build the split-pane command
     local cmd_parts = { "wezterm", "cli", "split-pane" }
 
     if self.opts.direction then
@@ -104,11 +102,9 @@ function Wezterm:start()
       table.insert(cmd_parts, "--top-level")
     end
 
-    -- Add the command to execute
     table.insert(cmd_parts, "--")
     table.insert(cmd_parts, self.cmd)
 
-    -- Execute and capture the pane ID
     local result = vim.fn.system(table.concat(cmd_parts, " "))
     focus_pane(vim.env.WEZTERM_PANE)
 
@@ -126,14 +122,17 @@ function Wezterm:stop()
 end
 
 ---Focus the `opencode` pane
-function Wezterm:show()
-  local pane_id = self:get_pane_id()
-  if not pane_id then
-    vim.notify("No opencode instance is currently running", vim.log.levels.WARN, { title = "opencode" })
-    return
-  end
-
-  focus_pane(pane_id)
-end
+--- INFO: This, at the moment, introduces unexpected focusing behaviors with sending `command`s
+--- therefore its disabled.
+function Wezterm:show() end
+-- function Wezterm:show()
+--   local pane_id = self:get_pane_id()
+--   if not pane_id then
+--     vim.notify("No opencode instance is currently running", vim.log.levels.WARN, { title = "opencode" })
+--     return
+--   end
+--
+--   focus_pane(pane_id)
+-- end
 
 return Wezterm
