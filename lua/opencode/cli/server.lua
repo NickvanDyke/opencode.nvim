@@ -248,11 +248,7 @@ end
 local function poll_for_port(fn, callback)
   local retries = 0
   local timer = vim.uv.new_timer()
-<<<<<<< HEAD
 
-  -- Unlikely, but message an error on a nil timer
-=======
->>>>>>> 3b6fed3 (Only normalize paths to backslashes on windows)
   if not timer then
     callback(false, "Failed to create timer for polling `opencode` port")
     return
