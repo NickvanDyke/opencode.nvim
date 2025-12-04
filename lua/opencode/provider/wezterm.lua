@@ -52,7 +52,10 @@ function Wezterm.health()
   return true
 end
 
----Get the `wezterm` pane ID where `opencode` is running.
+---Retrieve the `wezterm` pane ID associated with the running `opencode` instance.
+---This establishes a direct link between the spawned `opencode` pane and its ID.
+---If the `opencode` pane is closed and a new one is created manually, it cannot
+---still be tracked by this ID.
 ---@return string|nil pane_id
 function Wezterm:get_pane_id()
   local ok = self.health()
@@ -60,17 +63,33 @@ function Wezterm:get_pane_id()
     error(ok)
   end
 
-  local base_cmd = self.cmd:match("^%S+") or self.cmd
-  local result = vim.fn.system(
-    string.format("wezterm cli list --format json 2>&1 | jq -r '.[] | select(.title == \"%s\") | .pane_id'", base_cmd)
-  )
-  if result and result ~= "" and not result:match("error") then
-    self.pane_id = result:match("^%d+")
-  else
-    self.pane_id = nil
+  if self.pane_id == nil then
+    return nil
   end
 
-  return self.pane_id
+  local result = vim.fn.system("wezterm cli list --format json 2>&1")
+
+  if result == nil or result == "" or result:match("error") then
+    self.pane_id = nil
+    return nil
+  end
+
+  local success, panes = pcall(vim.json.decode, result)
+  if not success or type(panes) ~= "table" then
+    self.pane_id = nil
+    return nil
+  end
+
+  -- Search for the pane in the list
+  for _, pane in ipairs(panes) do
+    if tostring(pane.pane_id) == tostring(self.pane_id) then
+      return self.pane_id
+    end
+  end
+
+  -- Pane was not found in the list
+  self.pane_id = nil
+  return nil
 end
 
 ---Create or kill the `opencode` pane.
