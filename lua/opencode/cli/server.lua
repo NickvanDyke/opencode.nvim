@@ -31,7 +31,7 @@ local function exec(command)
   return output
 end
 
----Using oft installed system utiltiies, find running opencode PIDs and ports on Unix-like systems
+---Using oft installed system utilities, find running opencode PIDs and ports on Unix-like systems
 ---@return {pid: number, port: number}[]
 local function retrieveOpencodeProcessesUnix()
   if vim.fn.executable("pgrep") == 0 then
