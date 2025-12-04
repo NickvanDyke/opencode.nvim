@@ -10,6 +10,8 @@ local M = {}
 ---@field reload? boolean
 ---
 ---@field permissions? opencode.events.permissions.Opts
+---
+---@field session_diff? opencode.events.session_diff.Opts
 
 ---Subscribe to `opencode`'s Server-Sent Events (SSE) and execute `OpencodeEvent:<event.type>` autocmds.
 ---
