@@ -120,6 +120,7 @@ local function populate_cwd(process)
   assert(vim.fn.executable("curl") == 1, "`curl` executable not found")
 
   -- Query each port synchronously for working directory
+  -- TODO: Migrate `client.lua` to use `vim.system` and move this there.
   local curl_result = vim
     .system({
       "curl",
