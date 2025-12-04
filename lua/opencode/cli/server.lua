@@ -32,6 +32,13 @@ local function exec(command)
 end
 
 local function retrieveOpencodeProcessesUnix()
+  if vim.fn.executable("pgrep") == 0 then
+    error(
+      "`pgrep` executable not found in `PATH` to auto-find `opencode` — please install it or set `vim.g.opencode_opts.port`",
+      0
+    )
+  end
+
   -- On Unix, use lsof to find cwd of processes
   if vim.fn.executable("lsof") == 0 then
     -- lsof is a common utility to list open files and ports, but not always available by default.
