@@ -171,10 +171,7 @@ M.provider = (function()
   local provider
   local provider_or_opts = M.opts.provider
 
-  if
-    provider_or_opts
-    and (provider_or_opts.toggle or provider_or_opts.start or provider_or_opts.stop or provider_or_opts.show)
-  then
+  if provider_or_opts and (provider_or_opts.toggle or provider_or_opts.start or provider_or_opts.stop) then
     -- An implementation was passed.
     -- Be careful: `provider.enabled` may still exist from merging with defaults.
     ---@cast provider_or_opts opencode.Provider

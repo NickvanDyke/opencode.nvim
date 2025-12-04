@@ -1,5 +1,4 @@
 ---Provide `opencode` in a [`tmux`](https://github.com/tmux/tmux) pane in the current window.
----Requires Unix system.
 ---@class opencode.provider.Tmux : opencode.Provider
 ---
 ---@field opts opencode.provider.tmux.Opts
@@ -22,12 +21,8 @@ function Tmux.new(opts)
   return self
 end
 
----Check if `tmux` is running in current terminal.
+---Check if we're running inside a `tmux` session.
 function Tmux.health()
-  if not vim.fn.has("unix") then
-    return "Not running inside a Unix system."
-  end
-
   if vim.fn.executable("tmux") ~= 1 then
     return "`tmux` executable not found in `$PATH`.", {
       "Install `tmux` and ensure it's in your `$PATH`.",
@@ -43,12 +38,13 @@ function Tmux.health()
   return true
 end
 
----Get the `tmux` pane ID where `opencode` is running.
+---Get the `tmux` pane ID where we started `opencode`, if it still exists.
+---Ideally we'd find existing panes by title or command, but `tmux` doesn't make that straightforward.
 ---@return string|nil pane_id
 function Tmux:get_pane_id()
   local ok = self.health()
   if ok ~= true then
-    error(ok)
+    error(ok, 0)
   end
 
   if self.pane_id then
@@ -56,16 +52,6 @@ function Tmux:get_pane_id()
     if vim.fn.system("tmux list-panes -t " .. self.pane_id):match("can't find pane") then
       self.pane_id = nil
     end
-  else
-    -- Find existing `opencode` pane
-    self.pane_id = vim.fn
-      .system(
-        string.format(
-          "tmux list-panes -F '#{pane_id} #{pane_current_command}' | grep '%s' | awk '{print $1}'",
-          self.cmd
-        )
-      )
-      :match("^%S+")
   end
 
   return self.pane_id
@@ -86,8 +72,8 @@ function Tmux:start()
   local pane_id = self:get_pane_id()
   if not pane_id then
     -- Create new pane
-    local tmux_cmd = string.format("tmux split-window -d -P -F '#{pane_id}' %s '%s'", self.opts.options, self.cmd)
-    self.pane_id = vim.fn.system(tmux_cmd)
+    self.pane_id =
+      vim.fn.system(string.format("tmux split-window -d -P -F '#{pane_id}' %s '%s'", self.opts.options, self.cmd))
   end
 end
 
@@ -99,8 +85,5 @@ function Tmux:stop()
     self.pane_id = nil
   end
 end
-
----No-op for `tmux` - too many different implementations that may conflict with user's preferences.
-function Tmux:show() end
 
 return Tmux

@@ -159,13 +159,6 @@ function M.select(opts)
           highlights = { { "Stop opencode", "Comment" } },
           preview = { text = "" },
         })
-        table.insert(items, {
-          __type = "provider",
-          name = "show",
-          text = "Show opencode",
-          highlights = { { "Show opencode", "Comment" } },
-          preview = { text = "" },
-        })
       end
 
       for i, item in ipairs(items) do
@@ -224,8 +217,6 @@ function M.select(opts)
             require("opencode").toggle()
           elseif choice.name == "start" then
             require("opencode").start()
-          elseif choice.name == "show" then
-            require("opencode").show()
           elseif choice.name == "stop" then
             require("opencode").stop()
           end

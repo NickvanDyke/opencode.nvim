@@ -35,29 +35,27 @@ function Snacks.health()
   return true
 end
 
+function Snacks:get()
+  ---@type snacks.terminal.Opts
+  local opts = vim.tbl_deep_extend("force", self.opts, { create = false })
+  local win = require("snacks.terminal").get(self.cmd, opts)
+  return win
+end
+
 function Snacks:toggle()
   require("snacks.terminal").toggle(self.cmd, self.opts)
 end
 
 function Snacks:start()
-  require("snacks.terminal").open(self.cmd, self.opts)
-end
-
-function Snacks:stop()
-  ---@type snacks.terminal.Opts
-  local opts = vim.tbl_deep_extend("force", self.opts, { create = false })
-  local win = require("snacks.terminal").get(self.cmd, opts)
-  if win then
-    win:close()
+  if not self:get() then
+    require("snacks.terminal").open(self.cmd, self.opts)
   end
 end
 
-function Snacks:show()
-  ---@type snacks.terminal.Opts
-  local opts = vim.tbl_deep_extend("force", self.opts, { create = false })
-  local win = require("snacks.terminal").get(self.cmd, opts)
+function Snacks:stop()
+  local win = self:get()
   if win then
-    win:show()
+    win:close()
   end
 end
 

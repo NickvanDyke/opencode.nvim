@@ -213,9 +213,6 @@ vim.g.opencode_opts = {
     stop = function(self)
       -- ...
     end,
-    show = function(self)
-      -- ...
-    end
   }
 }
 ```

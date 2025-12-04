@@ -26,11 +26,6 @@ function M.prompt(prompt, opts)
   require("opencode.cli.server")
     .get_port()
     :next(function(port)
-      -- Swallow errors - more of a preference than a requirement here
-      pcall(require("opencode.provider").show)
-      return port
-    end)
-    :next(function(port)
       if opts.clear then
         return require("opencode.promise").new(function(resolve)
           require("opencode.cli.client").tui_execute_command("prompt.clear", port, function()

@@ -45,6 +45,11 @@ end
 ---@param args string[] Arguments to pass to kitty @
 ---@return string|nil output, number|nil code
 function Kitty:kitty_exec(args)
+  local ok, err = self:health()
+  if ok ~= true then
+    error(err, 0)
+  end
+
   local cmd = { "kitty", "@" }
 
   -- Add password if configured
@@ -65,101 +70,40 @@ function Kitty:kitty_exec(args)
   return output, code
 end
 
----Get the `kitty` window ID where `opencode` is running.
+---Get the `kitty` window ID where we started `opencode`, if it still exists.
 ---@return number|nil window_id
 function Kitty:get_window_id()
-  -- Return cached window_id if it still exists
   if self.window_id then
+    -- Confirm it still exists
     local _, code = self:kitty_exec({ "ls", "--match", "id:" .. self.window_id })
-    if code == 0 then
-      return self.window_id -- Window still exists, return the cached ID
+    if code ~= 0 then
+      -- Window no longer exists
+      self.window_id = nil
     end
-    self.window_id = nil -- Window no longer exists
   end
 
-  -- Get all kitty windows and parse JSON
-  local output, code = self:kitty_exec({ "ls" })
-  if code ~= 0 or not output then
-    return nil
-  end
-
-  local ok, kitty_info = pcall(vim.json.decode, output)
-  if not ok or not kitty_info then
-    return nil
-  end
-
-  -- Extract base command to search for (e.g., "opencode" from "opencode --some-flag")
-  local base_cmd = self.cmd:match("^%S+")
-
-  local location = self.opts.location
-  local search_focused_os_window_only = location ~= "os-window"
-  local search_focused_tab_only = location ~= "tab" and search_focused_os_window_only
-
-  -- Search for the window running opencode
-  for _, client in ipairs(kitty_info) do
-    -- Skip non-relevant clients when searching for the process in the same OS window
-    if search_focused_os_window_only and not client.is_focused then
-      goto continue_client
-    end
-
-    for _, tab in ipairs(client.tabs or {}) do
-      -- Skip non-relevant tabs when searching for the process in the same tab
-      if search_focused_tab_only and not tab.is_focused then
-        goto continue_tab
-      end
-
-      for _, window in ipairs(tab.windows or {}) do
-        for _, process in ipairs(window.foreground_processes or {}) do
-          for _, cmd_part in ipairs(process.cmdline or {}) do
-            if cmd_part:match(base_cmd) then
-              self.window_id = window.id
-              return window.id
-            end
-          end
-        end
-      end
-
-      ::continue_tab::
-    end
-
-    ::continue_client::
-  end
-
-  return nil
+  return self.window_id
 end
 
 ---Toggle `opencode` in window.
 function Kitty:toggle()
-  local ok, err = self:health()
-  if ok ~= true then
-    error(err, 0)
-  end
-
   local window_id = self:get_window_id()
   if not window_id then
-    -- Create new window
     self:start()
   else
-    -- Close existing window
     self:stop()
   end
 end
 
 ---Start `opencode` in window.
 function Kitty:start()
-  local ok, err = self:health()
-  if ok ~= true then
-    error(err, 0)
-  end
-
   local window_id = self:get_window_id()
   if window_id then
-    vim.notify("An opencode instance is already running", vim.log.levels.INFO, { title = "opencode" })
     return
   end
 
   local location = self.opts.location
-  local launch_cmd = { "launch", "--cwd=current", "--hold" }
+  local launch_cmd = { "launch", "--cwd=current", "--hold", "--dont-take-focus" }
 
   -- Input validation for `location` option
   local VALID_LOCATIONS = {
@@ -206,17 +150,6 @@ function Kitty:stop()
       self.window_id = nil
     end
   end
-end
-
----Show `opencode` window.
-function Kitty:show()
-  local window_id = self:get_window_id()
-  if not window_id then
-    vim.notify("No opencode instance is currently running", vim.log.levels.WARN, { title = "opencode" })
-    return
-  end
-
-  self:kitty_exec({ "focus-window", "--match", "id:" .. window_id })
 end
 
 return Kitty

@@ -1,6 +1,8 @@
 ---@module 'snacks.terminal'
 
 ---Provide an integrated `opencode`.
+---Providers should ignore manually-started `opencode` instances,
+---operating only on those they start themselves.
 ---@class opencode.Provider
 ---
 ---The name of the provider.
@@ -16,17 +18,12 @@
 ---Start `opencode`.
 ---Called when attempting to interact with `opencode` but none was found.
 ---`opencode.nvim` then polls for a couple seconds waiting for one to appear.
+---Should not steal focus by default, if possible.
 ---@field start? fun(self: opencode.Provider)
 ---
----Stop `opencode`.
+---Stop the previously started `opencode`.
 ---Called when Neovim is exiting.
 ---@field stop? fun(self: opencode.Provider)
----
----Show `opencode`.
----Called when a prompt or command is sent to `opencode`.
----Should no-op if `opencode` isn't already running via this provider,
----so as not to interfere with externally managing `opencode`.
----@field show? fun(self: opencode.Provider)
 ---
 ---Health check for the provider.
 ---Should return `true` if the provider is available,
@@ -107,16 +104,6 @@ function M.stop()
     provider:stop()
   else
     error("`provider.stop` unavailable — run `:checkhealth opencode` for details", 0)
-  end
-end
-
----Show `opencode` via the configured provider.
-function M.show()
-  local provider = require("opencode.config").provider
-  if provider and provider.show then
-    provider:show()
-  else
-    error("`provider.show` unavailable — run `:checkhealth opencode` for details", 0)
   end
 end
 

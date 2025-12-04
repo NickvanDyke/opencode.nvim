@@ -140,18 +140,4 @@ function Wezterm:stop()
   end
 end
 
----Focus the `opencode` pane
---- INFO: This, at the moment, introduces unexpected focusing behaviors with sending `command`s
---- therefore its disabled.
-function Wezterm:show() end
--- function Wezterm:show()
---   local pane_id = self:get_pane_id()
---   if not pane_id then
---     vim.notify("No opencode instance is currently running", vim.log.levels.WARN, { title = "opencode" })
---     return
---   end
---
---   focus_pane(pane_id)
--- end
-
 return Wezterm
