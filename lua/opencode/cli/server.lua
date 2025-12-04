@@ -1,11 +1,17 @@
 local M = {}
 
----@class Server
----@field pid number
----@field port number
+---An `opencode` server process.
+---@class opencode.cli.server.Server : opencode.cli.server.Process
+---
+---Populated by calling the server's `/path` endpoint at `port`.
 ---@field cwd string
 
----Check if running on Windows
+---An `opencode` process.
+---Retrieval is platform-dependent.
+---@class opencode.cli.server.Process
+---@field pid number
+---@field port number
+
 ---@return boolean
 local function is_windows()
   return vim.fn.has("win32") == 1
@@ -16,11 +22,6 @@ end
 local function exec(command)
   -- TODO: Use vim.fn.jobstart for async, and so I can capture stderr (to throw error instead of it writing to the buffer).
   -- (or even the newer `vim.system`? Could update client.lua too? Or maybe not because SSE is long-running.)
-  local executable = vim.split(command, " ")[1]
-  if vim.fn.executable(executable) == 0 then
-    error("`" .. executable .. "` command is not available", 0)
-  end
-
   local handle = io.popen(command)
   if not handle then
     error("Couldn't execute command: " .. command, 0)
@@ -31,28 +32,15 @@ local function exec(command)
   return output
 end
 
----Using oft installed system utilities, find running opencode PIDs and ports on Unix-like systems
----@return {pid: number, port: number}[]
-local function retrieveOpencodeProcessesUnix()
-  if vim.fn.executable("pgrep") == 0 then
-    error(
-      "`pgrep` executable not found in `PATH` to auto-find `opencode` — please install it or set `vim.g.opencode_opts.port`",
-      0
-    )
-  end
-
-  if vim.fn.executable("lsof") == 0 then
-    -- lsof is a common utility to list open files and ports, but not always available by default.
-    error(
-      "`lsof` executable not found in `PATH` to auto-find `opencode` — please install it or set `vim.g.opencode_opts.port`",
-      0
-    )
-  end
+---@return opencode.cli.server.Process[]
+local function get_processes_unix()
+  assert(vim.fn.executable("pgrep") == 1, "`pgrep` executable not found")
+  assert(vim.fn.executable("lsof") == 1, "`lsof` executable not found")
 
   -- Find PIDs by command line pattern (handles process names like 'bun', 'node', etc.)
   local pgrep_output = exec("pgrep -f 'opencode' 2>/dev/null || true")
   if pgrep_output == "" then
-    error("No `opencode` processes", 0)
+    return {}
   end
 
   local processes = {}
@@ -81,16 +69,11 @@ local function retrieveOpencodeProcessesUnix()
     end
   end
 
-  if #processes == 0 then
-    error("No `opencode` processes found", 0)
-  end
-
   return processes
 end
 
----Find running opencode PIDs and ports on Windows using PowerShell
----@return {pid: number, port: number}[]
-local function retrieveOpencodeProcessesWin()
+---@return opencode.cli.server.Process[]
+local function get_processes_windows()
   local ps_script = [[
 Get-Process -Name '*opencode*' -ErrorAction SilentlyContinue |
 ForEach-Object {
@@ -112,7 +95,7 @@ ForEach-Object {
   end
 
   if not ps_result.stdout or ps_result.stdout == "" then
-    error("No `opencode` processes found", 0)
+    return {}
   end
 
   -- The Powershell script should return the response as JSON to ease parsing.
@@ -126,72 +109,65 @@ ForEach-Object {
     processes = { processes }
   end
 
+  return processes
+end
+
+---Populate the working directory of an `opencode` process by querying its `/path` endpoint at `port`.
+---Returns `nil` if the working directory can't be determined.
+---@param process opencode.cli.server.Process
+---@return opencode.cli.server.Server
+local function populate_cwd(process)
+  assert(vim.fn.executable("curl") == 1, "`curl` executable not found")
+
+  -- Query each port synchronously for working directory
+  local curl_result = vim
+    .system({
+      "curl",
+      "-s",
+      "--connect-timeout",
+      "1",
+      "http://localhost:" .. process.port .. "/path",
+    })
+    :wait()
+
+  if curl_result.code == 0 and curl_result.stdout and curl_result.stdout ~= "" then
+    local path_ok, path_data = pcall(vim.fn.json_decode, curl_result.stdout)
+    if path_ok and (path_data.directory or path_data.worktree) then
+      local cwd = path_data.directory or path_data.worktree
+      if cwd then
+        ---@type opencode.cli.server.Server
+        return {
+          pid = process.pid,
+          port = process.port,
+          cwd = cwd,
+        }
+      end
+    end
+  end
+
+  error("Failed to get working directory for `opencode` process: " .. process.pid, 0)
+end
+
+---@return opencode.cli.server.Server[]
+local function find_servers()
+  local processes
+  if is_windows() then
+    processes = get_processes_windows()
+  else
+    processes = get_processes_unix()
+  end
   if #processes == 0 then
     error("No `opencode` processes found", 0)
   end
 
-  return processes
-end
-
--- Find the working directories of running instances of opencode.
----@param processes {pid: number, port: number}[]
----@return Server table
-local function populateWorkingDirectories(processes)
-  local servers = {}
-
-  if vim.fn.executable("curl") == 0 then
-    error("`curl` executable not found in `PATH` to query `opencode` working directories", 0)
-  end
-
-  -- Query each port synchronously for working directory
-  for _, proc in ipairs(processes) do
-    local curl_result = vim
-      .system({
-        "curl",
-        "-s",
-        "--connect-timeout",
-        "1",
-        "http://localhost:" .. proc.port .. "/path",
-      })
-      :wait()
-
-    local cwd = nil
-    if curl_result.code == 0 and curl_result.stdout and curl_result.stdout ~= "" then
-      local path_ok, path_data = pcall(vim.fn.json_decode, curl_result.stdout)
-      if path_ok and (path_data.directory or path_data.worktree) then
-        cwd = path_data.directory or path_data.worktree
-      end
-    end
-
-    if cwd then
-      table.insert(servers, {
-        pid = proc.pid,
-        port = proc.port,
-        cwd = cwd,
-      })
-    end
-  end
-
-  if #servers == 0 then
-    error("No `opencode` processes with valid working directories found", 0)
-  end
-
+  ---@type opencode.cli.server.Server[]
+  local servers = vim.tbl_map(populate_cwd, processes)
   return servers
 end
 
----Find all running opencode servers, including their working directories, ports, and pids
----@return Server[]
-local function find_servers()
-  if is_windows() then
-    local processes = retrieveOpencodeProcessesWin()
-    return populateWorkingDirectories(processes)
-  else
-    local processes = retrieveOpencodeProcessesUnix()
-    return populateWorkingDirectories(processes)
-  end
-end
-
 local function is_descendant_of_neovim(pid)
+  assert(vim.fn.executable("ps") == 1, "`ps` executable not found")
+
   local neovim_pid = vim.fn.getpid()
   local current_pid = pid
 
@@ -215,7 +191,7 @@ local function is_descendant_of_neovim(pid)
   return false
 end
 
----@return Server
+---@return opencode.cli.server.Server
 local function find_server_inside_nvim_cwd()
   local found_server
   local nvim_cwd = vim.fn.getcwd()
@@ -229,10 +205,10 @@ local function find_server_inside_nvim_cwd()
       normalized_nvim_cwd = nvim_cwd:gsub("/", "\\")
     end
 
-    -- CWDs match exactly, or opencode's CWD is under neovim's CWD.
+    -- CWDs match exactly, or `opencode`'s CWD is under neovim's CWD.
     if normalized_server_cwd:find(normalized_nvim_cwd, 1, true) == 1 then
       found_server = server
-      -- On Unix, check if it's a descendant of neovim (prioritize embedded)
+      -- On Unix, prioritize embedded
       if not is_windows() and is_descendant_of_neovim(server.pid) then
         break
       end
@@ -240,7 +216,7 @@ local function find_server_inside_nvim_cwd()
   end
 
   if not found_server then
-    error("No `opencode` process inside Neovim's CWD", 0)
+    error("No `opencode` servers inside Neovim's CWD", 0)
   end
 
   return found_server
