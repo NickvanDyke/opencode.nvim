@@ -31,6 +31,8 @@ local function exec(command)
   return output
 end
 
+---Using oft installed system utiltiies, find running opencode PIDs and ports on Unix-like systems
+---@return {pid: number, port: number}[]
 local function retrieveOpencodeProcessesUnix()
   if vim.fn.executable("pgrep") == 0 then
     error(
@@ -54,32 +56,25 @@ local function retrieveOpencodeProcessesUnix()
     error("No `opencode` processes", 0)
   end
 
-  local servers = {}
+  local processes = {}
   for pid_str in pgrep_output:gmatch("[^\r\n]+") do
     local pid = tonumber(pid_str)
     if pid then
-      -- Get CWD once per PID
-      local cwd = exec("lsof -w -a -p " .. pid .. " -d cwd 2>/dev/null || true"):match("%s+(/.*)$")
+      local lsof_output = exec("lsof -w -iTCP -sTCP:LISTEN -P -n -a -p " .. pid .. " 2>/dev/null || true")
 
-      if cwd then
-        -- `-w` suppresses filesystem warnings (e.g. Docker FUSE)
-        local lsof_output = exec("lsof -w -iTCP -sTCP:LISTEN -P -n -a -p " .. pid .. " 2>/dev/null || true")
+      if lsof_output ~= "" then
+        for line in lsof_output:gmatch("[^\r\n]+") do
+          local parts = vim.split(line, "%s+")
 
-        if lsof_output ~= "" then
-          for line in lsof_output:gmatch("[^\r\n]+") do
-            local parts = vim.split(line, "%s+")
+          if parts[1] ~= "COMMAND" then -- Skip header
+            local port = parts[9] and parts[9]:match(":(%d+)$") -- e.g. "127.0.0.1:12345" -> "12345"
+            if port then
+              port = tonumber(port)
 
-            if parts[1] ~= "COMMAND" then -- Skip header
-              local port = parts[9] and parts[9]:match(":(%d+)$") -- e.g. "127.0.0.1:12345" -> "12345"
-              if port then
-                port = tonumber(port)
-
-                table.insert(servers, {
-                  pid = pid,
-                  port = port,
-                  cwd = cwd,
-                })
-              end
+              table.insert(processes, {
+                pid = pid,
+                port = port,
+              })
             end
           end
         end
@@ -87,15 +82,15 @@ local function retrieveOpencodeProcessesUnix()
     end
   end
 
-  if #servers == 0 then
-    error("No `opencode` processes with valid working directories found", 0)
+  if #processes == 0 then
+    error("No `opencode` processes found", 0)
   end
 
-  return servers
+  return processes
 end
 
----Find opencode servers running on Windows using PowerShell
----@return Server[]
+---Find running opencode PIDs and ports on Windows using PowerShell
+---@return {pid: number, port: number}[]
 local function retrieveOpencodeProcessesWin()
   local ps_script = [[
 Get-Process -Name '*opencode*' -ErrorAction SilentlyContinue |
@@ -185,13 +180,15 @@ local function populateWorkingDirectories(processes)
   return servers
 end
 
+---Find all running opencode servers, including their working directories, ports, and pids
 ---@return Server[]
 local function find_servers()
   if is_windows() then
     local processes = retrieveOpencodeProcessesWin()
     return populateWorkingDirectories(processes)
   else
-    return retrieveOpencodeProcessesUnix()
+    local processes = retrieveOpencodeProcessesUnix()
+    return populateWorkingDirectories(processes)
   end
 end
 
