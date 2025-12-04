@@ -79,13 +79,27 @@ function M.check()
     })
   end
 
-  if vim.fn.executable("lsof") == 1 then
-    vim.health.ok("`lsof` available: it will be used to auto-find `opencode` if `vim.g.opencode_opts.port` is not set.")
-  else
-    vim.health.warn(
-      "`lsof` executable not found in `$PATH`.",
-      { "Install `lsof` and ensure it's in your `$PATH`", "Or set `vim.g.opencode_opts.port`." }
-    )
+  if vim.fn.has("win32") == 0 then
+    if vim.fn.executable("pgrep") == 1 then
+      vim.health.ok(
+        "`pgrep` available: it will be used to auto-find `opencode` if `vim.g.opencode_opts.port` is not set."
+      )
+    else
+      vim.health.warn(
+        "`pgrep` executable not found in `$PATH`.",
+        { "Install `pgrep` and ensure it's in your `$PATH`", "Or set `vim.g.opencode_opts.port`." }
+      )
+    end
+    if vim.fn.executable("lsof") == 1 then
+      vim.health.ok(
+        "`lsof` available: it will be used to auto-find `opencode` if `vim.g.opencode_opts.port` is not set."
+      )
+    else
+      vim.health.warn(
+        "`lsof` executable not found in `$PATH`.",
+        { "Install `lsof` and ensure it's in your `$PATH`", "Or set `vim.g.opencode_opts.port`." }
+      )
+    end
   end
 
   vim.health.start("opencode.nvim [snacks]")
