@@ -64,6 +64,7 @@ local defaults = {
     document = { prompt = "Add comments documenting @this", submit = true },
     explain = { prompt = "Explain @this and its context", submit = true },
     fix = { prompt = "Fix @diagnostics", submit = true },
+    implement = { prompt = "Implement @this", submit = true },
     optimize = { prompt = "Optimize @this for performance and readability", submit = true },
     review = { prompt = "Review @this for correctness and readability", submit = true },
     test = { prompt = "Add tests for @this", submit = true },

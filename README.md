@@ -96,6 +96,7 @@ Select or reference prompts to review, explain, and improve your code:
 | `document`    | Add comments documenting `@this`                                       |
 | `explain`     | Explain `@this` and its context                                        |
 | `fix`         | Fix `@diagnostics`                                                     |
+| `implement`   | Implement `@this`                                                      |
 | `optimize`    | Optimize `@this` for performance and readability                       |
 | `review`      | Review `@this` for correctness and readability                         |
 | `test`        | Add tests for `@this`                                                  |
