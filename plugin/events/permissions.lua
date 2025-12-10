@@ -78,7 +78,7 @@ vim.api.nvim_create_autocmd("User", {
       on_user_idle(idle_delay_ms, function()
         is_permission_request_open = true
         vim.ui.select({ "Once", "Always", "Reject" }, {
-          prompt = 'opencode requested permission: "' .. event.properties.title .. '": ',
+          prompt = "Permit opencode to: " .. event.properties.title .. "?: ",
           format_item = function(item)
             return item
           end,
