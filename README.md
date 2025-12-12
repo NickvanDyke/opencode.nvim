@@ -169,11 +169,8 @@ listen_on unix:/tmp/kitty
 vim.g.opencode_opts = {
   provider = {
     enabled = "wezterm",
-    -- these are defaults set by wezterm
     wezterm = {
-      direction = "bottom", -- left/right/top/bottom
-      top_level = false,
-      percent = 50,
+      -- ...
     }
   }
 }

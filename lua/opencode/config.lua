@@ -143,6 +143,12 @@ local defaults = {
     kitty = {
       location = "default",
     },
+    -- These are wezterm's internal defaults
+    wezterm = {
+      direction = "bottom",
+      top_level = false,
+      percent = 50,
+    },
     tmux = {
       options = "-h", -- Open in a horizontal split
     },
@@ -167,6 +173,9 @@ for _, field in ipairs({ "contexts", "prompts" }) do
 end
 
 ---The `opencode` provider resolved from `opts.provider`.
+---
+---Retains the base `provider.cmd` if not overridden.
+---Appends `--port <port>` to `provider.cmd` if not already present and `opts.port` is set.
 ---@type opencode.Provider|nil
 M.provider = (function()
   local provider
@@ -174,7 +183,7 @@ M.provider = (function()
 
   if provider_or_opts and (provider_or_opts.toggle or provider_or_opts.start or provider_or_opts.stop) then
     -- An implementation was passed.
-    -- Be careful: `provider.enabled` may still exist from merging with defaults.
+    -- Beware: `provider.enabled` may still exist from merging with defaults.
     ---@cast provider_or_opts opencode.Provider
     provider = provider_or_opts
   elseif provider_or_opts and provider_or_opts.enabled then
@@ -190,13 +199,12 @@ M.provider = (function()
       return nil
     end
 
-    local resolver_provider_opts = provider_or_opts[provider_or_opts.enabled]
-    provider = resolved_provider.new(resolver_provider_opts)
-    -- Retain the base `cmd` if not overridden.
+    local resolved_provider_opts = provider_or_opts[provider_or_opts.enabled]
+    provider = resolved_provider.new(resolved_provider_opts)
+
     provider.cmd = provider.cmd or provider_or_opts.cmd
   end
 
-  -- Auto-add `--port <port>` to `provider.cmd` if set and not already present.
   local port = M.opts.port
   if port and provider and provider.cmd and not provider.cmd:find("--port") then
     provider.cmd = provider.cmd .. " --port " .. tostring(port)

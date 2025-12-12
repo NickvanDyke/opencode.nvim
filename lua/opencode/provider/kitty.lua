@@ -25,9 +25,7 @@ Kitty.name = "kitty"
 ---@return opencode.provider.Kitty
 function Kitty.new(opts)
   local self = setmetatable({}, Kitty)
-  self.opts = vim.tbl_extend("keep", opts or {}, {
-    location = "default",
-  })
+  self.opts = opts or {}
   self.window_id = nil
   return self
 end
