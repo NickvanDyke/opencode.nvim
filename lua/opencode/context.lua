@@ -2,15 +2,15 @@
 
 ---The context a prompt is being made in.
 ---Particularly useful when inputting or selecting a prompt
----because those change the active mode, window, etc.
----So this can store state prior to that.
+---because that changes the active mode, window, etc.
+---So this stores state prior to that.
 ---@class opencode.Context
 ---@field win integer
 ---@field buf integer
 ---@field row integer
 ---@field col integer
----@field range table|nil
----@field agents opencode.client.Agent[]|nil
+---@field range? opencode.context.Range
+---@field agents? opencode.client.Agent[]
 local Context = {}
 Context.__index = Context
 
@@ -36,12 +36,12 @@ local function last_used_valid_win()
   return last_used_win
 end
 
-local function exit_visual_mode()
-  if vim.fn.mode():match("[vV\22]") then
-    vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<esc>", true, false, true), "x", true)
-  end
-end
+---@class opencode.context.Range
+---@field from integer[] { line, col } (1,0-based)
+---@field to integer[] { line, col } (1,0-based)
+---@field kind string "char" | "line" | "block"
 
+---@return opencode.context.Range|nil
 local function selection(buf)
   local mode = vim.fn.mode()
   local kind = (mode == "V" and "line") or (mode == "v" and "char") or (mode == "\22" and "block")
@@ -49,7 +49,10 @@ local function selection(buf)
     return nil
   end
 
-  exit_visual_mode()
+  -- Exit visual mode for consistent marks
+  if vim.fn.mode():match("[vV\22]") then
+    vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<esc>", true, false, true), "x", true)
+  end
 
   local from = vim.api.nvim_buf_get_mark(buf, "<")
   local to = vim.api.nvim_buf_get_mark(buf, ">")
@@ -64,6 +67,22 @@ local function selection(buf)
   }
 end
 
+---@param buf integer
+---@param range opencode.context.Range
+local function highlight(buf, range)
+  vim.api.nvim_buf_set_extmark(
+    buf,
+    vim.api.nvim_create_namespace("OpencodeContext"),
+    range.from[1] - 1,
+    range.from[2],
+    {
+      end_row = range.to[1] - (range.kind == "line" and 0 or 1),
+      end_col = (range.kind ~= "line") and range.to[2] + 1 or nil,
+      hl_group = "Visual",
+    }
+  )
+end
+
 function Context.new()
   local self = setmetatable({}, Context)
   self.win = last_used_valid_win()
@@ -72,7 +91,14 @@ function Context.new()
   self.row = cursor[1]
   self.col = cursor[2] + 1
   self.range = selection(self.buf)
+  if self.range then
+    highlight(self.buf, self.range)
+  end
   return self
+end
+
+function Context:cleanup()
+  vim.api.nvim_buf_clear_namespace(self.buf, vim.api.nvim_create_namespace("OpencodeContext"), 0, -1)
 end
 
 ---Render `opts.contexts` in `prompt`.
@@ -241,6 +267,27 @@ function Context:this()
   end
 end
 
+function Context:cursor_position()
+  return Context.format({
+    buf = self.buf,
+    start_line = self.row,
+    start_col = self.col,
+  })
+end
+
+function Context:visual_selection()
+  if not self.range then
+    return nil
+  end
+  return Context.format({
+    buf = self.buf,
+    start_line = self.range.from[1],
+    start_col = (self.range.kind ~= "line") and self.range.from[2] or nil,
+    end_line = self.range.to[1],
+    end_col = (self.range.kind ~= "line") and self.range.to[2] or nil,
+  })
+end
+
 ---The current buffer.
 function Context:buffer()
   return Context.format({
@@ -261,27 +308,6 @@ function Context:buffers()
     return nil
   end
   return table.concat(file_list, " ")
-end
-
-function Context:cursor_position()
-  return Context.format({
-    buf = self.buf,
-    start_line = self.row,
-    start_col = self.col,
-  })
-end
-
-function Context:visual_selection()
-  if not self.range then
-    return nil
-  end
-  return Context.format({
-    buf = self.buf,
-    start_line = self.range.from[1],
-    start_col = (self.range.kind ~= "line") and self.range.from[2] or nil,
-    end_line = self.range.to[1],
-    end_col = (self.range.kind ~= "line") and self.range.to[2] or nil,
-  })
 end
 
 ---The visible lines in all open windows.

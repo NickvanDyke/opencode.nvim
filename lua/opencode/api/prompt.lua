@@ -59,6 +59,9 @@ function M.prompt(prompt, opts)
     :catch(function(err)
       vim.notify(err, vim.log.levels.ERROR, { title = "opencode" })
     end)
+    :next(function()
+      opts.context:cleanup()
+    end)
 end
 
 return M
