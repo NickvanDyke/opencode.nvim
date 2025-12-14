@@ -2,7 +2,9 @@
 ---@class opencode.provider.Tmux : opencode.Provider
 ---
 ---@field opts opencode.provider.tmux.Opts
----@field pane_id? string The `tmux` pane ID where `opencode` is running (internal use only).
+---
+---The `tmux` pane ID where `opencode` is running (internal use only).
+---@field pane_id? string
 local Tmux = {}
 Tmux.__index = Tmux
 Tmux.name = "tmux"

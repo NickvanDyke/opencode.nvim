@@ -3,7 +3,9 @@
 ---@class opencode.provider.Kitty : opencode.Provider
 ---
 ---@field opts opencode.provider.kitty.Opts
----@field window_id? number The `kitty` window ID where `opencode` is running (internal use only).
+---
+---The `kitty` window ID where `opencode` is running (internal use only).
+---@field window_id? number
 local Kitty = {}
 Kitty.__index = Kitty
 Kitty.name = "kitty"

@@ -20,7 +20,7 @@ Wezterm.name = "wezterm"
 ---
 ---Rather than splitting the active pane, split the entire window
 ---@field top_level? boolean
----
+
 ---@param opts? opencode.provider.wezterm.Opts
 ---@return opencode.provider.Wezterm
 function Wezterm.new(opts)

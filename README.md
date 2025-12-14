@@ -108,6 +108,22 @@ You can manually run `opencode` inside Neovim's CWD however you like and `openco
 If `opencode.nvim` can't find an existing `opencode`, it uses the configured provider (defaulting based on availability) to manage one for you.
 
 <details>
+<summary><a href="https://neovim.io/doc/user/terminal.html">Neovim terminal</a></summary>
+
+```lua
+vim.g.opencode_opts = {
+  provider = {
+    enabled = "terminal",
+    terminal = {
+      -- ...
+    }
+  }
+}
+```
+
+</details>
+
+<details>
 <summary><a href="https://github.com/folke/snacks.nvim/blob/main/docs/terminal.md">snacks.terminal</a></summary>
 
 ```lua

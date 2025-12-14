@@ -12,6 +12,8 @@
 ---`opencode.nvim` will append `--port <port>` if not already present and `opts.port` is set.
 ---@field cmd? string
 ---
+---@field new? fun(opts: table): opencode.Provider
+---
 ---Toggle `opencode`.
 ---@field toggle? fun(self: opencode.Provider)
 ---
@@ -39,9 +41,10 @@
 ---  - `"kitty"` if in a `kitty` session with remote control enabled
 ---  - `"wezterm"` if in a `wezterm` window
 ---  - `"tmux"` if in a `tmux` session
----  - `false`
----@field enabled? "snacks"|"kitty"|"wezterm"|"tmux"|false
+---  - `"terminal"` as a fallback
+---@field enabled? "terminal"|"snacks"|"kitty"|"wezterm"|"tmux"|false
 ---
+---@field terminal? opencode.provider.terminal.Opts
 ---@field snacks? opencode.provider.snacks.Opts
 ---@field kitty? opencode.provider.kitty.Opts
 ---@field wezterm? opencode.provider.wezterm.Opts
@@ -72,6 +75,7 @@ function M.list()
     require("opencode.provider.kitty"),
     require("opencode.provider.wezterm"),
     require("opencode.provider.tmux"),
+    require("opencode.provider.terminal"),
   }
 end
 

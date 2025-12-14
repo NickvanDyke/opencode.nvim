@@ -125,6 +125,10 @@ local defaults = {
 
       return false
     end)(),
+    terminal = {
+      split = "right",
+      width = math.floor(vim.o.columns * 0.35),
+    },
     snacks = {
       auto_close = true, -- Close the terminal when `opencode` exits
       win = {
@@ -188,7 +192,7 @@ M.provider = (function()
     provider = provider_or_opts
   elseif provider_or_opts and provider_or_opts.enabled then
     -- Resolve the built-in provider.
-    ---@type boolean, opencode.provider.Snacks|opencode.provider.Tmux
+    ---@type boolean, opencode.Provider
     local ok, resolved_provider = pcall(require, "opencode.provider." .. provider_or_opts.enabled)
     if not ok then
       vim.notify(
