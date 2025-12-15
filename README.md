@@ -9,13 +9,14 @@ Integrate the [opencode](https://github.com/sst/opencode) AI assistant with Neov
 - Auto-connects to _any_ `opencode` running inside Neovim's CWD, or provides an integrated instance.
 - Input prompts with completions, highlights, and normal-mode support.
 - Select prompts from a library and define your own.
-- Inject relevant editor context (buffer, cursor, selection, diagnostics, etc.).
+- Inject editor context (buffer, cursor, selection, diagnostics, etc.).
 - Control `opencode` with commands.
 - Respond to `opencode` permission requests.
 - Reloads buffers edited by `opencode` in real-time.
 - Monitor `opencode`'s state via statusline component.
 - Forwards `opencode`'s Server-Sent-Events as autocmds for automation.
 - Sensible defaults with well-documented, flexible configuration and API to fit your workflow.
+- _Vim-y_ — supports ranges and dot-repeat.
 
 ## 📦 Setup
 
@@ -45,13 +46,17 @@ Integrate the [opencode](https://github.com/sst/opencode) AI assistant with Neov
     -- Recommended/example keymaps.
     vim.keymap.set({ "n", "x" }, "<C-a>", function() require("opencode").ask("@this: ", { submit = true }) end, { desc = "Ask opencode" })
     vim.keymap.set({ "n", "x" }, "<C-x>", function() require("opencode").select() end,                          { desc = "Execute opencode action…" })
-    vim.keymap.set({ "n", "x" },    "ga", function() require("opencode").prompt("@this") end,                   { desc = "Add to opencode" })
     vim.keymap.set({ "n", "t" }, "<C-.>", function() require("opencode").toggle() end,                          { desc = "Toggle opencode" })
-    vim.keymap.set("n",        "<S-C-u>", function() require("opencode").command("session.half.page.up") end,   { desc = "opencode half page up" })
-    vim.keymap.set("n",        "<S-C-d>", function() require("opencode").command("session.half.page.down") end, { desc = "opencode half page down" })
+
+    vim.keymap.set({ "n", "x" }, "go",  function() return require("opencode").operator("@this ") end,        { expr = true, desc = "Add range to opencode" })
+    vim.keymap.set("n",          "goo", function() return require("opencode").operator("@this ") .. "_" end, { expr = true, desc = "Add line to opencode" })
+
+    vim.keymap.set("n", "<S-C-u>", function() require("opencode").command("session.half.page.up") end,   { desc = "opencode half page up" })
+    vim.keymap.set("n", "<S-C-d>", function() require("opencode").command("session.half.page.down") end, { desc = "opencode half page down" })
+
     -- You may want these if you stick with the opinionated "<C-a>" and "<C-x>" above — otherwise consider "<leader>o".
-    vim.keymap.set('n', '+', '<C-a>', { desc = 'Increment', noremap = true })
-    vim.keymap.set('n', '-', '<C-x>', { desc = 'Decrement', noremap = true })
+    vim.keymap.set("n", "+", "<C-a>", { desc = "Increment", noremap = true })
+    vim.keymap.set("n", "-", "<C-x>", { desc = "Decrement", noremap = true })
   end,
 }
 ```
@@ -76,7 +81,7 @@ programs.nixvim = {
 
 | Placeholder    | Context                                                     |
 | -------------- | ----------------------------------------------------------- |
-| `@this`        | Visual selection if any, else cursor position               |
+| `@this`        | Operator range or visual selection if any, else cursor position               |
 | `@buffer`      | Current buffer                                              |
 | `@buffers`     | Open buffers                                                |
 | `@visible`     | Visible text                                                |
@@ -257,13 +262,17 @@ Select from all `opencode.nvim` functionality.
 
 <img width="800" alt="image" src="https://github.com/user-attachments/assets/afd85acd-e4b3-47d2-b92f-f58d25972edb" />
 
-### 🗣️ Prompt — `require("opencode").prompt()` | `:[range]OpencodePrompt`
+### 🗣️ Prompt — `require("opencode").prompt()`
 
 Prompt `opencode`.
 
 - Resolves named references to configured prompts.
 - Injects configured contexts.
 - `opencode` will interpret `@` references to files or subagents.
+
+### 🧑‍🔬 Operator — `require("opencode").operator()`
+
+Wraps `prompt` as an operator, supporting ranges and dot-repeat.
 
 ### 🧑‍🏫 Command — `require("opencode").command()`
 

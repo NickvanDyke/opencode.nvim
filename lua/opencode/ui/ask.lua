@@ -22,7 +22,7 @@ local M = {}
 ---   - Registers `opts.ask.blink_cmp_sources` when using `snacks.input` and `blink.cmp`.
 ---
 ---@param default? string Text to pre-fill the input with.
----@param opts? opencode.prompt.Opts Options for `prompt()`.
+---@param opts? opencode.api.prompt.Opts Options for `prompt()`.
 function M.ask(default, opts)
   opts = opts or {}
   opts.context = opts.context or require("opencode.context").new()

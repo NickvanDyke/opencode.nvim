@@ -1,9 +1,9 @@
 local M = {}
 
----@class opencode.prompt.Opts
+---@class opencode.api.prompt.Opts
 ---@field clear? boolean Clear the TUI input before.
 ---@field submit? boolean Submit the TUI input after.
----@field context? opencode.Context The context the prompt was written or selected in, if any.
+---@field context? opencode.Context The context the prompt is being made in.
 
 ---Prompt `opencode`.
 ---
@@ -12,7 +12,7 @@ local M = {}
 --- - `opencode` will interpret `@` references to files or subagents
 ---
 ---@param prompt string
----@param opts? opencode.prompt.Opts
+---@param opts? opencode.api.prompt.Opts
 function M.prompt(prompt, opts)
   -- TODO: Referencing `ask = true` prompts doesn't actually ask.
   local referenced_prompt = require("opencode.config").opts.prompts[prompt]

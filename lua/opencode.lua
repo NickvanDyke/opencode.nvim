@@ -5,6 +5,7 @@ M.ask = require("opencode.ui.ask").ask
 M.select = require("opencode.ui.select").select
 
 M.prompt = require("opencode.api.prompt").prompt
+M.operator = require("opencode.api.operator").operator
 M.command = require("opencode.api.command").command
 
 M.toggle = require("opencode.provider").toggle

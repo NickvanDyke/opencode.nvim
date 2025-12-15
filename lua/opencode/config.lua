@@ -38,7 +38,7 @@ vim.g.opencode_opts = vim.g.opencode_opts
 ---Provide an integrated `opencode` when one is not found.
 ---@field provider? opencode.Provider|opencode.provider.Opts
 
----@class opencode.Prompt : opencode.prompt.Opts
+---@class opencode.Prompt : opencode.api.prompt.Opts
 ---@field prompt string The prompt to send to `opencode`.
 ---@field ask? boolean Call `ask(prompt)` instead of `prompt(prompt)`. Useful for prompts that expect additional user input.
 

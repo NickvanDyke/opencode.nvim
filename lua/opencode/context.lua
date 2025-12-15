@@ -7,10 +7,9 @@
 ---@class opencode.Context
 ---@field win integer
 ---@field buf integer
----@field row integer
----@field col integer
----@field range? opencode.context.Range
----@field agents? opencode.client.Agent[]
+---@field cursor integer[] The cursor positon. { row, col } (1,0-based).
+---@field range? opencode.context.Range The operator range or visual selection range.
+---@field agents? opencode.client.Agent[] Subagents available in `opencode`.
 local Context = {}
 Context.__index = Context
 
@@ -39,8 +38,9 @@ end
 ---@class opencode.context.Range
 ---@field from integer[] { line, col } (1,0-based)
 ---@field to integer[] { line, col } (1,0-based)
----@field kind string "char" | "line" | "block"
+---@field kind "char"|"line"|"block"
 
+---@param buf integer
 ---@return opencode.context.Range|nil
 local function selection(buf)
   local mode = vim.fn.mode()
@@ -83,14 +83,13 @@ local function highlight(buf, range)
   )
 end
 
-function Context.new()
+---@param range? opencode.context.Range The range of the operator or visual selection. Defaults to current visual selection, if any.
+function Context.new(range)
   local self = setmetatable({}, Context)
   self.win = last_used_valid_win()
   self.buf = vim.api.nvim_win_get_buf(self.win)
-  local cursor = vim.api.nvim_win_get_cursor(self.win)
-  self.row = cursor[1]
-  self.col = cursor[2] + 1
-  self.range = selection(self.buf)
+  self.cursor = vim.api.nvim_win_get_cursor(self.win)
+  self.range = range or selection(self.buf)
   if self.range then
     highlight(self.buf, self.range)
   end
@@ -257,35 +256,23 @@ end
 
 -- TODO: May be a better organization for these built-in `context.Fn`'s
 
----Normal mode: cursor position.
----Visual mode: selection.
+---Range if present, else cursor position.
 function Context:this()
   if self.range then
-    return self:visual_selection()
+    return Context.format({
+      buf = self.buf,
+      start_line = self.range.from[1],
+      start_col = (self.range.kind ~= "line") and self.range.from[2] or nil,
+      end_line = self.range.to[1],
+      end_col = (self.range.kind ~= "line") and self.range.to[2] or nil,
+    })
   else
-    return self:cursor_position()
+    return Context.format({
+      buf = self.buf,
+      start_line = self.cursor[1],
+      start_col = self.cursor[2] + 1,
+    })
   end
-end
-
-function Context:cursor_position()
-  return Context.format({
-    buf = self.buf,
-    start_line = self.row,
-    start_col = self.col,
-  })
-end
-
-function Context:visual_selection()
-  if not self.range then
-    return nil
-  end
-  return Context.format({
-    buf = self.buf,
-    start_line = self.range.from[1],
-    start_col = (self.range.kind ~= "line") and self.range.from[2] or nil,
-    end_line = self.range.to[1],
-    end_col = (self.range.kind ~= "line") and self.range.to[2] or nil,
-  })
 end
 
 ---The current buffer.
