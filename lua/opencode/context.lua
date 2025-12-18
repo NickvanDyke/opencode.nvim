@@ -13,6 +13,8 @@
 local Context = {}
 Context.__index = Context
 
+local ns_id = vim.api.nvim_create_namespace("OpencodeContext")
+
 local function is_buf_valid(buf)
   return vim.api.nvim_buf_is_loaded(buf)
     and vim.api.nvim_get_option_value("buftype", { buf = buf }) == ""
@@ -70,17 +72,11 @@ end
 ---@param buf integer
 ---@param range opencode.context.Range
 local function highlight(buf, range)
-  vim.api.nvim_buf_set_extmark(
-    buf,
-    vim.api.nvim_create_namespace("OpencodeContext"),
-    range.from[1] - 1,
-    range.from[2],
-    {
-      end_row = range.to[1] - (range.kind == "line" and 0 or 1),
-      end_col = (range.kind ~= "line") and range.to[2] + 1 or nil,
-      hl_group = "Visual",
-    }
-  )
+  vim.api.nvim_buf_set_extmark(buf, ns_id, range.from[1] - 1, range.from[2], {
+    end_row = range.to[1] - (range.kind == "line" and 0 or 1),
+    end_col = (range.kind ~= "line") and range.to[2] + 1 or nil,
+    hl_group = "Visual",
+  })
 end
 
 ---@param range? opencode.context.Range The range of the operator or visual selection. Defaults to current visual selection, if any.
@@ -97,7 +93,7 @@ function Context.new(range)
 end
 
 function Context:cleanup()
-  vim.api.nvim_buf_clear_namespace(self.buf, vim.api.nvim_create_namespace("OpencodeContext"), 0, -1)
+  vim.api.nvim_buf_clear_namespace(self.buf, ns_id, 0, -1)
 end
 
 ---Render `opts.contexts` in `prompt`.

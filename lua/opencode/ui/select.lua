@@ -32,6 +32,7 @@ function M.select(opts)
     opts.sections.provider = false
   end
 
+  -- TODO: Should merge with prompts' optional contexts
   local context = require("opencode.context").new()
 
   require("opencode.cli.server")
@@ -199,6 +200,8 @@ function M.select(opts)
       select_opts = vim.tbl_deep_extend("force", select_opts, opts)
 
       vim.ui.select(items, select_opts, function(choice)
+        context:cleanup()
+
         if not choice then
           return
         elseif choice.__type == "prompt" then

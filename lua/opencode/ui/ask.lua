@@ -85,6 +85,8 @@ function M.ask(default, opts)
       require("opencode.cmp.blink").context = opts.context
 
       vim.ui.input(input_opts, function(value)
+        opts.context:cleanup()
+
         if value and value ~= "" then
           require("opencode").prompt(value, opts)
         end
