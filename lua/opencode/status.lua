@@ -31,12 +31,18 @@ function M.statusline()
   end
 end
 
--- TODO: Still seem to not get `session.idle` events reliably... So fallback to a timer.
-local idle_timer = vim.uv.new_timer()
-
 ---@param event opencode.cli.client.Event
 function M.update(event)
-  if event.type == "server.connected" or event.type == "session.idle" then
+  if
+    event.type == "server.connected"
+    or event.type == "session.idle"
+    -- `session.idle` seems frequently followed by a few `message.updated`s...
+    -- but `session.diff` seems to be a more definitive idle signal.
+    -- It's sometimes also emitted in the middle of a response, but NBD.
+    or event.type == "session.diff"
+    -- Pretty good fallback
+    or event.type == "session.heartbeat"
+  then
     M.status = "idle"
   elseif
     event.type == "message.updated"
@@ -49,17 +55,6 @@ function M.update(event)
   elseif event.type == "session.error" then
     M.status = "error"
   end
-
-  idle_timer:stop()
-  idle_timer:start(
-    1000,
-    0,
-    vim.schedule_wrap(function()
-      if M.status == "responding" then
-        M.status = "idle"
-      end
-    end)
-  )
 end
 
 return M
