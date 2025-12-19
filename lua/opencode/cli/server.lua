@@ -161,8 +161,20 @@ local function find_servers()
     error("No `opencode` processes found", 0)
   end
 
+  -- Filter out processes that aren't valid opencode servers.
+  -- pgrep -f 'opencode' may match other processes (e.g., language servers
+  -- started by opencode) that have 'opencode' in their path or arguments.
   ---@type opencode.cli.server.Server[]
-  local servers = vim.tbl_map(populate_cwd, processes)
+  local servers = {}
+  for _, process in ipairs(processes) do
+    local ok, server = pcall(populate_cwd, process)
+    if ok then
+      table.insert(servers, server)
+    end
+  end
+  if #servers == 0 then
+    error("No valid `opencode` servers found", 0)
+  end
   return servers
 end
 
