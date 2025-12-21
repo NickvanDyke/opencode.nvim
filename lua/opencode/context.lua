@@ -92,8 +92,13 @@ function Context.new(range)
   return self
 end
 
-function Context:cleanup()
+function Context:clear()
   vim.api.nvim_buf_clear_namespace(self.buf, ns_id, 0, -1)
+end
+
+function Context:resume()
+  self:clear()
+  vim.cmd("normal! gv")
 end
 
 ---Render `opts.contexts` in `prompt`.

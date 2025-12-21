@@ -61,7 +61,7 @@ function M.prompt(prompt, opts)
       return true
     end)
     :next(function()
-      opts.context:cleanup()
+      opts.context:clear()
     end)
 end
 

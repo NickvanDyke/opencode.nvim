@@ -200,11 +200,14 @@ function M.select(opts)
       select_opts = vim.tbl_deep_extend("force", select_opts, opts)
 
       vim.ui.select(items, select_opts, function(choice)
-        context:cleanup()
-
         if not choice then
+          context:resume()
           return
-        elseif choice.__type == "prompt" then
+        else
+          context:clear()
+        end
+
+        if choice.__type == "prompt" then
           ---@type opencode.Prompt
           local prompt = require("opencode.config").opts.prompts[choice.name]
           prompt.context = context
