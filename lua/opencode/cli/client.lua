@@ -4,11 +4,8 @@
 local M = {}
 
 local sse_state = {
-  -- Important to track the port, not just true/false,
-  -- because opencode may have restarted (usually on a new port) while the plugin is running.
+  -- Track the port - `opencode` may have restarted, usually on a new port
   port = nil,
-  -- Persistent buffer for SSE lines, because SSEs can span multiple `on_stdout` calls.
-  buffer = {},
   job_id = nil,
 }
 
@@ -51,24 +48,28 @@ local function generate_uuid()
 end
 
 ---@param data table
+---@param buffer table
 ---@return table
-local function handle_sse(data)
+local function handle_response(data, buffer)
   local responses = {}
-
   for _, line in ipairs(data) do
     if line ~= "" then
+      -- Strip "data: " prefix for SSEs
       local clean_line = (line:gsub("^data: ?", ""))
-      table.insert(sse_state.buffer, clean_line)
-    elseif #sse_state.buffer > 0 then
-      -- Blank line: end of event. Process the accumulated event.
-      local full_event = table.concat(sse_state.buffer)
-      sse_state.buffer = {} -- Reset for next event
+      table.insert(buffer, clean_line)
+    elseif #buffer > 0 then
+      -- Blank line = end of event or response; process the accumulated buffer
+      local full_event = table.concat(buffer)
+      -- Reset buffer
+      for k in pairs(buffer) do
+        buffer[k] = nil
+      end
 
       local ok, response = pcall(vim.fn.json_decode, full_event)
       if ok then
         table.insert(responses, response)
       else
-        vim.notify("SSE JSON decode error: " .. full_event, vim.log.levels.ERROR, { title = "opencode" })
+        vim.notify("Response decode error: " .. full_event, vim.log.levels.ERROR, { title = "opencode" })
       end
     end
   end
@@ -76,37 +77,12 @@ local function handle_sse(data)
   return responses
 end
 
-local json_state = {
-  buffer = {},
-}
-
----@param data table
----@return table
-local function handle_json(data)
-  if #data == 1 and data[1] == "" then -- this is eof
-    local full_data = table.concat(json_state.buffer)
-    json_state.buffer = {}
-
-    local ok, response = pcall(vim.fn.json_decode, full_data)
-    if ok then
-      return { response }
-    else
-      vim.notify("JSON decode error: " .. full_data, vim.log.levels.ERROR, { title = "opencode" })
-    end
-  else
-    vim.list_extend(json_state.buffer, data)
-  end
-
-  return {}
-end
-
 ---@param url string
 ---@param method string
 ---@param body table|nil
 ---@param callback fun(response: table)|nil
----@param is_sse boolean|nil
 ---@return number job_id
-local function curl(url, method, body, callback, is_sse)
+local function curl(url, method, body, callback)
   local command = {
     "curl",
     "-s",
@@ -124,15 +100,12 @@ local function curl(url, method, body, callback, is_sse)
     url,
   }
 
+  -- Buffer the response outside of the job callbacks - they may be called multiple times
+  local response_buffer = {}
   local stderr_lines = {}
   return vim.fn.jobstart(command, {
     on_stdout = function(_, data)
-      local responses
-      if is_sse then
-        responses = handle_sse(data)
-      else
-        responses = handle_json(data)
-      end
+      local responses = handle_response(data, response_buffer)
       if callback then
         for _, response in ipairs(responses) do
           callback(response)
@@ -165,9 +138,8 @@ end
 ---@param method "GET"|"POST"
 ---@param body table|nil
 ---@param callback fun(response: table)|nil
----@param is_sse boolean|nil
-function M.call(port, path, method, body, callback, is_sse)
-  curl("http://localhost:" .. port .. path, method, body, callback, is_sse)
+function M.call(port, path, method, body, callback)
+  curl("http://localhost:" .. port .. path, method, body, callback)
 end
 
 ---@param text string
@@ -259,8 +231,7 @@ function M.subscribe_to_sse(port, callback)
 
     sse_state = {
       port = port,
-      buffer = {},
-      job_id = M.call(port, "/event", "GET", nil, callback, true),
+      job_id = M.call(port, "/event", "GET", nil, callback),
     }
   end
 end
