@@ -64,11 +64,15 @@ local function handle_sse(data)
       local full_event = table.concat(sse_state.buffer)
       sse_state.buffer = {} -- Reset for next event
 
-      local ok, response = pcall(vim.fn.json_decode, full_event)
-      if ok then
-        table.insert(responses, response)
-      else
-        vim.notify("SSE JSON decode error: " .. full_event, vim.log.levels.ERROR, { title = "opencode" })
+      if #full_event > 0 then
+        local ok, response = pcall(vim.fn.json_decode, full_event)
+        if ok then
+          table.insert(responses, response)
+        else
+          if vim.g.opencode_debug then
+            vim.notify("SSE JSON decode error: " .. full_event, vim.log.levels.DEBUG, { title = "opencode" })
+          end
+        end
       end
     end
   end
@@ -87,11 +91,15 @@ local function handle_json(data)
     local full_data = table.concat(json_state.buffer)
     json_state.buffer = {}
 
-    local ok, response = pcall(vim.fn.json_decode, full_data)
-    if ok then
-      return { response }
-    else
-      vim.notify("JSON decode error: " .. full_data, vim.log.levels.ERROR, { title = "opencode" })
+    if #full_data > 0 then
+      local ok, response = pcall(vim.fn.json_decode, full_data)
+      if ok then
+        return { response }
+      else
+        if vim.g.opencode_debug then
+          vim.notify("JSON decode error: " .. full_data, vim.log.levels.DEBUG, { title = "opencode" })
+        end
+      end
     end
   else
     vim.list_extend(json_state.buffer, data)
