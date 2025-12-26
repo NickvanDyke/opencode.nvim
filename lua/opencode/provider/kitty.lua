@@ -103,7 +103,8 @@ function Kitty:start()
   end
 
   local location = self.opts.location
-  local launch_cmd = { "launch", "--cwd=current", "--hold", "--dont-take-focus" }
+  local cwd = require("opencode.provider").get_project_root()
+  local launch_cmd = { "launch", "--cwd=" .. cwd, "--hold", "--dont-take-focus" }
 
   -- Input validation for `location` option
   local VALID_LOCATIONS = {

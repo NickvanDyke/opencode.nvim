@@ -52,6 +52,40 @@
 
 local M = {}
 
+---Get the project root directory using smart detection.
+---Priority: 1) nvim directory argument, 2) git root, 3) current buffer dir, 4) LSP workspace, 5) cwd
+---@return string
+function M.get_project_root()
+  local arg = vim.fn.argv(0)
+  ---@cast arg string
+  if arg and arg ~= "" and vim.fn.isdirectory(arg) == 1 then
+    local path = vim.fn.fnamemodify(arg, ":p"):gsub("/$", "")
+    return path
+  end
+
+  local git_root = vim.fn.systemlist("git rev-parse --show-toplevel 2>/dev/null")[1]
+  if vim.v.shell_error == 0 and git_root and git_root ~= "" then
+    return git_root
+  end
+
+  local buf_name = vim.api.nvim_buf_get_name(0)
+  if buf_name and buf_name ~= "" then
+    local buf_dir = vim.fn.fnamemodify(buf_name, ":p:h")
+    if vim.fn.isdirectory(buf_dir) == 1 then
+      return buf_dir
+    end
+  end
+
+  local clients = vim.lsp.get_clients({ bufnr = 0 })
+  for _, client in ipairs(clients) do
+    if client.config.root_dir then
+      return client.config.root_dir
+    end
+  end
+
+  return vim.fn.getcwd()
+end
+
 local function subscribe_to_sse()
   if not require("opencode.config").opts.events.enabled then
     return

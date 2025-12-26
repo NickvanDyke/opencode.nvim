@@ -73,9 +73,10 @@ end
 function Tmux:start()
   local pane_id = self:get_pane_id()
   if not pane_id then
-    -- Create new pane
+    local cwd = require("opencode.provider").get_project_root()
+    local options = self.opts.options or ""
     self.pane_id =
-      vim.fn.system(string.format("tmux split-window -d -P -F '#{pane_id}' %s '%s'", self.opts.options, self.cmd))
+      vim.fn.system(string.format("tmux split-window -d -P -F '#{pane_id}' -c '%s' %s '%s'", cwd, options, self.cmd))
   end
 end
 

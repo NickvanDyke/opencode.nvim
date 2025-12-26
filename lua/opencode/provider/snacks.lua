@@ -43,12 +43,16 @@ function Snacks:get()
 end
 
 function Snacks:toggle()
-  require("snacks.terminal").toggle(self.cmd, self.opts)
+  local cwd = require("opencode.provider").get_project_root()
+  local opts = vim.tbl_deep_extend("force", self.opts, { cwd = cwd })
+  require("snacks.terminal").toggle(self.cmd, opts)
 end
 
 function Snacks:start()
   if not self:get() then
-    require("snacks.terminal").open(self.cmd, self.opts)
+    local cwd = require("opencode.provider").get_project_root()
+    local opts = vim.tbl_deep_extend("force", self.opts, { cwd = cwd })
+    require("snacks.terminal").open(self.cmd, opts)
   end
 end
 

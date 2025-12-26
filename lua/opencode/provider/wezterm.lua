@@ -108,6 +108,9 @@ function Wezterm:start()
   if not pane_id then
     local cmd_parts = { "wezterm", "cli", "split-pane" }
 
+    table.insert(cmd_parts, "--cwd")
+    table.insert(cmd_parts, require("opencode.provider").get_project_root())
+
     if self.opts.direction then
       table.insert(cmd_parts, "--" .. self.opts.direction)
     end
