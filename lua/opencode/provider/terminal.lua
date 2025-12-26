@@ -51,6 +51,7 @@ function Terminal:start()
     -- FIX: There's a few empty columns on the right side of the terminal until it's redrawn, at least for me.
     vim.fn.jobstart(self.cmd, {
       term = true,
+      cwd = require("opencode.provider").get_project_root(),
       on_exit = function()
         self.winid = nil
         self.bufnr = nil

@@ -42,13 +42,41 @@ function Snacks:get()
   return win
 end
 
+---@param current_cwd string
+---@return boolean
+---@private
+function Snacks:hide_other_visible_terminals(current_cwd)
+  local terminals = require("snacks.terminal").list()
+  local did_hide = false
+  for _, term in ipairs(terminals) do
+    if term.buf and vim.api.nvim_buf_is_valid(term.buf) then
+      local term_info = vim.b[term.buf].snacks_terminal
+      local is_opencode = term_info and term_info.cmd == self.cmd
+      local is_other_cwd = term_info and term_info.cwd ~= current_cwd
+      local is_visible = term.win and vim.api.nvim_win_is_valid(term.win)
+      if is_opencode and is_other_cwd and is_visible then
+        term:hide()
+        did_hide = true
+      end
+    end
+  end
+  return did_hide
+end
+
 function Snacks:toggle()
-  require("snacks.terminal").toggle(self.cmd, self.opts)
+  local cwd = require("opencode.provider").get_project_root()
+  if self:hide_other_visible_terminals(cwd) then
+    return
+  end
+  local opts = vim.tbl_deep_extend("force", self.opts, { cwd = cwd })
+  require("snacks.terminal").toggle(self.cmd, opts)
 end
 
 function Snacks:start()
   if not self:get() then
-    require("snacks.terminal").open(self.cmd, self.opts)
+    local cwd = require("opencode.provider").get_project_root()
+    local opts = vim.tbl_deep_extend("force", self.opts, { cwd = cwd })
+    require("snacks.terminal").open(self.cmd, opts)
   end
 end
 
