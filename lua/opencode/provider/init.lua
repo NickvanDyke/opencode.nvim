@@ -58,7 +58,8 @@ local M = {}
 function M.get_project_root()
   local cwd = vim.fn.getcwd()
 
-  local git_root = vim.fn.systemlist("git -C " .. vim.fn.shellescape(cwd) .. " rev-parse --show-toplevel 2>/dev/null")[1]
+  local git_cmd = "git -C " .. vim.fn.shellescape(cwd) .. " rev-parse --show-toplevel 2>/dev/null"
+  local git_root = vim.fn.systemlist(git_cmd)[1]
   if vim.v.shell_error == 0 and git_root and git_root ~= "" then
     return git_root
   end
