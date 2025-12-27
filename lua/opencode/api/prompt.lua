@@ -45,15 +45,12 @@ function M.prompt(prompt, opts)
       end)
     end)
     :next(function(port)
-      if require("opencode.config").opts.events.enabled then
-        require("opencode.events").subscribe_to_sse(port)
-      end
-      return port
-    end)
-    :next(function(port)
+      require("opencode.events").subscribe()
+
       if opts.submit then
         require("opencode.cli.client").tui_execute_command("prompt.submit", port)
       end
+
       return port
     end)
     :catch(function(err)

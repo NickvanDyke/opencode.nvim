@@ -223,7 +223,7 @@ end
 ---
 ---@param port number
 ---@param callback fun(response: opencode.cli.client.Event)|nil
-function M.subscribe_to_sse(port, callback)
+function M.sse_subscribe(port, callback)
   if sse_state.port ~= port then
     if sse_state.job_id then
       vim.fn.jobstop(sse_state.job_id)
@@ -234,6 +234,17 @@ function M.subscribe_to_sse(port, callback)
       job_id = M.call(port, "/event", "GET", nil, callback),
     }
   end
+end
+
+function M.sse_unsubscribe()
+  if sse_state.job_id then
+    vim.fn.jobstop(sse_state.job_id)
+  end
+
+  sse_state = {
+    port = nil,
+    job_id = nil,
+  }
 end
 
 return M

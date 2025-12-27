@@ -52,21 +52,6 @@
 
 local M = {}
 
-local function subscribe_to_sse()
-  if not require("opencode.config").opts.events.enabled then
-    return
-  end
-
-  require("opencode.cli.server")
-    .get_port(false)
-    :next(function(port)
-      require("opencode.events").subscribe_to_sse(port)
-    end)
-    :catch(function(err)
-      vim.notify("Failed to subscribe to SSE: " .. err, vim.log.levels.WARN)
-    end)
-end
-
 ---Get all providers.
 ---@return opencode.Provider[]
 function M.list()
@@ -84,7 +69,7 @@ function M.toggle()
   local provider = require("opencode.config").provider
   if provider and provider.toggle then
     provider:toggle()
-    subscribe_to_sse()
+    require("opencode.events").subscribe()
   else
     error("`provider.toggle` unavailable — run `:checkhealth opencode` for details", 0)
   end
@@ -95,7 +80,7 @@ function M.start()
   local provider = require("opencode.config").provider
   if provider and provider.start then
     provider:start()
-    subscribe_to_sse()
+    require("opencode.events").subscribe()
   else
     error("`provider.start` unavailable — run `:checkhealth opencode` for details", 0)
   end
@@ -106,6 +91,7 @@ function M.stop()
   local provider = require("opencode.config").provider
   if provider and provider.stop then
     provider:stop()
+    require("opencode.events").unsubscribe()
   else
     error("`provider.stop` unavailable — run `:checkhealth opencode` for details", 0)
   end
