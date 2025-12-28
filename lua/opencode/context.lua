@@ -72,9 +72,15 @@ end
 ---@param buf integer
 ---@param range opencode.context.Range
 local function highlight(buf, range)
+  local end_row = range.to[1] - (range.kind == "line" and 0 or 1)
+  local end_col = nil
+  if range.kind ~= "line" then
+    local line = vim.api.nvim_buf_get_lines(buf, end_row, end_row + 1, false)[1] or ""
+    end_col = math.min(range.to[2] + 1, #line)
+  end
   vim.api.nvim_buf_set_extmark(buf, ns_id, range.from[1] - 1, range.from[2], {
-    end_row = range.to[1] - (range.kind == "line" and 0 or 1),
-    end_col = (range.kind ~= "line") and range.to[2] + 1 or nil,
+    end_row = end_row,
+    end_col = end_col,
     hl_group = "Visual",
   })
 end
