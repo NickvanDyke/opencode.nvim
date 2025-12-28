@@ -6,15 +6,15 @@ Integrate the [opencode](https://github.com/sst/opencode) AI assistant with Neov
 
 ## ✨ Features
 
-- Auto-connects to _any_ `opencode` running inside Neovim's CWD, or provides an integrated instance.
+- Auto-connect to _any_ `opencode` running inside Neovim's CWD, or provide an integrated instance.
 - Input prompts with completions, highlights, and normal-mode support.
 - Select prompts from a library and define your own.
-- Inject editor context (buffer, cursor, selection, diagnostics, etc.).
-- Control `opencode` with commands.
-- Respond to `opencode` permission requests.
-- Reloads buffers edited by `opencode` in real-time.
-- Monitor `opencode`'s state via statusline component.
-- Forwards `opencode`'s Server-Sent-Events as autocmds for automation.
+- Share editor context (buffer, cursor, selection, diagnostics, etc.).
+- Execute commands.
+- Respond to permission requests.
+- Reload edited buffers in real-time.
+- Monitor state via statusline component.
+- Forward Server-Sent-Events as autocmds for automation.
 - Sensible defaults with well-documented, flexible configuration and API to fit your workflow.
 - _Vim-y_ — supports ranges and dot-repeat.
 
