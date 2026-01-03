@@ -91,6 +91,7 @@ function Context.new(range)
   self.win = last_used_valid_win()
   self.buf = vim.api.nvim_win_get_buf(self.win)
   self.cursor = vim.api.nvim_win_get_cursor(self.win)
+  self.visual_mode = vim.fn.mode():match("[vV\22]")
   self.range = range or selection(self.buf)
   if self.range then
     highlight(self.buf, self.range)
@@ -104,7 +105,9 @@ end
 
 function Context:resume()
   self:clear()
-  vim.cmd("normal! gv")
+  if self.visual_mode then
+    vim.cmd("normal! gv")
+  end
 end
 
 ---Render `opts.contexts` in `prompt`.
