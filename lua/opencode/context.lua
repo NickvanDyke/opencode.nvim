@@ -7,7 +7,6 @@
 ---@class opencode.Context
 ---@field win integer
 ---@field buf integer
----@field visual_mode boolean
 ---@field cursor integer[] The cursor positon. { row, col } (1,0-based).
 ---@field range? opencode.context.Range The operator range or visual selection range.
 ---@field agents? opencode.client.Agent[] Subagents available in `opencode`.
@@ -92,7 +91,6 @@ function Context.new(range)
   self.win = last_used_valid_win()
   self.buf = vim.api.nvim_win_get_buf(self.win)
   self.cursor = vim.api.nvim_win_get_cursor(self.win)
-  self.visual_mode = vim.fn.mode():match("[vV\22]")
   self.range = range or selection(self.buf)
   if self.range then
     highlight(self.buf, self.range)
@@ -106,7 +104,7 @@ end
 
 function Context:resume()
   self:clear()
-  if self.visual_mode then
+  if self.range then
     vim.cmd("normal! gv")
   end
 end
