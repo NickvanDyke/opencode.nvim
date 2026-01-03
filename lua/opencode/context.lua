@@ -104,7 +104,7 @@ end
 
 function Context:resume()
   self:clear()
-  if self.range then
+  if self.range ~= nil then
     vim.cmd("normal! gv")
   end
 end
