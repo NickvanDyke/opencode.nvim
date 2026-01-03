@@ -7,6 +7,7 @@
 ---@class opencode.Context
 ---@field win integer
 ---@field buf integer
+---@field visual_mode boolean
 ---@field cursor integer[] The cursor positon. { row, col } (1,0-based).
 ---@field range? opencode.context.Range The operator range or visual selection range.
 ---@field agents? opencode.client.Agent[] Subagents available in `opencode`.
