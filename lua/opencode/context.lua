@@ -104,7 +104,9 @@ end
 
 function Context:resume()
   self:clear()
-  vim.cmd("normal! gv")
+  if self.range ~= nil then
+    vim.cmd("normal! gv")
+  end
 end
 
 ---Render `opts.contexts` in `prompt`.
