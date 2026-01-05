@@ -1,0 +1,355 @@
+---Custom chat frontend for opencode.nvim
+local M = {}
+
+---@class opencode.ui.chat.State
+---@field bufnr number
+---@field winid number
+---@field session_id string|nil
+---@field messages table[]
+---@field port number|nil
+---@field streaming_message_index number|nil
+
+---@type opencode.ui.chat.State|nil
+M.state = nil
+
+---Create a new chat window
+---@param opts? { width?: number, height?: number }
+---@return opencode.ui.chat.State
+function M.open(opts)
+  opts = opts or {}
+
+  -- Close existing chat window if open
+  if M.state then
+    M.close()
+  end
+
+  -- Create buffer
+  local bufnr = vim.api.nvim_create_buf(false, true)
+  vim.api.nvim_buf_set_option(bufnr, "filetype", "opencode_chat")
+  vim.api.nvim_buf_set_option(bufnr, "buftype", "nofile")
+  vim.api.nvim_buf_set_option(bufnr, "swapfile", false)
+  vim.api.nvim_buf_set_option(bufnr, "modifiable", false)
+  vim.api.nvim_buf_set_option(bufnr, "bufhidden", "wipe")
+
+  -- Create floating window
+  local width = opts.width or math.floor(vim.o.columns * 0.6)
+  local height = opts.height or math.floor(vim.o.lines * 0.7)
+
+  local winid = vim.api.nvim_open_win(bufnr, true, {
+    relative = "editor",
+    width = width,
+    height = height,
+    col = math.floor((vim.o.columns - width) / 2),
+    row = math.floor((vim.o.lines - height) / 2),
+    style = "minimal",
+    border = "rounded",
+    title = " OpenCode Chat ",
+    title_pos = "center",
+  })
+
+  -- Set window options
+  vim.api.nvim_win_set_option(winid, "wrap", true)
+  vim.api.nvim_win_set_option(winid, "linebreak", true)
+  vim.api.nvim_win_set_option(winid, "cursorline", true)
+
+  M.state = {
+    bufnr = bufnr,
+    winid = winid,
+    session_id = nil,
+    messages = {},
+    port = nil,
+    streaming_message_index = nil,
+  }
+
+  -- Setup keymaps
+  M.setup_keymaps(bufnr)
+
+  return M.state
+end
+
+---Setup buffer keymaps
+---@param bufnr number
+function M.setup_keymaps(bufnr)
+  local opts = { noremap = true, silent = true, buffer = bufnr }
+
+  -- Close window
+  vim.keymap.set("n", "q", function()
+    M.close()
+  end, vim.tbl_extend("force", opts, { desc = "Close chat" }))
+  vim.keymap.set("n", "<Esc>", function()
+    M.close()
+  end, vim.tbl_extend("force", opts, { desc = "Close chat" }))
+
+  -- Send prompt
+  vim.keymap.set("n", "i", function()
+    M.prompt_input()
+  end, vim.tbl_extend("force", opts, { desc = "Send message" }))
+  vim.keymap.set("n", "a", function()
+    M.prompt_input()
+  end, vim.tbl_extend("force", opts, { desc = "Send message" }))
+
+  -- Navigate messages
+  vim.keymap.set("n", "j", "j", opts)
+  vim.keymap.set("n", "k", "k", opts)
+  vim.keymap.set("n", "gg", "gg", opts)
+  vim.keymap.set("n", "G", "G", opts)
+
+  -- Copy message
+  vim.keymap.set("n", "yy", function()
+    M.yank_current_message()
+  end, vim.tbl_extend("force", opts, { desc = "Yank current message" }))
+
+  -- New session
+  vim.keymap.set("n", "n", function()
+    M.new_session()
+  end, vim.tbl_extend("force", opts, { desc = "New session" }))
+
+  -- Interrupt
+  vim.keymap.set("n", "<C-c>", function()
+    M.interrupt()
+  end, vim.tbl_extend("force", opts, { desc = "Interrupt" }))
+end
+
+---Close chat window
+function M.close()
+  if M.state then
+    if vim.api.nvim_win_is_valid(M.state.winid) then
+      vim.api.nvim_win_close(M.state.winid, true)
+    end
+    if vim.api.nvim_buf_is_valid(M.state.bufnr) then
+      vim.api.nvim_buf_delete(M.state.bufnr, { force = true })
+    end
+    M.state = nil
+  end
+end
+
+---Render messages to buffer
+function M.render()
+  if not M.state or not vim.api.nvim_buf_is_valid(M.state.bufnr) then
+    return
+  end
+
+  local lines = {}
+  local highlights = {}
+
+  for i, msg in ipairs(M.state.messages) do
+    -- Add separator
+    if i > 1 then
+      table.insert(lines, "")
+      table.insert(lines, string.rep("─", 80))
+      table.insert(lines, "")
+    end
+
+    -- Add role header
+    local role = msg.role == "user" and "You" or "Assistant"
+    local header = string.format("### %s", role)
+    local header_line = #lines
+    table.insert(lines, header)
+    table.insert(lines, "")
+
+    -- Add highlight for header
+    table.insert(highlights, {
+      line = header_line,
+      col_start = 0,
+      col_end = #header,
+      hl_group = msg.role == "user" and "Title" or "Special",
+    })
+
+    -- Add message content
+    if msg.text then
+      local content_lines = vim.split(msg.text, "\n")
+      for _, line in ipairs(content_lines) do
+        table.insert(lines, line)
+      end
+    end
+
+    -- Show typing indicator for streaming messages
+    if msg.streaming and not msg.complete then
+      table.insert(lines, "")
+      table.insert(lines, "▋") -- Typing indicator
+    end
+  end
+
+  -- Update buffer
+  vim.api.nvim_buf_set_option(M.state.bufnr, "modifiable", true)
+  vim.api.nvim_buf_set_lines(M.state.bufnr, 0, -1, false, lines)
+  vim.api.nvim_buf_set_option(M.state.bufnr, "modifiable", false)
+
+  -- Apply highlights
+  local ns_id = vim.api.nvim_create_namespace("opencode_chat")
+  vim.api.nvim_buf_clear_namespace(M.state.bufnr, ns_id, 0, -1)
+  for _, hl in ipairs(highlights) do
+    vim.api.nvim_buf_add_highlight(M.state.bufnr, ns_id, hl.hl_group, hl.line, hl.col_start, hl.col_end)
+  end
+
+  -- Scroll to bottom
+  if vim.api.nvim_win_is_valid(M.state.winid) then
+    vim.api.nvim_win_set_cursor(M.state.winid, { #lines, 0 })
+  end
+end
+
+---Prompt for user input
+function M.prompt_input()
+  if not M.state or not M.state.port or not M.state.session_id then
+    vim.notify("No active session", vim.log.levels.ERROR, { title = "opencode" })
+    return
+  end
+
+  vim.ui.input({ prompt = "Message: " }, function(input)
+    if input and input ~= "" then
+      M.send_message(input)
+    end
+  end)
+end
+
+---Send a message
+---@param text string
+function M.send_message(text)
+  if not M.state or not M.state.port or not M.state.session_id then
+    vim.notify("No active session", vim.log.levels.ERROR, { title = "opencode" })
+    return
+  end
+
+  -- Add user message to UI immediately
+  table.insert(M.state.messages, {
+    role = "user",
+    text = text,
+    timestamp = os.time(),
+  })
+  M.render()
+
+  -- Add placeholder for assistant response
+  table.insert(M.state.messages, {
+    role = "assistant",
+    text = "",
+    streaming = true,
+    complete = false,
+  })
+  M.state.streaming_message_index = #M.state.messages
+  M.render()
+
+  -- Send to backend
+  local client = require("opencode.cli.client")
+
+  -- TODO: Make provider and model configurable
+  client.send_message(text, M.state.session_id, M.state.port, "anthropic", "claude-3-5-sonnet-20241022", function()
+    -- Response will come via SSE events
+  end)
+end
+
+---Add or update a message
+---@param message table
+function M.add_message(message)
+  if not M.state then
+    return
+  end
+
+  -- Update last assistant message if streaming
+  if message.role == "assistant" and M.state.streaming_message_index then
+    local last = M.state.messages[M.state.streaming_message_index]
+    if last and last.role == "assistant" and last.streaming then
+      last.text = message.text or last.text or ""
+      if message.complete then
+        last.complete = true
+        last.streaming = false
+        M.state.streaming_message_index = nil
+      end
+      M.render()
+      return
+    end
+  end
+
+  -- Otherwise add new message
+  table.insert(M.state.messages, message)
+  M.render()
+end
+
+---Yank the current message under cursor
+function M.yank_current_message()
+  if not M.state then
+    return
+  end
+
+  -- Find which message the cursor is on
+  local cursor_line = vim.api.nvim_win_get_cursor(M.state.winid)[1]
+  local current_line = 0
+
+  for _, msg in ipairs(M.state.messages) do
+    -- Account for separator and header
+    if current_line > 0 then
+      current_line = current_line + 3 -- blank, separator, blank
+    end
+    current_line = current_line + 2 -- header + blank
+
+    local content_lines = vim.split(msg.text or "", "\n")
+    local msg_end = current_line + #content_lines
+
+    if cursor_line >= current_line and cursor_line <= msg_end then
+      -- Found the message, yank it
+      vim.fn.setreg('"', msg.text or "")
+      vim.notify("Message yanked to clipboard", vim.log.levels.INFO, { title = "opencode" })
+      return
+    end
+
+    current_line = msg_end
+  end
+end
+
+---Start a new session
+function M.new_session()
+  if not M.state or not M.state.port then
+    vim.notify("No connection to opencode", vim.log.levels.ERROR, { title = "opencode" })
+    return
+  end
+
+  -- Clear messages
+  M.state.messages = {}
+  M.state.session_id = nil
+  M.state.streaming_message_index = nil
+  M.render()
+
+  -- Create new session
+  local client = require("opencode.cli.client")
+  client.tui_execute_command("session.new", M.state.port, function()
+    -- Session ID will be set via SSE event
+    vim.notify("New session started", vim.log.levels.INFO, { title = "opencode" })
+  end)
+end
+
+---Interrupt the current session
+function M.interrupt()
+  if not M.state or not M.state.port then
+    vim.notify("No connection to opencode", vim.log.levels.ERROR, { title = "opencode" })
+    return
+  end
+
+  local client = require("opencode.cli.client")
+  client.tui_execute_command("session.interrupt", M.state.port, function()
+    if M.state and M.state.streaming_message_index then
+      local msg = M.state.messages[M.state.streaming_message_index]
+      if msg then
+        msg.complete = true
+        msg.streaming = false
+      end
+      M.state.streaming_message_index = nil
+      M.render()
+    end
+    vim.notify("Session interrupted", vim.log.levels.INFO, { title = "opencode" })
+  end)
+end
+
+---Set the session ID
+---@param session_id string
+function M.set_session_id(session_id)
+  if M.state then
+    M.state.session_id = session_id
+  end
+end
+
+---Get the current state
+---@return opencode.ui.chat.State|nil
+function M.get_state()
+  return M.state
+end
+
+return M

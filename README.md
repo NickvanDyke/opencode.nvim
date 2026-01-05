@@ -242,6 +242,37 @@ Please submit PRs adding new providers! 🙂
 
 ## 🚀 Usage
 
+### 💬 Chat — `require("opencode").chat()`
+
+Open a custom Neovim frontend for `opencode` with a floating window chat interface.
+
+- **Pure Neovim UI** — no terminal needed
+- **Real-time streaming** — see AI responses as they're generated
+- **Vim keybindings** — navigate with hjkl, yank messages, and more
+- **Session management** — create new sessions, interrupt responses
+- **Markdown rendering** — syntax highlighting for code blocks
+
+#### Keybindings
+
+| Key | Action |
+| --- | ------ |
+| `i` or `a` | Send a message |
+| `n` | Start a new session |
+| `q` or `<Esc>` | Close chat window |
+| `yy` | Yank current message to clipboard |
+| `<C-c>` | Interrupt current response |
+| `j`/`k` | Navigate up/down |
+| `gg`/`G` | Jump to top/bottom |
+
+#### Example Setup
+
+```lua
+-- Add to your keymaps
+vim.keymap.set('n', '<leader>oc', function()
+  require('opencode').chat()
+end, { desc = "Open OpenCode Chat" })
+```
+
 ### ✍️ Ask — `require("opencode").ask()`
 
 Input a prompt for `opencode`.
