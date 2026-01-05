@@ -1,19 +1,13 @@
 ---Event handler for custom chat frontend
 local M = {}
 
----@type number|nil
-local sse_job_id = nil
-
 ---Subscribe to opencode events and update chat UI
 ---@param port number
 function M.subscribe(port)
   local chat = require("opencode.ui.chat")
 
-  -- Unsubscribe from previous if any
-  M.unsubscribe()
-
-  -- Subscribe to SSE events
-  sse_job_id = require("opencode.cli.client").call(port, "/event", "GET", nil, function(event)
+  -- Subscribe to SSE events using the client's built-in management
+  require("opencode.cli.client").sse_subscribe(port, function(event)
     -- Only process events if chat window is still open
     local state = chat.get_state()
     if not state then
@@ -100,10 +94,8 @@ end
 
 ---Unsubscribe from SSE events
 function M.unsubscribe()
-  if sse_job_id then
-    vim.fn.jobstop(sse_job_id)
-    sse_job_id = nil
-  end
+  -- Use the client's built-in SSE unsubscribe
+  require("opencode.cli.client").sse_unsubscribe()
 end
 
 return M
