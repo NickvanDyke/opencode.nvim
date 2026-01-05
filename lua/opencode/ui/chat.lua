@@ -230,7 +230,7 @@ function M.render()
   end
 
   -- Scroll to bottom
-  if vim.api.nvim_win_is_valid(M.state.winid) then
+  if vim.api.nvim_win_is_valid(M.state.winid) and #lines > 0 then
     vim.api.nvim_win_set_cursor(M.state.winid, { #lines, 0 })
   end
 end
