@@ -8,11 +8,13 @@ vim.bo.commentstring = "<!-- %s -->"
 vim.cmd([[
   syntax match OpencodeHeaderUser "^### You$"
   syntax match OpencodeHeaderAssistant "^### Assistant$"
+  syntax match OpencodeHeaderSystem "^### System$"
   syntax match OpencodeSeparator "^─\+$"
   syntax match OpencodeTypingIndicator "^▋$"
 
   highlight default link OpencodeHeaderUser Title
   highlight default link OpencodeHeaderAssistant Special
+  highlight default link OpencodeHeaderSystem Comment
   highlight default link OpencodeSeparator Comment
   highlight default link OpencodeTypingIndicator WarningMsg
 ]])
@@ -20,8 +22,8 @@ vim.cmd([[
 -- Enable treesitter markdown highlighting if available
 local ok, ts_highlight = pcall(require, "vim.treesitter.highlighter")
 if ok then
-  local ok_ts = pcall(vim.treesitter.start, vim.api.nvim_get_current_buf(), "markdown")
-  if not ok_ts then
+  ok = pcall(vim.treesitter.start, vim.api.nvim_get_current_buf(), "markdown")
+  if not ok then
     -- Fallback to basic markdown syntax
     vim.cmd("runtime! syntax/markdown.vim")
   end

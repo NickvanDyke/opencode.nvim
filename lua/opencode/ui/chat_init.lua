@@ -27,9 +27,36 @@ function M.start_chat(opts)
       -- Show welcome message
       vim.schedule(function()
         if chat.get_state() then
+          local config = require("opencode.config").opts.chat or {}
+          local keymaps = config.keymaps or {}
+
+          -- Format keymaps for display
+          local function format_keys(keys)
+            if type(keys) == "string" then
+              return keys
+            elseif type(keys) == "table" then
+              return table.concat(keys, "/")
+            end
+            return "?"
+          end
+
+          local send_keys = format_keys(keymaps.send or { "i", "a" })
+          local new_session_key = format_keys(keymaps.new_session or "n")
+          local close_keys = format_keys(keymaps.close or { "q", "<Esc>" })
+          local yank_key = format_keys(keymaps.yank or "yy")
+          local interrupt_key = format_keys(keymaps.interrupt or "<C-c>")
+
           chat.add_message({
             role = "assistant",
-            text = "Chat session starting... Type 'i' or 'a' to send a message.\n\nKeybindings:\n  i/a - Send message\n  n - New session\n  q/<Esc> - Close\n  yy - Yank message\n  <C-c> - Interrupt",
+            text = string.format(
+              "Chat session starting... Type '%s' to send a message.\n\nKeybindings:\n  %s - Send message\n  %s - New session\n  %s - Close\n  %s - Yank message\n  %s - Interrupt",
+              send_keys,
+              send_keys,
+              new_session_key,
+              close_keys,
+              yank_key,
+              interrupt_key
+            ),
             streaming = false,
             complete = true,
           })

@@ -37,8 +37,28 @@ function M.open(opts)
   vim.api.nvim_set_option_value("bufhidden", "wipe", { buf = bufnr })
 
   -- Create floating window
-  local width = opts.width or math.floor(vim.o.columns * (config.width or 0.6))
-  local height = opts.height or math.floor(vim.o.lines * (config.height or 0.7))
+  -- Support both fractional (0-1) and absolute pixel values
+  local width
+  if opts.width ~= nil then
+    if opts.width > 0 and opts.width < 1 then
+      width = math.floor(vim.o.columns * opts.width)
+    else
+      width = opts.width
+    end
+  else
+    width = math.floor(vim.o.columns * (config.width or 0.6))
+  end
+
+  local height
+  if opts.height ~= nil then
+    if opts.height > 0 and opts.height < 1 then
+      height = math.floor(vim.o.lines * opts.height)
+    else
+      height = opts.height
+    end
+  else
+    height = math.floor(vim.o.lines * (config.height or 0.7))
+  end
 
   local winid = vim.api.nvim_open_win(bufnr, true, {
     relative = "editor",
@@ -102,12 +122,6 @@ function M.setup_keymaps(bufnr)
     M.prompt_input()
   end, "Send message")
 
-  -- Navigate messages
-  vim.keymap.set("n", "j", "j", opts)
-  vim.keymap.set("n", "k", "k", opts)
-  vim.keymap.set("n", "gg", "gg", opts)
-  vim.keymap.set("n", "G", "G", opts)
-
   -- Copy message
   set_keymap(keymaps.yank or "yy", function()
     M.yank_current_message()
@@ -121,7 +135,7 @@ function M.setup_keymaps(bufnr)
   -- Interrupt
   set_keymap(keymaps.interrupt or "<C-c>", function()
     M.interrupt()
-  end, vim.tbl_extend("force", opts, { desc = "Interrupt" }))
+  end, "Interrupt")
 end
 
 ---Close chat window
@@ -146,27 +160,46 @@ function M.render()
   local lines = {}
   local highlights = {}
 
+  -- Get window width for dynamic separator
+  local win_width = vim.api.nvim_win_is_valid(M.state.winid) and vim.api.nvim_win_get_width(M.state.winid) or 80
+
   for i, msg in ipairs(M.state.messages) do
     -- Add separator
     if i > 1 then
       table.insert(lines, "")
-      table.insert(lines, string.rep("─", 80))
+      table.insert(lines, string.rep("─", win_width))
       table.insert(lines, "")
     end
 
-    -- Add role header
-    local role = msg.role == "user" and "You" or "Assistant"
-    local header = string.format("### %s", role)
+    -- Add role header with proper role handling
+    local role_label
+    if msg.role == "user" then
+      role_label = "You"
+    elseif msg.role == "system" then
+      role_label = "System"
+    else
+      -- Default to Assistant for assistant role or nil
+      role_label = "Assistant"
+    end
+    local header = string.format("### %s", role_label)
     local header_line = #lines
     table.insert(lines, header)
     table.insert(lines, "")
 
     -- Add highlight for header
+    local hl_group
+    if msg.role == "user" then
+      hl_group = "Title"
+    elseif msg.role == "system" then
+      hl_group = "Comment"
+    else
+      hl_group = "Special"
+    end
     table.insert(highlights, {
       line = header_line,
       col_start = 0,
       col_end = #header,
-      hl_group = msg.role == "user" and "Title" or "Special",
+      hl_group = hl_group,
     })
 
     -- Add message content
@@ -228,7 +261,6 @@ function M.send_message(text)
   table.insert(M.state.messages, {
     role = "user",
     text = text,
-    timestamp = os.time(),
   })
   M.render()
 
@@ -257,18 +289,27 @@ function M.add_message(message)
     return
   end
 
+  -- Validate message has required fields
+  if not message or not message.role then
+    vim.notify("Invalid message: missing role", vim.log.levels.WARN, { title = "opencode" })
+    return
+  end
+
   -- Update last assistant message if streaming
   if message.role == "assistant" and M.state.streaming_message_index then
-    local last = M.state.messages[M.state.streaming_message_index]
-    if last and last.role == "assistant" and last.streaming then
-      last.text = message.text or last.text or ""
-      if message.complete then
-        last.complete = true
-        last.streaming = false
-        M.state.streaming_message_index = nil
+    -- Verify index is within bounds
+    if M.state.streaming_message_index <= #M.state.messages then
+      local last = M.state.messages[M.state.streaming_message_index]
+      if last and last.role == "assistant" and last.streaming then
+        last.text = message.text or last.text or ""
+        if message.complete then
+          last.complete = true
+          last.streaming = false
+          M.state.streaming_message_index = nil
+        end
+        M.render()
+        return
       end
-      M.render()
-      return
     end
   end
 
@@ -339,10 +380,13 @@ function M.interrupt()
   local client = require("opencode.cli.client")
   client.tui_execute_command("session.interrupt", M.state.port, function()
     if M.state and M.state.streaming_message_index then
-      local msg = M.state.messages[M.state.streaming_message_index]
-      if msg then
-        msg.complete = true
-        msg.streaming = false
+      -- Verify index is within bounds
+      if M.state.streaming_message_index <= #M.state.messages then
+        local msg = M.state.messages[M.state.streaming_message_index]
+        if msg then
+          msg.complete = true
+          msg.streaming = false
+        end
       end
       M.state.streaming_message_index = nil
       M.render()

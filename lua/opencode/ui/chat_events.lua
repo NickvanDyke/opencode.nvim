@@ -19,17 +19,20 @@ function M.subscribe(port)
     if event.type == "message.delta" then
       -- Streaming message chunk
       local delta = event.properties and event.properties.delta or ""
-      local current_msg = state.messages[state.streaming_message_index]
-      if current_msg then
-        current_msg.text = (current_msg.text or "") .. delta
-        chat.render()
+      -- Verify index is within bounds
+      if state.streaming_message_index and state.streaming_message_index <= #state.messages then
+        local current_msg = state.messages[state.streaming_message_index]
+        if current_msg then
+          current_msg.text = (current_msg.text or "") .. delta
+          chat.render()
+        end
       end
     elseif event.type == "message.created" or event.type == "message.updated" then
       -- Complete message
       local msg = event.properties and event.properties.message
       if msg and msg.role == "assistant" then
         -- Check if we have a streaming message to update
-        if state.streaming_message_index then
+        if state.streaming_message_index and state.streaming_message_index <= #state.messages then
           local current_msg = state.messages[state.streaming_message_index]
           if current_msg then
             current_msg.text = msg.text or current_msg.text or ""
@@ -63,7 +66,7 @@ function M.subscribe(port)
       end
     elseif event.type == "session.idle" then
       -- Session finished responding
-      if state.streaming_message_index then
+      if state.streaming_message_index and state.streaming_message_index <= #state.messages then
         local msg = state.messages[state.streaming_message_index]
         if msg then
           msg.complete = true
@@ -78,7 +81,7 @@ function M.subscribe(port)
       vim.notify("OpenCode error: " .. error_msg, vim.log.levels.ERROR, { title = "opencode" })
 
       -- Mark streaming message as complete if error occurred
-      if state.streaming_message_index then
+      if state.streaming_message_index and state.streaming_message_index <= #state.messages then
         local msg = state.messages[state.streaming_message_index]
         if msg then
           msg.text = (msg.text or "") .. "\n\n[Error: " .. error_msg .. "]"
