@@ -77,23 +77,30 @@ end
 ---Setup buffer keymaps
 ---@param bufnr number
 function M.setup_keymaps(bufnr)
+  local config = require("opencode.config").opts.chat or {}
+  local keymaps = config.keymaps or {}
   local opts = { noremap = true, silent = true, buffer = bufnr }
 
+  -- Helper function to set keymaps that might be arrays
+  local function set_keymap(keys, callback, desc)
+    if type(keys) == "string" then
+      vim.keymap.set("n", keys, callback, vim.tbl_extend("force", opts, { desc = desc }))
+    elseif type(keys) == "table" then
+      for _, key in ipairs(keys) do
+        vim.keymap.set("n", key, callback, vim.tbl_extend("force", opts, { desc = desc }))
+      end
+    end
+  end
+
   -- Close window
-  vim.keymap.set("n", "q", function()
+  set_keymap(keymaps.close or { "q", "<Esc>" }, function()
     M.close()
-  end, vim.tbl_extend("force", opts, { desc = "Close chat" }))
-  vim.keymap.set("n", "<Esc>", function()
-    M.close()
-  end, vim.tbl_extend("force", opts, { desc = "Close chat" }))
+  end, "Close chat")
 
   -- Send prompt
-  vim.keymap.set("n", "i", function()
+  set_keymap(keymaps.send or { "i", "a" }, function()
     M.prompt_input()
-  end, vim.tbl_extend("force", opts, { desc = "Send message" }))
-  vim.keymap.set("n", "a", function()
-    M.prompt_input()
-  end, vim.tbl_extend("force", opts, { desc = "Send message" }))
+  end, "Send message")
 
   -- Navigate messages
   vim.keymap.set("n", "j", "j", opts)
@@ -102,17 +109,17 @@ function M.setup_keymaps(bufnr)
   vim.keymap.set("n", "G", "G", opts)
 
   -- Copy message
-  vim.keymap.set("n", "yy", function()
+  set_keymap(keymaps.yank or "yy", function()
     M.yank_current_message()
-  end, vim.tbl_extend("force", opts, { desc = "Yank current message" }))
+  end, "Yank current message")
 
   -- New session
-  vim.keymap.set("n", "n", function()
+  set_keymap(keymaps.new_session or "n", function()
     M.new_session()
-  end, vim.tbl_extend("force", opts, { desc = "New session" }))
+  end, "New session")
 
   -- Interrupt
-  vim.keymap.set("n", "<C-c>", function()
+  set_keymap(keymaps.interrupt or "<C-c>", function()
     M.interrupt()
   end, vim.tbl_extend("force", opts, { desc = "Interrupt" }))
 end
