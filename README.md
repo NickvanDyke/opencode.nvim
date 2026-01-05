@@ -267,6 +267,16 @@ Open a custom Neovim frontend for `opencode` with a floating window chat interfa
 #### Example Setup
 
 ```lua
+-- Configure chat options (optional)
+vim.g.opencode_opts = {
+  chat = {
+    provider_id = "anthropic",  -- AI provider (default: "anthropic")
+    model_id = "claude-3-5-sonnet-20241022",  -- AI model (default: "claude-3-5-sonnet-20241022")
+    width = 0.6,  -- Window width as fraction of editor width (default: 0.6)
+    height = 0.7,  -- Window height as fraction of editor height (default: 0.7)
+  }
+}
+
 -- Add to your keymaps
 vim.keymap.set('n', '<leader>oc', function()
   require('opencode').chat()

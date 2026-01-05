@@ -32,11 +32,20 @@ vim.g.opencode_opts = vim.g.opencode_opts
 ---Supports [`snacks.picker`](https://github.com/folke/snacks.nvim/blob/main/docs/picker.md).
 ---@field select? opencode.select.Opts
 ---
+---Options for `chat()`.
+---@field chat? opencode.chat.Opts
+---
 ---Options for `opencode` event handling.
 ---@field events? opencode.events.Opts
 ---
 ---Provide an integrated `opencode` when one is not found.
 ---@field provider? opencode.Provider|opencode.provider.Opts
+
+---@class opencode.chat.Opts
+---@field provider_id? string AI provider to use (default: "anthropic")
+---@field model_id? string AI model to use (default: "claude-3-5-sonnet-20241022")
+---@field width? number Width of chat window as fraction of editor width (default: 0.6)
+---@field height? number Height of chat window as fraction of editor height (default: 0.7)
 
 ---@class opencode.Prompt : opencode.api.prompt.Opts
 ---@field prompt string The prompt to send to `opencode`.
@@ -104,6 +113,12 @@ local defaults = {
         hidden = {}, -- preview is hidden by default in `vim.ui.select`
       },
     },
+  },
+  chat = {
+    provider_id = "anthropic",
+    model_id = "claude-3-5-sonnet-20241022",
+    width = 0.6,
+    height = 0.7,
   },
   events = {
     enabled = true,

@@ -8,12 +8,14 @@ local M = {}
 ---@field messages table[]
 ---@field port number|nil
 ---@field streaming_message_index number|nil
+---@field provider_id string
+---@field model_id string
 
 ---@type opencode.ui.chat.State|nil
 M.state = nil
 
 ---Create a new chat window
----@param opts? { width?: number, height?: number }
+---@param opts? { width?: number, height?: number, provider_id?: string, model_id?: string }
 ---@return opencode.ui.chat.State
 function M.open(opts)
   opts = opts or {}
@@ -23,17 +25,20 @@ function M.open(opts)
     M.close()
   end
 
+  -- Get config
+  local config = require("opencode.config").opts.chat or {}
+
   -- Create buffer
   local bufnr = vim.api.nvim_create_buf(false, true)
-  vim.api.nvim_buf_set_option(bufnr, "filetype", "opencode_chat")
-  vim.api.nvim_buf_set_option(bufnr, "buftype", "nofile")
-  vim.api.nvim_buf_set_option(bufnr, "swapfile", false)
-  vim.api.nvim_buf_set_option(bufnr, "modifiable", false)
-  vim.api.nvim_buf_set_option(bufnr, "bufhidden", "wipe")
+  vim.api.nvim_set_option_value("filetype", "opencode_chat", { buf = bufnr })
+  vim.api.nvim_set_option_value("buftype", "nofile", { buf = bufnr })
+  vim.api.nvim_set_option_value("swapfile", false, { buf = bufnr })
+  vim.api.nvim_set_option_value("modifiable", false, { buf = bufnr })
+  vim.api.nvim_set_option_value("bufhidden", "wipe", { buf = bufnr })
 
   -- Create floating window
-  local width = opts.width or math.floor(vim.o.columns * 0.6)
-  local height = opts.height or math.floor(vim.o.lines * 0.7)
+  local width = opts.width or math.floor(vim.o.columns * (config.width or 0.6))
+  local height = opts.height or math.floor(vim.o.lines * (config.height or 0.7))
 
   local winid = vim.api.nvim_open_win(bufnr, true, {
     relative = "editor",
@@ -48,9 +53,9 @@ function M.open(opts)
   })
 
   -- Set window options
-  vim.api.nvim_win_set_option(winid, "wrap", true)
-  vim.api.nvim_win_set_option(winid, "linebreak", true)
-  vim.api.nvim_win_set_option(winid, "cursorline", true)
+  vim.api.nvim_set_option_value("wrap", true, { win = winid })
+  vim.api.nvim_set_option_value("linebreak", true, { win = winid })
+  vim.api.nvim_set_option_value("cursorline", true, { win = winid })
 
   M.state = {
     bufnr = bufnr,
@@ -59,6 +64,8 @@ function M.open(opts)
     messages = {},
     port = nil,
     streaming_message_index = nil,
+    provider_id = opts.provider_id or config.provider_id or "anthropic",
+    model_id = opts.model_id or config.model_id or "claude-3-5-sonnet-20241022",
   }
 
   -- Setup keymaps
@@ -171,9 +178,9 @@ function M.render()
   end
 
   -- Update buffer
-  vim.api.nvim_buf_set_option(M.state.bufnr, "modifiable", true)
+  vim.api.nvim_set_option_value("modifiable", true, { buf = M.state.bufnr })
   vim.api.nvim_buf_set_lines(M.state.bufnr, 0, -1, false, lines)
-  vim.api.nvim_buf_set_option(M.state.bufnr, "modifiable", false)
+  vim.api.nvim_set_option_value("modifiable", false, { buf = M.state.bufnr })
 
   -- Apply highlights
   local ns_id = vim.api.nvim_create_namespace("opencode_chat")
@@ -231,10 +238,16 @@ function M.send_message(text)
   -- Send to backend
   local client = require("opencode.cli.client")
 
-  -- TODO: Make provider and model configurable
-  client.send_message(text, M.state.session_id, M.state.port, "anthropic", "claude-3-5-sonnet-20241022", function()
-    -- Response will come via SSE events
-  end)
+  client.send_message(
+    text,
+    M.state.session_id,
+    M.state.port,
+    M.state.provider_id,
+    M.state.model_id,
+    function()
+      -- Response will come via SSE events
+    end
+  )
 end
 
 ---Add or update a message
