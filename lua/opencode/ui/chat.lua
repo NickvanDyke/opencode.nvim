@@ -238,16 +238,9 @@ function M.send_message(text)
   -- Send to backend
   local client = require("opencode.cli.client")
 
-  client.send_message(
-    text,
-    M.state.session_id,
-    M.state.port,
-    M.state.provider_id,
-    M.state.model_id,
-    function()
-      -- Response will come via SSE events
-    end
-  )
+  client.send_message(text, M.state.session_id, M.state.port, M.state.provider_id, M.state.model_id, function()
+    -- Response will come via SSE events
+  end)
 end
 
 ---Add or update a message
