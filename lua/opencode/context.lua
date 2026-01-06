@@ -16,8 +16,7 @@ Context.__index = Context
 local ns_id = vim.api.nvim_create_namespace("OpencodeContext")
 
 local function is_buf_valid(buf)
-  return vim.api.nvim_buf_is_loaded(buf)
-    and vim.api.nvim_get_option_value("buftype", { buf = buf }) == ""
+  return vim.api.nvim_get_option_value("buftype", { buf = buf }) == ""
     and vim.api.nvim_buf_get_name(buf) ~= ""
 end
 
@@ -26,7 +25,7 @@ local function last_used_valid_win()
   local latest_last_used = 0
   for _, win in ipairs(vim.api.nvim_list_wins()) do
     local buf = vim.api.nvim_win_get_buf(win)
-    if is_buf_valid(buf) then
+    if vim.api.nvim_buf_is_loaded(buf) and is_buf_valid(buf) then
       local last_used = vim.fn.getbufinfo(buf)[1].lastused or 0
       if last_used > latest_last_used then
         latest_last_used = last_used
@@ -311,7 +310,7 @@ function Context:visible_text()
   local visible = {}
   for _, win in ipairs(vim.api.nvim_list_wins()) do
     local buf = vim.api.nvim_win_get_buf(win)
-    if is_buf_valid(buf) then
+    if vim.api.nvim_buf_is_loaded(buf) and is_buf_valid(buf) then
       local start_line = vim.fn.line("w0", win)
       local end_line = vim.fn.line("w$", win)
       table.insert(
