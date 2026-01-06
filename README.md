@@ -20,9 +20,6 @@ Integrate the [opencode](https://github.com/sst/opencode) AI assistant with Neov
 
 ## 📦 Setup
 
-> [!TIP]
-> Run `:checkhealth opencode` after setup.
-
 ### [lazy.nvim](https://github.com/folke/lazy.nvim)
 
 ```lua
@@ -70,6 +67,9 @@ programs.nixvim = {
   ];
 };
 ```
+
+> [!TIP]
+> Run `:checkhealth opencode` after setup.
 
 ## ⚙️ Configuration
 
