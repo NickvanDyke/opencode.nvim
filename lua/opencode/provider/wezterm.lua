@@ -140,4 +140,9 @@ function Wezterm:stop()
   end
 end
 
+---@return number|nil
+function Wezterm:get_port()
+  return nil
+end
+
 return Wezterm

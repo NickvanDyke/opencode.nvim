@@ -31,6 +31,10 @@
 ---Should return `true` if the provider is available,
 ---else an error string and optional advice (for `vim.health.warn`).
 ---@field health? fun(): boolean|string, ...string|string[]
+---
+---Get the port of the `opencode` server started by this provider.
+---Returns `nil` if the provider cannot determine the port (falls back to CWD-based discovery).
+---@field get_port? fun(self: opencode.Provider): number|nil
 
 ---Configure and enable built-in providers.
 ---@class opencode.provider.Opts

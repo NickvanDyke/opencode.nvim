@@ -297,6 +297,19 @@ function M.get_port(launch)
   local Promise = require("opencode.promise")
 
   return Promise.new(function(resolve, reject)
+    -- Check if provider can supply port directly
+    local provider = require("opencode.config").provider
+    if provider and provider.get_port then
+      local provider_port = provider:get_port()
+      if provider_port then
+        local ok, _ = pcall(test_port, provider_port)
+        if ok then
+          resolve(provider_port)
+          return
+        end
+      end
+    end
+
     local configured_port = require("opencode.config").opts.port
     local find_port_fn = configured_port and function()
       return test_port(configured_port)

@@ -72,4 +72,9 @@ function Terminal:stop()
   end
 end
 
+---@return number|nil
+function Terminal:get_port()
+  return nil
+end
+
 return Terminal

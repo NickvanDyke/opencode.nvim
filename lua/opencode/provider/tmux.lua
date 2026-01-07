@@ -5,6 +5,9 @@
 ---
 ---The `tmux` pane ID where `opencode` is running (internal use only).
 ---@field pane_id? string
+---
+---Cached port of the `opencode` server (internal use only).
+---@field port? number
 local Tmux = {}
 Tmux.__index = Tmux
 Tmux.name = "tmux"
@@ -20,6 +23,7 @@ function Tmux.new(opts)
   local self = setmetatable({}, Tmux)
   self.opts = opts or {}
   self.pane_id = nil
+  self.port = nil
   return self
 end
 
@@ -85,7 +89,41 @@ function Tmux:stop()
   if pane_id then
     vim.fn.system("tmux kill-pane -t " .. pane_id)
     self.pane_id = nil
+    self.port = nil
   end
+end
+
+---Get the PID of the shell process running in the opencode pane.
+---@return number|nil pid
+function Tmux:get_pane_process_pid()
+  local pane_id = self:get_pane_id()
+  if not pane_id then
+    return nil
+  end
+
+  local output = vim.fn.system("tmux list-panes -t " .. pane_id .. " -F '#{pane_pid}'")
+  local pid = tonumber(vim.trim(output))
+  return pid
+end
+
+---Get the port of the opencode server started in this pane.
+---Traces from pane PID through descendants to find the listening port.
+---Caches the result for subsequent calls.
+---@return number|nil port
+function Tmux:get_port()
+  -- Return cached port if pane still exists
+  if self.port and self:get_pane_id() then
+    return self.port
+  end
+
+  local pane_pid = self:get_pane_process_pid()
+  if not pane_pid then
+    return nil
+  end
+
+  local process = require("opencode.util.process")
+  self.port = process.get_descendant_listening_port(pane_pid, 3)
+  return self.port
 end
 
 return Tmux
