@@ -16,9 +16,7 @@ Context.__index = Context
 local ns_id = vim.api.nvim_create_namespace("OpencodeContext")
 
 local function is_buf_valid(buf)
-  return vim.api.nvim_buf_is_loaded(buf)
-    and vim.api.nvim_get_option_value("buftype", { buf = buf }) == ""
-    and vim.api.nvim_buf_get_name(buf) ~= ""
+  return vim.api.nvim_get_option_value("buftype", { buf = buf }) == "" and vim.api.nvim_buf_get_name(buf) ~= ""
 end
 
 local function last_used_valid_win()
