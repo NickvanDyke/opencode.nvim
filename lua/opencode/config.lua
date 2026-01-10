@@ -54,6 +54,7 @@ local defaults = {
     ["@diagnostics"] = function(context) return context:diagnostics() end,
     ["@quickfix"] = function(context) return context:quickfix() end,
     ["@diff"] = function(context) return context:git_diff() end,
+    ["@marks"] = function(context) return context:marks() end,
     ["@grapple"] = function(context) return context:grapple_tags() end,
   },
   prompts = {

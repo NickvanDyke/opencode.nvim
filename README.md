@@ -81,14 +81,15 @@ programs.nixvim = {
 
 | Placeholder    | Context                                                     |
 | -------------- | ----------------------------------------------------------- |
-| `@this`        | Operator range or visual selection if any, else cursor position               |
-| `@buffer`      | Current buffer                                              |
-| `@buffers`     | Open buffers                                                |
-| `@visible`     | Visible text                                                |
-| `@diagnostics` | Current buffer diagnostics                                  |
-| `@quickfix`    | Quickfix list                                               |
-| `@diff`        | Git diff                                                    |
-| `@grapple`     | [grapple.nvim](https://github.com/cbochs/grapple.nvim) tags |
+| `@this`          | Operator range or visual selection if any, else cursor position |
+| `@buffer`        | Current buffer                                              |
+| `@buffers`       | Open buffers                                                |
+| `@visible`       | Visible text                                                |
+| `@diagnostics`   | Current buffer diagnostics                                  |
+| `@quickfix`      | Quickfix list                                               |
+| `@diff`          | Git diff                                                    |
+| `@marks`         | Global marks                                                |
+| `@grapple`       | [grapple.nvim](https://github.com/cbochs/grapple.nvim) tags |
 
 ### Prompts
 

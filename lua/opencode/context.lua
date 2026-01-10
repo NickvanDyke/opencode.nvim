@@ -397,6 +397,27 @@ function Context:git_diff()
   return nil
 end
 
+---Global marks.
+function Context:marks()
+  local marks = {}
+  for _, mark in ipairs(vim.fn.getmarklist()) do
+    if mark.mark:match("^'[A-Z]$") then
+      table.insert(
+        marks,
+        Context.format({
+          buf = mark.pos[1],
+          start_line = mark.pos[2],
+          start_col = mark.pos[3],
+        })
+      )
+    end
+  end
+  if #marks == 0 then
+    return nil
+  end
+  return table.concat(marks, ", ")
+end
+
 ---[`grapple.nvim`](https://github.com/cbochs/grapple.nvim) tags.
 function Context:grapple_tags()
   local is_available, grapple = pcall(require, "grapple")
