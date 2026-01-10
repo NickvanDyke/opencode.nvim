@@ -37,7 +37,7 @@ local is_permission_request_open = false
 
 vim.api.nvim_create_autocmd("User", {
   group = vim.api.nvim_create_augroup("OpencodePermissions", { clear = true }),
-  pattern = { "OpencodeEvent:permission.updated", "OpencodeEvent:permission.replied" },
+  pattern = { "OpencodeEvent:permission.asked", "OpencodeEvent:permission.replied" },
   callback = function(args)
     ---@type opencode.cli.client.Event
     local event = args.data.event
@@ -49,26 +49,7 @@ vim.api.nvim_create_autocmd("User", {
       return
     end
 
-    if event.type == "permission.updated" then
-      --[[
-      `event.properties` example: {
-        callID = "call_UgJGOepAJ5vQ7rkfGI5LNTaQ",
-        id = "per_9fe806323001XBhIAz9OrYTrgl",
-        messageID = "msg_9fe805f7700166572ZsmpxllBH",
-        metadata = {
-          command = "ls",
-          patterns = { "ls *" }
-        },
-        pattern = { "ls *" },
-        sessionID = "ses_60196b60affeVgP0AqbqjvORtu",
-        time = {
-          created = 1760911450915
-        },
-        title = "ls",
-        type = "bash"
-      }
-      --]]
-
+    if event.type == "permission.asked" then
       local idle_delay_ms = opts.idle_delay_ms
       vim.notify(
         "`opencode` requested permission — awaiting idle…",
@@ -77,17 +58,19 @@ vim.api.nvim_create_autocmd("User", {
       )
       on_user_idle(idle_delay_ms, function()
         is_permission_request_open = true
+        vim.print("event.properties", event.properties)
         vim.ui.select({ "Once", "Always", "Reject" }, {
-          prompt = "Permit opencode to: " .. event.properties.title .. "?: ",
+          prompt = "Permit opencode to: " .. event.properties.permission .. " " .. table.concat(
+            event.properties.patterns,
+            ", "
+          ) .. "?: ",
           format_item = function(item)
             return item
           end,
         }, function(choice)
           is_permission_request_open = false
           if choice then
-            local session_id = event.properties.sessionID
-            local permission_id = event.properties.id
-            require("opencode.cli.client").permit(port, session_id, permission_id, choice:lower())
+            require("opencode.cli.client").permit(port, event.properties.id, choice:lower())
           end
         end)
       end)

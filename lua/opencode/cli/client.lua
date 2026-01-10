@@ -180,13 +180,12 @@ function M.send_message(prompt, session_id, port, provider_id, model_id, callbac
 end
 
 ---@param port number
----@param session number
 ---@param permission number
----@param response "once"|"always"|"reject"
+---@param reply "once"|"always"|"reject"
 ---@param callback? fun(session: table)
-function M.permit(port, session, permission, response, callback)
-  M.call(port, "/session/" .. session .. "/permissions/" .. permission, "POST", {
-    response = response,
+function M.permit(port, permission, reply, callback)
+  M.call(port, "/permission/" .. permission .. "/reply", "POST", {
+    reply = reply,
   }, callback)
 end
 
