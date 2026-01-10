@@ -114,7 +114,7 @@ local defaults = {
     },
   },
   provider = {
-    cmd = "opencode",
+    cmd = "opencode --port",
     enabled = (function()
       for _, provider in ipairs(require("opencode.provider").list()) do
         local ok, _ = provider.health()
@@ -179,7 +179,7 @@ end
 ---The `opencode` provider resolved from `opts.provider`.
 ---
 ---Retains the base `provider.cmd` if not overridden.
----Appends `--port <port>` to `provider.cmd` if not already present and `opts.port` is set.
+---Sets `--port <port>` in `provider.cmd` if `opts.port` is set.
 ---@type opencode.Provider|nil
 M.provider = (function()
   local provider
@@ -210,8 +210,9 @@ M.provider = (function()
   end
 
   local port = M.opts.port
-  if port and provider and provider.cmd and not provider.cmd:find("--port") then
-    provider.cmd = provider.cmd .. " --port " .. tostring(port)
+  if port and provider and provider.cmd then
+    -- Remove any existing `--port` argument to avoid duplicates
+    provider.cmd = provider.cmd:gsub("--port ?", "") .. " --port " .. tostring(port)
   end
 
   return provider

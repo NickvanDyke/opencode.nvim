@@ -112,6 +112,9 @@ You can manually run `opencode` inside Neovim's CWD however you like and `openco
 
 If `opencode.nvim` can't find an existing `opencode`, it uses the configured provider (defaulting based on availability) to manage one for you.
 
+> [!IMPORTANT]
+> You _must_ run `opencode` with the `--port` flag to expose its server. Providers do so by default.
+
 <details>
 <summary><a href="https://neovim.io/doc/user/terminal.html">Neovim terminal</a></summary>
 

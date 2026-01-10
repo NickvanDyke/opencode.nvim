@@ -9,7 +9,8 @@
 ---@field name? string
 ---
 ---The command to start `opencode`.
----`opencode.nvim` will append `--port <port>` if not already present and `opts.port` is set.
+---Note the `--port` flag _must_ be present to expose the server for `opencode.nvim` to connect to.
+---`opencode.nvim` will set `--port <port>` specifically to `opts.port` if present.
 ---@field cmd? string
 ---
 ---@field new? fun(opts: table): opencode.Provider
