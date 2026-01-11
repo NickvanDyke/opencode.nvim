@@ -2,7 +2,7 @@
 
 Integrate the [opencode](https://github.com/sst/opencode) AI assistant with Neovim — streamline editor-aware research, reviews, and requests.
 
-<https://github.com/user-attachments/assets/01e4e2fc-bbfa-427e-b9dc-c1c1badaa90e>
+<https://github.com/user-attachments/assets/72a72bac-4f49-4191-b777-6647a6bc4566>
 
 ## ✨ Features
 
@@ -255,16 +255,12 @@ Input a prompt for `opencode`.
   - Press `<Tab>` to trigger built-in completion.
   - Registers `opts.ask.blink_cmp_sources` when using `snacks.input` and `blink.cmp`.
 
-<img width="800" alt="image" src="https://github.com/user-attachments/assets/8591c610-4824-4480-9e6d-0c94e9c18f3a" />
-
 ### 📝 Select — `require("opencode").select()`
 
 Select from all `opencode.nvim` functionality.
 
 - Fetches custom commands from `opencode`.
 - Highlights and previews items when using `snacks.picker`.
-
-<img width="800" alt="image" src="https://github.com/user-attachments/assets/afd85acd-e4b3-47d2-b92f-f58d25972edb" />
 
 ### 🗣️ Prompt — `require("opencode").prompt()`
 
