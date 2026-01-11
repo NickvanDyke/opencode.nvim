@@ -95,6 +95,8 @@ local defaults = {
         ["session.undo"] = "Undo the last action in the current session",
         ["session.redo"] = "Redo the last undone action in the current session",
         ["agent.cycle"] = "Cycle the selected agent",
+        ["prompt.submit"] = "Submit the current prompt",
+        ["prompt.clear"] = "Clear the current prompt",
       },
       provider = true,
     },
