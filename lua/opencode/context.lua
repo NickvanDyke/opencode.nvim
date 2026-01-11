@@ -9,7 +9,7 @@
 ---@field buf integer
 ---@field cursor integer[] The cursor positon. { row, col } (1,0-based).
 ---@field range? opencode.context.Range The operator range or visual selection range.
----@field agents? opencode.client.Agent[] Subagents available in `opencode`.
+---@field agents? opencode.cli.client.Agent[] Subagents available in `opencode`.
 local Context = {}
 Context.__index = Context
 

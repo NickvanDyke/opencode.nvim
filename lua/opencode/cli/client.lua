@@ -86,6 +86,8 @@ local function curl(url, method, body, callback)
   local command = {
     "curl",
     "-s",
+    "--connect-timeout",
+    "1",
     "-X",
     method,
     "-H",
@@ -103,6 +105,8 @@ local function curl(url, method, body, callback)
   -- Buffer the response outside of the job callbacks - they may be called multiple times
   local response_buffer = {}
   local stderr_lines = {}
+  -- TODO: Migrate to newer `vim.system` API.
+  -- (Maybe synchronously for non-SSE, because we're called from Promises? Simpler.)
   return vim.fn.jobstart(command, {
     on_stdout = function(_, data)
       local responses = handle_response(data, response_buffer)
@@ -189,18 +193,18 @@ function M.permit(port, permission, reply, callback)
   }, callback)
 end
 
----@class opencode.client.Agent
+---@class opencode.cli.client.Agent
 ---@field name string
 ---@field description string
 ---@field mode "primary"|"subagent"
 
 ---@param port number
----@param callback fun(agents: opencode.client.Agent[])
+---@param callback fun(agents: opencode.cli.client.Agent[])
 function M.get_agents(port, callback)
   M.call(port, "/agent", "GET", nil, callback)
 end
 
----@class opencode.client.Command
+---@class opencode.cli.client.Command
 ---@field name string
 ---@field description string
 ---@field template string
@@ -209,9 +213,40 @@ end
 ---Get custom commands from `opencode`.
 ---
 ---@param port number
----@param callback fun(commands: opencode.client.Command[])
+---@param callback fun(commands: opencode.cli.client.Command[])
 function M.get_commands(port, callback)
   M.call(port, "/command", "GET", nil, callback)
+end
+
+---@class opencode.cli.client.PathResponse
+---@field directory string
+---@field worktree string
+
+---@param port number
+---@return opencode.cli.client.PathResponse
+function M.get_path(port)
+  assert(vim.fn.executable("curl") == 1, "`curl` executable not found")
+
+  -- Query each port synchronously for working directory
+  -- TODO: Migrate to align with async paradigm used elsewhere
+  local curl_result = vim
+    .system({
+      "curl",
+      "-s",
+      "--connect-timeout",
+      "1",
+      "http://localhost:" .. port .. "/path",
+    })
+    :wait()
+
+  if curl_result.code == 0 and curl_result.stdout and curl_result.stdout ~= "" then
+    local path_ok, path_data = pcall(vim.fn.json_decode, curl_result.stdout)
+    if path_ok and (path_data.directory or path_data.worktree) then
+      return path_data
+    end
+  end
+
+  error("Failed to get working directory for `opencode` port: " .. port, 0)
 end
 
 ---@class opencode.cli.client.Event

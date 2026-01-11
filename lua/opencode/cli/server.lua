@@ -20,8 +20,8 @@ end
 ---@param command string
 ---@return string
 local function exec(command)
-  -- TODO: Use vim.fn.jobstart for async, and so I can capture stderr (to throw error instead of it writing to the buffer).
-  -- (or even the newer `vim.system`? Could update client.lua too? Or maybe not because SSE is long-running.)
+  -- TODO: Use vim.fn.jobstart for async, and to capture stderr (to throw error instead of it writing to the buffer).
+  -- (or the newer `vim.system`?)
   local handle = io.popen(command)
   if not handle then
     error("Couldn't execute command: " .. command, 0)
@@ -112,43 +112,6 @@ ForEach-Object {
   return processes
 end
 
----Populate the working directory of an `opencode` process by querying its `/path` endpoint at `port`.
----Returns `nil` if the working directory can't be determined.
----@param process opencode.cli.server.Process
----@return opencode.cli.server.Server
-local function populate_cwd(process)
-  assert(vim.fn.executable("curl") == 1, "`curl` executable not found")
-
-  -- Query each port synchronously for working directory
-  -- TODO: Migrate `client.lua` to use `vim.system` and move this there.
-  local curl_result = vim
-    .system({
-      "curl",
-      "-s",
-      "--connect-timeout",
-      "1",
-      "http://localhost:" .. process.port .. "/path",
-    })
-    :wait()
-
-  if curl_result.code == 0 and curl_result.stdout and curl_result.stdout ~= "" then
-    local path_ok, path_data = pcall(vim.fn.json_decode, curl_result.stdout)
-    if path_ok and (path_data.directory or path_data.worktree) then
-      local cwd = path_data.directory or path_data.worktree
-      if cwd then
-        ---@type opencode.cli.server.Server
-        return {
-          pid = process.pid,
-          port = process.port,
-          cwd = cwd,
-        }
-      end
-    end
-  end
-
-  error("Failed to get working directory for `opencode` process: " .. process.pid, 0)
-end
-
 ---@return opencode.cli.server.Server[]
 local function find_servers()
   local processes
@@ -167,9 +130,13 @@ local function find_servers()
   ---@type opencode.cli.server.Server[]
   local servers = {}
   for _, process in ipairs(processes) do
-    local ok, server = pcall(populate_cwd, process)
+    local ok, path = pcall(require("opencode.cli.client").get_path, process.port)
     if ok then
-      table.insert(servers, server)
+      table.insert(servers, {
+        pid = process.pid,
+        port = process.port,
+        cwd = path.directory or path.worktree,
+      })
     end
   end
   if #servers == 0 then
@@ -270,38 +237,29 @@ local function poll_for_port(fn, callback)
   )
 end
 
----Test if a process is responding on `port`.
----@param port number
----@return number port
-local function test_port(port)
-  -- TODO: `curl` "/app" endpoint to verify it's actually an opencode server.
-  local ok, chan = pcall(vim.fn.sockconnect, "tcp", ("localhost:%d"):format(port), { rpc = false, timeout = 200 })
-  if not ok or chan == 0 then
-    error(("No `opencode` process listening on port: %d"):format(port), 0)
-  else
-    pcall(vim.fn.chanclose, chan)
-    return port
-  end
-end
-
 ---Attempt to get the `opencode` server's port. Tries, in order:
 ---1. A process responding on `opts.port`.
 ---2. Any `opencode` process running inside Neovim's CWD. Prioritizes embedded.
 ---3. Calling `opts.provider.start` and polling for the port.
+---
 ---@param launch boolean? Whether to launch a new server if none found. Defaults to true.
 function M.get_port(launch)
-  if launch == nil then
-    launch = true
-  end
+  launch = launch ~= false
 
-  local Promise = require("opencode.promise")
-
-  return Promise.new(function(resolve, reject)
+  return require("opencode.promise").new(function(resolve, reject)
     local configured_port = require("opencode.config").opts.port
-    local find_port_fn = configured_port and function()
-      return test_port(configured_port)
-    end or function()
-      return find_server_inside_nvim_cwd().port
+    local find_port_fn = function()
+      if configured_port then
+        -- Test the configured port
+        local ok, path = pcall(require("opencode.cli.client").get_path, configured_port)
+        if ok and path then
+          return configured_port
+        else
+          error("No `opencode` responding on configured port: " .. configured_port, 0)
+        end
+      else
+        return find_server_inside_nvim_cwd().port
+      end
     end
 
     local initial_ok, initial_result = pcall(find_port_fn)

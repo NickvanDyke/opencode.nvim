@@ -55,6 +55,8 @@ end
 function Snacks:stop()
   local win = self:get()
   if win then
+    -- TODO: Stop the job first so we don't get error exit code.
+    -- Not sure how to get the job ID from snacks API though.
     win:close()
   end
 end
