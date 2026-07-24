@@ -18,7 +18,7 @@ function M.request(event)
       end,
     })
     :next(function(choice)
-      return require("opencode.promise").resolve(choice)
+      return require("opencode.promise").resolve(choice:lower())
     end)
 end
 
