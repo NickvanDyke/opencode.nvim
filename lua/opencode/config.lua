@@ -106,7 +106,9 @@ local defaults = {
   },
   events = {
     enabled = true,
-    reload = true,
+    reload = {
+      enabled = true,
+    },
     permissions = {
       enabled = true,
       edits = {
@@ -120,7 +122,7 @@ local defaults = {
 ---@type opencode.Opts
 M.opts = vim.tbl_deep_extend("force", vim.deepcopy(defaults), vim.g.opencode_opts or {})
 
-if M.opts.events.reload then
+if M.opts.events.reload.enabled then
   local info = vim.api.nvim_get_option_info2("autoread", { scope = "global" })
   if not info.was_set then
     vim.o.autoread = true

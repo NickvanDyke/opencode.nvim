@@ -20,9 +20,9 @@ function M.check()
   vim.health.info("`vim.g.opencode_opts`: " .. vim.inspect(vim.g.opencode_opts))
   local opts = require("opencode.config").opts
 
-  if opts.events.reload and not vim.o.autoread then
+  if opts.events.reload.enabled and not vim.o.autoread then
     vim.health.warn(
-      "`vim.g.opencode_opts.events.reload = true` but `vim.o.autoread = false`: files edited by `opencode` can't be automatically reloaded in buffers.",
+      "`vim.g.opencode_opts.events.reload.enabled = true` but `vim.o.autoread = false`: files edited by `opencode` can't be automatically reloaded in buffers.",
       "Set `vim.o.autoread = true`."
     )
   end
