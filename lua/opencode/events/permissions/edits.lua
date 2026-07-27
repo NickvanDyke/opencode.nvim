@@ -9,7 +9,7 @@ local current_edit_request_id = nil
 local diff_tabpage = nil
 
 ---@param event opencode.server.Event | { type: "permission.asked" } | { type: "permission.replied" }
----@return Promise<opencode.server.PermissionReply|nil>
+---@return Promise<opencode.server.PermissionReply>
 function M.diff(event)
   local Promise = require("opencode.promise")
 
@@ -54,7 +54,7 @@ function M.diff(event)
     diff_tabpage = vim.api.nvim_get_current_tabpage()
     current_edit_request_id = event.properties.id
 
-    return Promise.new(function(resolve)
+    return Promise.new(function(resolve, reject)
       -- Override native hunk-specific keymaps to reject the edit as a whole first
       vim.keymap.set("n", "dp", function()
         if current_edit_request_id then
@@ -87,7 +87,7 @@ function M.diff(event)
         vim.cmd("tabclose")
         current_edit_request_id = nil
         diff_tabpage = nil
-        resolve(nil)
+        reject()
       end, { buffer = true, desc = "Close OpenCode edit diff" })
     end)
   elseif event.type == "permission.replied" and current_edit_request_id == event.properties.requestID then

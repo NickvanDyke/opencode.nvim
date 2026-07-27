@@ -24,7 +24,9 @@ vim.api.nvim_create_autocmd("User", {
         end)
       end)
       :catch(function(err)
-        vim.notify("OpenCode permission request error: " .. err, vim.log.levels.ERROR, { title = "opencode" })
+        if err then
+          vim.notify("OpenCode permission request error: " .. err, vim.log.levels.ERROR, { title = "opencode" })
+        end
       end)
 
     -- TODO: Would like to close our permission dialog on `permission.replied`, in case user responded in the TUI.

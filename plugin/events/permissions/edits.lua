@@ -22,7 +22,9 @@ vim.api.nvim_create_autocmd("User", {
         end)
       end)
       :catch(function(err)
-        vim.notify("OpenCode edit request error: " .. err, vim.log.levels.ERROR, { title = "opencode" })
+        if err then
+          vim.notify("OpenCode edit request error: " .. err, vim.log.levels.ERROR, { title = "opencode" })
+        end
       end)
   end,
   desc = "Diff proposed edits from OpenCode",
