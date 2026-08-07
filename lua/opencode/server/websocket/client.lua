@@ -60,6 +60,12 @@ function Client:handle_data(data, on_message, on_close)
 
       self.buffer = self.buffer:sub(decoded.consumed + 1)
 
+      if not decoded.masked then
+        self:close()
+        on_close()
+        return
+      end
+
       if decoded.opcode == 0x8 then
         self:close()
         on_close()
