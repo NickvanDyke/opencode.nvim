@@ -161,13 +161,17 @@ local function debounce_send_selection()
   end
 
   M.state.debounce_timer = timer
-  timer:start(100, 0, vim.schedule_wrap(function()
-    if M.state.debounce_timer == timer then
-      M.state.debounce_timer = nil
-      timer:close()
-      M.update()
-    end
-  end))
+  timer:start(
+    100,
+    0,
+    vim.schedule_wrap(function()
+      if M.state.debounce_timer == timer then
+        M.state.debounce_timer = nil
+        timer:close()
+        M.update()
+      end
+    end)
+  )
 end
 
 local function on_cursor_moved()

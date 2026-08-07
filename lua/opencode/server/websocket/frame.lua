@@ -65,6 +65,7 @@ function M.decode_frame(data)
   return {
     fin = fin,
     opcode = opcode,
+    masked = masked,
     payload = payload,
     consumed = offset + payload_len,
   }
