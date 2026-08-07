@@ -110,6 +110,10 @@ function M.start(port, auth_token)
   end
 
   local sockname = server:getsockname()
+  if not sockname then
+    server:close()
+    return false, "Failed to determine server port"
+  end
   local actual_port = sockname.port
 
   M.state.server = server
@@ -150,7 +154,7 @@ function M.broadcast_selection_changed(file_path, selection)
   return broadcast("selection_changed", {
     text = selection.text or "",
     filePath = file_path,
-    fileUrl = "file://" .. file_path,
+    fileUrl = vim.uri_from_fname(file_path),
     selection = {
       start = {
         line = selection.start_line,
