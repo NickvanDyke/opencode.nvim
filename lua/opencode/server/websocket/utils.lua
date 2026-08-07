@@ -65,12 +65,10 @@ function M.sha1(str)
 
   local zero_bytes = (56 - (#msg % 64)) % 64
   msg = msg .. string.rep("\0", zero_bytes)
-
   msg = msg .. M.pack_u64(len)
 
-  local chunk_size = 64
-  for i = 1, #msg, chunk_size do
-    local chunk = string.sub(msg, i, i + chunk_size - 1)
+  for i = 1, #msg, 64 do
+    local chunk = string.sub(msg, i, i + 63)
     local words = {}
 
     for j = 1, 16 do
@@ -80,8 +78,7 @@ function M.sha1(str)
     end
 
     for j = 17, 80 do
-      local w = bit.bxor(words[j - 3], words[j - 8], words[j - 14], words[j - 16])
-      words[j] = bit.rol(w, 1)
+      words[j] = bit.rol(bit.bxor(words[j - 3], words[j - 8], words[j - 14], words[j - 16]), 1)
     end
 
     local a, b, c, d, e = h0, h1, h2, h3, h4
@@ -127,7 +124,6 @@ function M.base64_encode(str)
     local b1 = string.byte(str, i)
     local b2 = string.byte(str, i + 1) or 0
     local b3 = string.byte(str, i + 2) or 0
-
     local n = b1 * 65536 + b2 * 256 + b3
 
     local c1 = math.floor(n / 262144) % 64
@@ -137,18 +133,8 @@ function M.base64_encode(str)
 
     table.insert(result, string.sub(b64chars, c1 + 1, c1 + 1))
     table.insert(result, string.sub(b64chars, c2 + 1, c2 + 1))
-
-    if i + 1 <= #str then
-      table.insert(result, string.sub(b64chars, c3 + 1, c3 + 1))
-    else
-      table.insert(result, "=")
-    end
-
-    if i + 2 <= #str then
-      table.insert(result, string.sub(b64chars, c4 + 1, c4 + 1))
-    else
-      table.insert(result, "=")
-    end
+    table.insert(result, i + 1 <= #str and string.sub(b64chars, c3 + 1, c3 + 1) or "=")
+    table.insert(result, i + 2 <= #str and string.sub(b64chars, c4 + 1, c4 + 1) or "=")
   end
 
   return table.concat(result)
@@ -171,11 +157,7 @@ function M.parse_http_headers(request)
 end
 
 function M.constant_time_compare(a, b)
-  if type(a) ~= "string" or type(b) ~= "string" then
-    return false
-  end
-
-  if #a ~= #b then
+  if type(a) ~= "string" or type(b) ~= "string" or #a ~= #b then
     return false
   end
 

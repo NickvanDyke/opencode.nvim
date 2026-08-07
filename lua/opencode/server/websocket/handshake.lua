@@ -1,5 +1,6 @@
+local utils = require("opencode.server.websocket.utils")
+
 local M = {}
-local utils = require("opencode.editor.utils")
 
 function M.validate_upgrade_request(request, expected_auth_token)
   local headers = utils.parse_http_headers(request)
@@ -35,20 +36,16 @@ function M.validate_upgrade_request(request, expected_auth_token)
 end
 
 function M.create_accept_key(websocket_key)
-  local GUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
-  local combined = websocket_key .. GUID
-  local sha1_hash = utils.sha1(combined)
-  return utils.base64_encode(sha1_hash)
+  local combined = websocket_key .. "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
+  return utils.base64_encode(utils.sha1(combined))
 end
 
 function M.create_response(websocket_key, auth_token)
-  local accept_key = M.create_accept_key(websocket_key)
-
   local response = {
     "HTTP/1.1 101 Switching Protocols",
     "Upgrade: websocket",
     "Connection: Upgrade",
-    "Sec-WebSocket-Accept: " .. accept_key,
+    "Sec-WebSocket-Accept: " .. M.create_accept_key(websocket_key),
   }
 
   if auth_token then

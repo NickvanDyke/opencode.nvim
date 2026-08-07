@@ -24,7 +24,7 @@ end, { range = true, desc = "Attach visual selection to OpenCode context (no sub
 
 if live_context and live_context.enabled then
   vim.schedule(function()
-    if not require("opencode.editor").is_running() then
+    if not require("opencode.server.websocket").is_running() then
       start(live_context)
     end
   end)
@@ -33,7 +33,7 @@ end
 vim.api.nvim_create_autocmd("VimLeavePre", {
   group = vim.api.nvim_create_augroup("OpenCodeLiveContextShutdown", { clear = true }),
   callback = function()
-    if require("opencode.editor").is_running() then
+    if require("opencode.server.websocket").is_running() then
       require("opencode").stop_live_context()
     end
   end,

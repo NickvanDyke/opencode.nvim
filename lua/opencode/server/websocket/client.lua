@@ -1,4 +1,4 @@
-local frame_module = require("opencode.editor.frame")
+local frame = require("opencode.server.websocket.frame")
 
 local Client = {}
 Client.__index = Client
@@ -19,15 +19,13 @@ function Client:send(data)
 end
 
 function Client:send_json(message)
-  local json = vim.json.encode(message)
-  local ws_frame = frame_module.text_frame(json)
-  self:send(ws_frame)
+  self:send(frame.text_frame(vim.json.encode(message)))
 end
 
 function Client:close()
   if self.client and not self.client:is_closing() then
     if self.state == "connected" then
-      self:send(frame_module.close_frame())
+      self:send(frame.close_frame())
     end
     self.client:close()
   end
@@ -55,7 +53,7 @@ function Client:handle_data(data, on_message, on_close)
         return
       end
     elseif self.state == "connected" then
-      local decoded = frame_module.decode_frame(self.buffer)
+      local decoded = frame.decode_frame(self.buffer)
       if not decoded then
         break
       end
@@ -67,7 +65,7 @@ function Client:handle_data(data, on_message, on_close)
         on_close()
         return
       elseif decoded.opcode == 0x9 then
-        self:send(frame_module.pong_frame())
+        self:send(frame.pong_frame())
       elseif decoded.opcode == 0xA then
       elseif decoded.opcode == 0x1 then
         local ok = pcall(on_message, "message", decoded.payload)

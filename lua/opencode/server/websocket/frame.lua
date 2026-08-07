@@ -1,6 +1,7 @@
-local M = {}
-local utils = require("opencode.editor.utils")
 local bit = require("bit")
+local utils = require("opencode.server.websocket.utils")
+
+local M = {}
 
 local OPCODE_TEXT = 0x1
 local OPCODE_CLOSE = 0x8
@@ -36,7 +37,7 @@ function M.decode_frame(data)
     offset = offset + 8
   end
 
-  local mask_key = nil
+  local mask_key
   if masked then
     if #data < offset + 4 then
       return nil
@@ -76,8 +77,7 @@ function M.encode_frame(payload, opcode, masked)
   local len = #payload
   local frame = {}
 
-  local byte1 = bit.bor(0x80, opcode)
-  table.insert(frame, string.char(byte1))
+  table.insert(frame, string.char(bit.bor(0x80, opcode)))
 
   local byte2 = masked and 0x80 or 0x00
 

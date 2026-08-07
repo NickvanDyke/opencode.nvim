@@ -1,5 +1,5 @@
 local M = {}
-local server = require("opencode.editor")
+local server = require("opencode.server.websocket")
 
 M.state = {
   last_selection = nil,

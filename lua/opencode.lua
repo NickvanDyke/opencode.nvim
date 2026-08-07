@@ -111,7 +111,7 @@ end
 M.format = require("opencode.context").format
 
 M.editor = {
-  server = require("opencode.editor"),
+  server = require("opencode.server.websocket"),
   selection = require("opencode.editor.selection"),
   lockfile = require("opencode.editor.lockfile"),
 }

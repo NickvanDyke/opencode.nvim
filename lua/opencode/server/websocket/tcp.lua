@@ -1,6 +1,6 @@
-local M = {}
-
 local uv = vim.uv
+
+local M = {}
 
 function M.create_server(host, port, on_connection)
   local server = uv.new_tcp()
@@ -14,8 +14,8 @@ function M.create_server(host, port, on_connection)
     return nil, err or "Failed to bind to port"
   end
 
-  ok, err = server:listen(128, function(err)
-    if err then
+  ok, err = server:listen(128, function(listen_err)
+    if listen_err then
       return
     end
 
