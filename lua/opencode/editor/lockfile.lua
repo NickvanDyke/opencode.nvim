@@ -1,6 +1,9 @@
 local M = {}
 
 local function get_lockfile_dir()
+  -- Opencode actually read the lockfile inside .claude
+  -- for some reason
+  -- See: https://github.com/anomalyco/opencode/blob/dev/packages/tui/src/editor.ts
   return vim.fn.expand("~/.claude/ide")
 end
 
