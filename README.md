@@ -22,6 +22,7 @@ For me, the best tools are the ones that "just work." opencode.nvim is designed 
 - Accept/reject and reload OpenCode edits
 - Handle OpenCode events as autocmds
 - Simple, sensible, Vim-y defaults and interfaces
+- **Live Context**: Broadcast current file/selection to OpenCode TUI in real-time via WebSocket
 
 ## 📦 Setup
 
@@ -295,6 +296,41 @@ Prompt OpenCode.
 ### Operator — `require("opencode").operator()`
 
 Wraps Prompt as an operator, supporting ranges and dot-repeat.
+
+### Live Context — `require("opencode").start_live_context()`
+
+Enable real-time broadcasting of file/selection context to OpenCode TUI via WebSocket.
+
+The OpenCode TUI automatically discovers and connects to:
+1. Lockfile at `~/.claude/ide/[port].lock`
+2. Environment variable `OPENCODE_EDITOR_SSE_PORT` or `CLAUDE_CODE_SSE_PORT`
+
+**Setup:**
+
+```lua
+vim.g.opencode_opts = {
+  live_context = {
+    enabled = true,  -- Auto-start on VimEnter
+    port = 0,        -- 0 for random port
+    auth_token = nil -- Optional: set to string or true to generate
+  }
+}
+
+-- Or start manually:
+vim.keymap.set("n", "<leader>ol", function()
+  require("opencode").start_live_context()
+end, { desc = "Start live context" })
+```
+
+**Usage:**
+- OpenCode TUI will show current file selection in real-time
+- Use `attach_context()` to send visual selection without submitting prompt
+- Selection updates broadcast automatically when you move cursor or change files
+
+**API:**
+- `start_live_context(opts)` - Start WebSocket server and selection tracking
+- `stop_live_context()` - Stop server and cleanup
+- `attach_context()` - Send current selection to OpenCode (no submit)
 
 ### Command — `require("opencode").command()`
 

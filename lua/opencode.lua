@@ -110,4 +110,52 @@ end
 
 M.format = require("opencode.context").format
 
+M.editor = {
+  server = require("opencode.editor"),
+  selection = require("opencode.editor.selection"),
+  lockfile = require("opencode.editor.lockfile"),
+}
+
+function M.start_live_context(opts)
+  opts = opts or {}
+  local port = opts.port or 0
+  local auth_token = opts.auth_token
+
+  local server_ok, server_result = M.editor.server.start(port, auth_token)
+  if not server_ok then
+    return false, server_result
+  end
+
+  local actual_port = server_result
+
+  local lock_ok, lock_result = M.editor.lockfile.create(actual_port, auth_token)
+  if not lock_ok then
+    M.editor.server.stop()
+    return false, lock_result
+  end
+
+  M.editor.selection.enable()
+
+  return true, actual_port
+end
+
+function M.stop_live_context()
+  local port = M.editor.server.get_port()
+
+  M.editor.selection.disable()
+  M.editor.server.stop()
+
+  if port then
+    M.editor.lockfile.remove(port)
+  end
+end
+
+function M.attach_context()
+  local selection = require("opencode.editor.selection")
+
+  if not selection.send_visual_selection_as_mention() then
+    vim.notify("No selection to attach", vim.log.levels.WARN, { title = "OpenCode" })
+  end
+end
+
 return M

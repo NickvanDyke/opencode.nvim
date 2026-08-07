@@ -1,0 +1,132 @@
+local M = {}
+
+local function get_lockfile_path(port)
+  local home = vim.fn.expand("~")
+  local lockfile_dir = home .. "/.claude/ide"
+
+  vim.fn.mkdir(lockfile_dir, "p")
+
+  return lockfile_dir .. "/" .. port .. ".lock"
+end
+
+local function get_workspace_folders()
+  local folders = {}
+
+  local cwd = vim.fn.getcwd()
+  table.insert(folders, cwd)
+
+  return folders
+end
+
+function M.create(port, auth_token)
+  if not port or port <= 0 or port > 65535 then
+    return false, "Invalid port number"
+  end
+
+  local lockfile_path = get_lockfile_path(port)
+
+  local lock_content = {
+    pid = vim.fn.getpid(),
+    workspaceFolders = get_workspace_folders(),
+    ideName = "Neovim",
+    transport = "ws",
+  }
+
+  if auth_token then
+    lock_content.authToken = auth_token
+  end
+
+  local json = vim.json.encode(lock_content)
+
+  local temp_file = lockfile_path .. ".tmp"
+  local fd = io.open(temp_file, "w")
+  if not fd then
+    return false, "Failed to create temporary lockfile"
+  end
+
+  fd:write(json)
+  fd:close()
+
+  local ok, err = os.rename(temp_file, lockfile_path)
+  if not ok then
+    os.remove(temp_file)
+    return false, "Failed to create lockfile: " .. (err or "unknown error")
+  end
+
+  return true, lockfile_path
+end
+
+function M.remove(port)
+  if not port then
+    return false
+  end
+
+  local lockfile_path = get_lockfile_path(port)
+
+  if vim.fn.filereadable(lockfile_path) == 1 then
+    os.remove(lockfile_path)
+    return true
+  end
+
+  return false
+end
+
+function M.exists(port)
+  if not port then
+    return false
+  end
+
+  local lockfile_path = get_lockfile_path(port)
+  return vim.fn.filereadable(lockfile_path) == 1
+end
+
+function M.read(port)
+  if not port then
+    return nil
+  end
+
+  local lockfile_path = get_lockfile_path(port)
+
+  if vim.fn.filereadable(lockfile_path) == 0 then
+    return nil
+  end
+
+  local fd = io.open(lockfile_path, "r")
+  if not fd then
+    return nil
+  end
+
+  local content = fd:read("*a")
+  fd:close()
+
+  local ok, data = pcall(vim.json.decode, content)
+  if not ok then
+    return nil
+  end
+
+  return data
+end
+
+function M.clean_all()
+  local home = vim.fn.expand("~")
+  local lockfile_dir = home .. "/.claude/ide"
+
+  if vim.fn.isdirectory(lockfile_dir) == 0 then
+    return
+  end
+
+  local files = vim.fn.glob(lockfile_dir .. "/*.lock", true, true)
+  for _, file in ipairs(files) do
+    local port = vim.fn.fnamemodify(file, ":t:r")
+    local lock_data = M.read(tonumber(port))
+
+    if lock_data and lock_data.pid then
+      local pid = lock_data.pid
+      if not vim.loop.kill(pid, 0) then
+        os.remove(file)
+      end
+    end
+  end
+end
+
+return M
