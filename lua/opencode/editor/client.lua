@@ -1,5 +1,3 @@
-local M = {}
-local uv = vim.uv
 local frame_module = require("opencode.editor.frame")
 
 local Client = {}
@@ -50,7 +48,7 @@ function Client:handle_data(data, on_message, on_close)
       local request = self.buffer:sub(1, headers_end + 3)
       self.buffer = self.buffer:sub(headers_end + 4)
 
-      local ok, result = pcall(on_message, "handshake", request)
+      local ok = pcall(on_message, "handshake", request)
       if not ok then
         self:close()
         on_close()
@@ -72,8 +70,11 @@ function Client:handle_data(data, on_message, on_close)
         self:send(frame_module.pong_frame())
       elseif decoded.opcode == 0xA then
       elseif decoded.opcode == 0x1 then
-        local ok, err = pcall(on_message, "message", decoded.payload)
+        local ok = pcall(on_message, "message", decoded.payload)
         if not ok then
+          self:close()
+          on_close()
+          return
         end
       end
     else
@@ -90,4 +91,4 @@ function Client:is_connected()
   return self.state == "connected" and self.client and not self.client:is_closing()
 end
 
-return M
+return Client

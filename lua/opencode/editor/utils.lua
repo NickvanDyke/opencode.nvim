@@ -1,6 +1,39 @@
+local bit = require("bit")
+
 local M = {}
 
 local utf8_char_pattern = "[%z\1-\127\194-\244][\128-\191]*"
+
+function M.pack_u16(value)
+  return string.char(bit.band(bit.rshift(value, 8), 0xFF), bit.band(value, 0xFF))
+end
+
+function M.pack_u32(value)
+  return string.char(
+    bit.band(bit.rshift(value, 24), 0xFF),
+    bit.band(bit.rshift(value, 16), 0xFF),
+    bit.band(bit.rshift(value, 8), 0xFF),
+    bit.band(value, 0xFF)
+  )
+end
+
+function M.pack_u64(value)
+  local high = math.floor(value / 0x100000000)
+  local low = value % 0x100000000
+  return M.pack_u32(high) .. M.pack_u32(low)
+end
+
+function M.unpack_u16(value, offset)
+  local high, low = value:byte(offset, offset + 1)
+  return high * 0x100 + low
+end
+
+function M.unpack_u64(value, offset)
+  local b1, b2, b3, b4, b5, b6, b7, b8 = value:byte(offset, offset + 7)
+  local high = ((b1 * 0x100 + b2) * 0x100 + b3) * 0x100 + b4
+  local low = ((b5 * 0x100 + b6) * 0x100 + b7) * 0x100 + b8
+  return high * 0x100000000 + low
+end
 
 function M.utf8_len(str)
   local len = 0
@@ -33,7 +66,7 @@ function M.sha1(str)
   local zero_bytes = (56 - (#msg % 64)) % 64
   msg = msg .. string.rep("\0", zero_bytes)
 
-  msg = msg .. string.pack(">I8", len)
+  msg = msg .. M.pack_u64(len)
 
   local chunk_size = 64
   for i = 1, #msg, chunk_size do
@@ -41,12 +74,14 @@ function M.sha1(str)
     local words = {}
 
     for j = 1, 16 do
-      words[j] = string.unpack(">I4", chunk, (j - 1) * 4 + 1)
+      local offset = (j - 1) * 4 + 1
+      local b1, b2, b3, b4 = chunk:byte(offset, offset + 3)
+      words[j] = ((b1 * 0x100 + b2) * 0x100 + b3) * 0x100 + b4
     end
 
     for j = 17, 80 do
-      local w = words[j - 3] ~ words[j - 8] ~ words[j - 14] ~ words[j - 16]
-      words[j] = (w << 1 | w >> 31) & 0xFFFFFFFF
+      local w = bit.bxor(words[j - 3], words[j - 8], words[j - 14], words[j - 16])
+      words[j] = bit.rol(w, 1)
     end
 
     local a, b, c, d, e = h0, h1, h2, h3, h4
@@ -54,42 +89,40 @@ function M.sha1(str)
     for j = 1, 80 do
       local f, k
       if j <= 20 then
-        f = (b & c) | ((~b) & d)
+        f = bit.bor(bit.band(b, c), bit.band(bit.bnot(b), d))
         k = 0x5A827999
       elseif j <= 40 then
-        f = b ~ c ~ d
+        f = bit.bxor(b, c, d)
         k = 0x6ED9EBA1
       elseif j <= 60 then
-        f = (b & c) | (b & d) | (c & d)
+        f = bit.bor(bit.band(b, c), bit.band(b, d), bit.band(c, d))
         k = 0x8F1BBCDC
       else
-        f = b ~ c ~ d
+        f = bit.bxor(b, c, d)
         k = 0xCA62C1D6
       end
 
-      local temp = ((a << 5 | a >> 27) + f + e + k + words[j]) & 0xFFFFFFFF
+      local temp = bit.band(bit.rol(a, 5) + f + e + k + words[j], 0xFFFFFFFF)
       e = d
       d = c
-      c = (b << 30 | b >> 2) & 0xFFFFFFFF
+      c = bit.rol(b, 30)
       b = a
       a = temp
     end
 
-    h0 = (h0 + a) & 0xFFFFFFFF
-    h1 = (h1 + b) & 0xFFFFFFFF
-    h2 = (h2 + c) & 0xFFFFFFFF
-    h3 = (h3 + d) & 0xFFFFFFFF
-    h4 = (h4 + e) & 0xFFFFFFFF
+    h0 = bit.band(h0 + a, 0xFFFFFFFF)
+    h1 = bit.band(h1 + b, 0xFFFFFFFF)
+    h2 = bit.band(h2 + c, 0xFFFFFFFF)
+    h3 = bit.band(h3 + d, 0xFFFFFFFF)
+    h4 = bit.band(h4 + e, 0xFFFFFFFF)
   end
 
-  return string.pack(">I4I4I4I4I4", h0, h1, h2, h3, h4)
+  return M.pack_u32(h0) .. M.pack_u32(h1) .. M.pack_u32(h2) .. M.pack_u32(h3) .. M.pack_u32(h4)
 end
 
 function M.base64_encode(str)
   local b64chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
   local result = {}
-  local padding = ""
-
   for i = 1, #str, 3 do
     local b1 = string.byte(str, i)
     local b2 = string.byte(str, i + 1) or 0
@@ -148,7 +181,7 @@ function M.constant_time_compare(a, b)
 
   local result = 0
   for i = 1, #a do
-    result = result | (string.byte(a, i) ~ string.byte(b, i))
+    result = bit.bor(result, bit.bxor(string.byte(a, i), string.byte(b, i)))
   end
 
   return result == 0

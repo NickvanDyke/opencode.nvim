@@ -140,27 +140,4 @@ if M.opts.events.reload.enabled then
   end
 end
 
-if M.opts.live_context and M.opts.live_context.enabled then
-  vim.api.nvim_create_autocmd("VimEnter", {
-    group = vim.api.nvim_create_augroup("OpenCodeLiveContextAutoStart", { clear = true }),
-    callback = function()
-      local opencode = require("opencode")
-      local ok, result = opencode.start_live_context(M.opts.live_context)
-      if ok then
-        vim.notify(
-          "OpenCode live context started on port " .. result,
-          vim.log.levels.INFO,
-          { title = "OpenCode" }
-        )
-      else
-        vim.notify(
-          "Failed to start OpenCode live context: " .. result,
-          vim.log.levels.ERROR,
-          { title = "OpenCode" }
-        )
-      end
-    end,
-  })
-end
-
 return M

@@ -26,11 +26,14 @@ local function broadcast(method, params)
     params = params or {},
   }
 
+  local sent = false
   for _, client in ipairs(M.state.clients) do
     if client:is_connected() then
       client:send_json(message)
+      sent = true
     end
   end
+  return sent
 end
 
 function M.start(port, auth_token)
@@ -79,6 +82,10 @@ function M.start(port, auth_token)
               },
             }
             client:send_json(response)
+          elseif message.method == "notifications/initialized" then
+            vim.schedule(function()
+              require("opencode.editor.selection").update(true)
+            end)
           end
         end
       end
@@ -141,7 +148,7 @@ function M.get_auth_token()
 end
 
 function M.broadcast_selection_changed(file_path, selection)
-  broadcast("selection_changed", {
+  return broadcast("selection_changed", {
     text = selection.text or "",
     filePath = file_path,
     fileUrl = "file://" .. file_path,
@@ -160,7 +167,7 @@ function M.broadcast_selection_changed(file_path, selection)
 end
 
 function M.broadcast_at_mentioned(file_path, line_start, line_end)
-  broadcast("at_mentioned", {
+  return broadcast("at_mentioned", {
     filePath = file_path,
     lineStart = line_start,
     lineEnd = line_end,

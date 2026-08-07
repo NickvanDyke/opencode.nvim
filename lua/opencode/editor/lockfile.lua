@@ -1,12 +1,11 @@
 local M = {}
 
+local function get_lockfile_dir()
+  return vim.fn.expand("~/.claude/ide")
+end
+
 local function get_lockfile_path(port)
-  local home = vim.fn.expand("~")
-  local lockfile_dir = home .. "/.claude/ide"
-
-  vim.fn.mkdir(lockfile_dir, "p")
-
-  return lockfile_dir .. "/" .. port .. ".lock"
+  return get_lockfile_dir() .. "/" .. port .. ".lock"
 end
 
 local function get_workspace_folders()
@@ -18,10 +17,31 @@ local function get_workspace_folders()
   return folders
 end
 
+function M.generate_auth_token()
+  local bytes, err = vim.uv.random(16)
+  if not bytes then
+    return nil, err or "Failed to obtain random bytes"
+  end
+
+  return (bytes:gsub(".", function(byte)
+    return string.format("%02x", string.byte(byte))
+  end))
+end
+
 function M.create(port, auth_token)
   if not port or port <= 0 or port > 65535 then
     return false, "Invalid port number"
   end
+
+  if auth_token ~= nil and type(auth_token) ~= "string" then
+    return false, "Authentication token must be a string"
+  end
+
+  local lockfile_dir = get_lockfile_dir()
+  if vim.fn.mkdir(lockfile_dir, "p", tonumber("700", 8)) == 0 and vim.fn.isdirectory(lockfile_dir) == 0 then
+    return false, "Failed to create lockfile directory"
+  end
+  pcall(vim.uv.fs_chmod, lockfile_dir, tonumber("700", 8))
 
   local lockfile_path = get_lockfile_path(port)
 
@@ -38,8 +58,8 @@ function M.create(port, auth_token)
 
   local json = vim.json.encode(lock_content)
 
-  local temp_file = lockfile_path .. ".tmp"
-  local fd = io.open(temp_file, "w")
+  local temp_file = lockfile_path .. ".tmp." .. vim.fn.getpid()
+  local fd = io.open(temp_file, "wb")
   if not fd then
     return false, "Failed to create temporary lockfile"
   end
@@ -108,8 +128,7 @@ function M.read(port)
 end
 
 function M.clean_all()
-  local home = vim.fn.expand("~")
-  local lockfile_dir = home .. "/.claude/ide"
+  local lockfile_dir = get_lockfile_dir()
 
   if vim.fn.isdirectory(lockfile_dir) == 0 then
     return
@@ -122,7 +141,7 @@ function M.clean_all()
 
     if lock_data and lock_data.pid then
       local pid = lock_data.pid
-      if not vim.loop.kill(pid, 0) then
+      if not vim.uv.kill(pid, 0) then
         os.remove(file)
       end
     end

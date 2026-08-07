@@ -57,7 +57,7 @@ vim.keymap.set({ "n" },      "<S-C-d>", function() require("opencode").command("
 {
   "nickjvandyke/opencode.nvim",
   version = "*", -- Latest stable release
-  config = function()
+  init = function()
     ---@type opencode.Opts
     vim.g.opencode_opts = {
       -- Your configuration, if any; goto definition on the type for details
@@ -299,38 +299,38 @@ Wraps Prompt as an operator, supporting ranges and dot-repeat.
 
 ### Live Context — `require("opencode").start_live_context()`
 
-Enable real-time broadcasting of file/selection context to OpenCode TUI via WebSocket.
+Keep OpenCode aware of the file and visual selection you are working in.
 
-The OpenCode TUI automatically discovers and connects to:
-1. Lockfile at `~/.claude/ide/[port].lock`
-2. Environment variable `OPENCODE_EDITOR_SSE_PORT` or `CLAUDE_CODE_SSE_PORT`
-
-**Setup:**
+Set these options before the plugin loads. To start Live Context automatically, configure your plugin manager to load opencode.nvim at startup.
 
 ```lua
 vim.g.opencode_opts = {
   live_context = {
-    enabled = true,  -- Auto-start on VimEnter
-    port = 0,        -- 0 for random port
-    auth_token = nil -- Optional: set to string or true to generate
-  }
+    enabled = true, -- Start when the plugin loads
+    port = 0, -- Use an available port
+    auth_token = true, -- Optional: generate a per-process token
+  },
 }
 
--- Or start manually:
+-- Or start manually with the configured options.
 vim.keymap.set("n", "<leader>ol", function()
   require("opencode").start_live_context()
 end, { desc = "Start live context" })
+
+vim.keymap.set("x", "<leader>oa", function()
+  require("opencode").attach_context()
+end, { desc = "Attach selection to OpenCode" })
 ```
 
-**Usage:**
-- OpenCode TUI will show current file selection in real-time
-- Use `attach_context()` to send visual selection without submitting prompt
-- Selection updates broadcast automatically when you move cursor or change files
+`attach_context()` emits `at_mentioned`. OpenCode inserts the file reference into its prompt without submitting it, leaving the prompt ready for more text.
 
-**API:**
-- `start_live_context(opts)` - Start WebSocket server and selection tracking
-- `stop_live_context()` - Stop server and cleanup
-- `attach_context()` - Send current selection to OpenCode (no submit)
+| API or command | Description |
+| --- | --- |
+| `start_live_context(opts)` / `:OpenCodeLiveContextStart` | Start the server and selection tracking |
+| `stop_live_context()` / `:OpenCodeLiveContextStop` | Stop the server and remove its lockfile |
+| `attach_context()` / `:'<,'>OpenCodeAttach` | Insert the selected file range into the TUI prompt |
+
+For a fixed port, set `port` and launch OpenCode with `OPENCODE_EDITOR_SSE_PORT` or `CLAUDE_CODE_SSE_PORT` set to the same value. This bypasses lockfile discovery.
 
 ### Command — `require("opencode").command()`
 
