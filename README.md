@@ -62,7 +62,9 @@ vim.keymap.set({ "n" },      "<S-C-d>", function() require("opencode").command("
     vim.g.opencode_opts = {
       -- Your configuration, if any; goto definition on the type for details
     }
+  end,
 
+  config = function()
     -- Recommended/example keymaps
     vim.keymap.set({ "n", "x" }, "<C-a>",   function() require("opencode").ask("@this: ") end,                    { desc = "Ask OpenCode…" })
     vim.keymap.set({ "n", "x" }, "<C-x>",   function() require("opencode").select() end,                          { desc = "Select OpenCode…" })
