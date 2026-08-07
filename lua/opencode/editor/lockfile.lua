@@ -41,7 +41,7 @@ function M.create(port, auth_token)
   end
 
   local lockfile_dir = get_lockfile_dir()
-  if vim.fn.mkdir(lockfile_dir, "p", tonumber("700", 8)) == 0 and vim.fn.isdirectory(lockfile_dir) == 0 then
+  if vim.fn.mkdir(lockfile_dir, "p", "0700") == 0 and vim.fn.isdirectory(lockfile_dir) == 0 then
     return false, "Failed to create lockfile directory"
   end
   pcall(vim.uv.fs_chmod, lockfile_dir, tonumber("700", 8))
