@@ -12,9 +12,9 @@ function M.check()
   local git_hash =
     vim.trim(vim.fn.system("cd " .. vim.fn.shellescape(plugin_dir) .. " && git rev-parse HEAD")):gsub("\n", "\\n")
   if vim.v.shell_error == 0 then
-    vim.health.info("opencode.nvim git commit hash: `" .. git_hash .. "`")
+    vim.health.info("opencode.nvim git commit: `" .. git_hash .. "`")
   else
-    vim.health.warn("opencode.nvim git commit hash: `" .. git_hash .. "`")
+    vim.health.warn("opencode.nvim git commit: `" .. git_hash .. "`")
   end
 
   vim.health.info("`vim.g.opencode_opts`: " .. vim.inspect(vim.g.opencode_opts))
@@ -35,41 +35,21 @@ function M.check()
     vim.health.ok("`opencode` available with version `" .. found_version .. "`.")
 
     local found_version_parsed = vim.version.parse(found_version)
-    local latest_tested_version = "1.17.4"
-    local latest_tested_version_parsed = vim.version.parse(latest_tested_version)
-    if found_version_parsed and latest_tested_version_parsed then
-      local found_major = found_version_parsed[1] or 0
-      local latest_tested_major = latest_tested_version_parsed[1] or 0
-      local found_minor = found_version_parsed[2] or 0
-      local latest_tested_minor = latest_tested_version_parsed[2] or 0
-      local found_patch = found_version_parsed[3] or 0
-      local latest_tested_patch = latest_tested_version_parsed[3] or 0
-
-      if latest_tested_major ~= found_major then
-        vim.health.warn(
-          "`opencode` version has a `major` version mismatch with latest tested version `"
-            .. latest_tested_version
-            .. "`: may cause compatibility issues."
-        )
-      elseif found_minor < latest_tested_minor then
-        vim.health.warn(
-          "`opencode` version has an older `minor` version than latest tested version `"
-            .. latest_tested_version
-            .. "`: may cause compatibility issues.",
-          {
-            "Update `opencode`.",
-          }
-        )
-      elseif found_minor == latest_tested_minor and found_patch < latest_tested_patch then
-        vim.health.warn(
-          "`opencode` version has an older `patch` version than latest tested version `"
-            .. latest_tested_version
-            .. "`: may cause compatibility issues.",
-          {
-            "Update `opencode`.",
-          }
-        )
-      end
+    local minimum_version = "1.17"
+    local minimum_version_parsed = vim.version.parse(minimum_version)
+    if
+      found_version_parsed
+      and minimum_version_parsed
+      and vim.version.cmp(found_version_parsed, minimum_version_parsed) < 0
+    then
+      vim.health.warn(
+        "`opencode` version is older than the minimum supported version `"
+          .. minimum_version
+          .. "`: may cause compatibility issues.",
+        {
+          "Update `opencode`.",
+        }
+      )
     end
   else
     vim.health.error("`opencode` executable not found in `$PATH`.", {
