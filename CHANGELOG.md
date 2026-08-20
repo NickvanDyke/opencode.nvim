@@ -2,6 +2,7 @@
 
 ## [1.0.0](https://github.com/nickjvandyke/opencode.nvim/compare/v0.14.0...v1.0.0) (2026-08-20)
 
+This release signifies my confidence in the plugin's stability. Thanks to everyone who contributed along the way! I hope I've made your dev life easier.
 
 ### Features
 
