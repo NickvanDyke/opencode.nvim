@@ -343,6 +343,9 @@ vim.api.nvim_create_autocmd("User", {
 })
 ```
 
+> [!NOTE]
+> Event payloads are passed through from the OpenCode as-is and follow its schema. They may change with OpenCode releases, so treat them as best-effort rather than a stable API contract.
+
 ### Edits
 
 When the connected OpenCode edits a file, opencode.nvim reloads the corresponding buffer in real-time. `vim.o.autoread = true` is set automatically to enable this unless you've explicitly configured it.

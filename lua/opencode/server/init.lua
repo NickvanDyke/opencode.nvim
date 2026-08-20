@@ -20,7 +20,7 @@
 local Server = {}
 Server.__index = Server
 
----[OpenCode Commands](https://github.com/sst/opencode/blob/dev/packages/opencode/src/cli/cmd/tui/event.ts).
+---Built-in OpenCode commands.
 ---@alias opencode.server.Command
 ---| 'agent.cycle'
 ---| 'prompt.clear'
@@ -53,6 +53,8 @@ Server.__index = Server
 ---| "always"
 ---| "reject"
 
+---Events emitted by OpenCode.
+---Not exhaustive.
 ---@alias opencode.server.Event
 ---| { type: "file.edited" }
 ---| { type: "permission.asked", properties: { id: number, permission: string, patterns: string[], metadata?: { diff: string, filepath: string } } }
