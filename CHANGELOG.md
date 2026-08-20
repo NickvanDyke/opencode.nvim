@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.0.0](https://github.com/nickjvandyke/opencode.nvim/compare/v0.14.0...v1.0.0) (2026-08-20)
+
+
+### Features
+
+* **health:** simplify `opencode` version check to minimum version ([3f9e5f1](https://github.com/nickjvandyke/opencode.nvim/commit/3f9e5f13e7f45f0e759300c8a2b517df20442268))
+
+
+### Miscellaneous Chores
+
+* trigger 1.0.0 release ([d3a7eec](https://github.com/nickjvandyke/opencode.nvim/commit/d3a7eece9278657bf8f3205397bf441a49ed4cf9))
+
 ## [0.14.0](https://github.com/nickjvandyke/opencode.nvim/compare/v0.13.4...v0.14.0) (2026-07-27)
 
 
