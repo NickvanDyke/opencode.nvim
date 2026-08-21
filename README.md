@@ -159,8 +159,8 @@ require("lualine").setup({
         -- Show the currently connected server and its status
         require("opencode").statusline,
       },
-    }
-  }
+    },
+  },
 })
 ```
 
